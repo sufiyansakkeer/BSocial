@@ -28,10 +28,15 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+
+  #cloud firestore allows to save data in fireStore database
   cloud_firestore: ^4.4.4
   cupertino_icons: ^1.0.2
+  #for authentication purpose we use firebase auth 
   firebase_auth: ^4.2.10
+  #firebase core is for the connection between the firebase and flutter app
   firebase_core: ^2.7.1
+  #firebase storage in for saving images in our app
   firebase_storage: ^11.0.15
   flutter:
     sdk: flutter
