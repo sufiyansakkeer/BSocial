@@ -1,0 +1,1 @@
+const webScreenHeight = 600;
