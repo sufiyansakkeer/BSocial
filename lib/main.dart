@@ -1,10 +1,7 @@
 import 'package:bsocial/core/colors.dart';
 import 'package:bsocial/provider/login_screen_provider.dart';
 import 'package:bsocial/provider/sign_up_provider.dart';
-import 'package:bsocial/view/layout/mobile_screen_layout.dart';
-import 'package:bsocial/view/layout/responsive_layout_building.dart';
-import 'package:bsocial/view/layout/web_screen_layout.dart';
-import 'package:bsocial/view/screens/login_screen.dart';
+
 import 'package:bsocial/view/screens/sign_up_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';

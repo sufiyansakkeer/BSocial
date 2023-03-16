@@ -1,17 +1,20 @@
+import 'dart:developer';
+
 import 'package:bsocial/core/colors.dart';
 import 'package:bsocial/core/size.dart';
 
 import 'package:bsocial/provider/sign_up_provider.dart';
+import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/view/widgets/text_field_input.dart';
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
-    // final TextEditingController emailTextController = TextEditingController();
-    // final TextEditingController passwordTextController = TextEditingController();
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -39,21 +42,32 @@ class SignUpScreen extends StatelessWidget {
               //avatar
               Stack(
                 children: [
-                  const CircleAvatar(
-                    backgroundImage: NetworkImage(
-                      "https://img.freepik.com/free-icon/user_318-159711.jpg",
-                    ),
-                    radius: 64,
-                  ),
+                  Consumer<SignUpScreenProvider>(
+                      builder: (context, provider, child) {
+                    return provider.image != null
+                        ? CircleAvatar(
+                            backgroundImage: MemoryImage(provider.image!),
+                            radius: 64,
+                          )
+                        : const CircleAvatar(
+                            backgroundImage: NetworkImage(
+                              "https://img.freepik.com/free-icon/user_318-159711.jpg",
+                            ),
+                            radius: 64,
+                          );
+                  }),
                   Positioned(
                     bottom: -10,
                     left: 80,
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.add_a_photo_outlined,
-                      ),
-                    ),
+                    child: Consumer<SignUpScreenProvider>(
+                        builder: (context, provider, child) {
+                      return IconButton(
+                        onPressed: provider.selectImage,
+                        icon: const Icon(
+                          Icons.add_a_photo_outlined,
+                        ),
+                      );
+                    }),
                   ),
                 ],
               ),
@@ -91,22 +105,33 @@ class SignUpScreen extends StatelessWidget {
               }),
               kHeight20,
               //sign in button
-              InkWell(
-                onTap: () {},
-                child: Container(
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: const ShapeDecoration(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(5),
+              Consumer<SignUpScreenProvider>(
+                  builder: (context, provider, child) {
+                return InkWell(
+                  onTap: () async {
+                    String res = await AuthMethods().signUpUser(
+                      username: provider.userNameController.text,
+                      email: provider.emailTextController.text,
+                      password: provider.passwordTextController.text,
+                      file: provider.image!,
+                    );
+                    log(res);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: const ShapeDecoration(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(5),
+                          ),
                         ),
-                      ),
-                      color: blueColor),
-                  child: const Text("Sign Up"),
-                ),
-              ),
+                        color: blueColor),
+                    child: const Text("Sign Up"),
+                  ),
+                );
+              }),
               Flexible(
                 flex: 2,
                 child: Container(),
