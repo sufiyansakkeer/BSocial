@@ -1,12 +1,13 @@
 import 'package:bsocial/core/colors.dart';
 import 'package:bsocial/core/size.dart';
-import 'package:bsocial/provider/login_screen_provider.dart';
+
+import 'package:bsocial/provider/sign_up_provider.dart';
 import 'package:bsocial/view/widgets/text_field_input.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class SignUpScreen extends StatelessWidget {
+  const SignUpScreen({super.key});
   @override
   Widget build(BuildContext context) {
     // final TextEditingController emailTextController = TextEditingController();
@@ -34,9 +35,42 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
               kHeight50,
-              kHeight50,
+              // kHeight50,
+              //avatar
+              Stack(
+                children: [
+                  const CircleAvatar(
+                    backgroundImage: NetworkImage(
+                      "https://img.freepik.com/free-icon/user_318-159711.jpg",
+                    ),
+                    radius: 64,
+                  ),
+                  Positioned(
+                    bottom: -10,
+                    left: 80,
+                    child: IconButton(
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.add_a_photo_outlined,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              kHeight20,
+              //user name form field
+              Consumer<SignUpScreenProvider>(
+                  builder: (context, provider, child) {
+                return TextFieldInput(
+                  controller: provider.userNameController,
+                  hintText: "Enter your Username",
+                  textInputType: TextInputType.text,
+                );
+              }),
+              kHeight20,
+              //
               //email form field
-              Consumer<LoginScreenProvider>(
+              Consumer<SignUpScreenProvider>(
                   builder: (context, provider, child) {
                 return TextFieldInput(
                   controller: provider.emailTextController,
@@ -46,7 +80,7 @@ class LoginScreen extends StatelessWidget {
               }),
               kHeight20,
               //password field
-              Consumer<LoginScreenProvider>(
+              Consumer<SignUpScreenProvider>(
                   builder: (context, provider, child) {
                 return TextFieldInput(
                   controller: provider.passwordTextController,
@@ -70,7 +104,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                       color: blueColor),
-                  child: const Text("Login"),
+                  child: const Text("Sign Up"),
                 ),
               ),
               Flexible(
@@ -85,7 +119,7 @@ class LoginScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                       vertical: 10,
                     ),
-                    child: const Text("Don't have an account? "),
+                    child: const Text("Already have an account ? "),
                   ),
                   GestureDetector(
                     onTap: () {},
@@ -94,7 +128,7 @@ class LoginScreen extends StatelessWidget {
                         vertical: 10,
                       ),
                       child: const Text(
-                        "Sign Up",
+                        "Login",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
