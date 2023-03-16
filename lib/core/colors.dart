@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-const mobileBackgroundColor = Color(0xFF181717);
-const webBackgroundColor = Color(0xFF121212);
+const mobileBackgroundColor = Color(0xFF0c2840);
+const webBackgroundColor = Color(0xFF0c2840);
 const mobileSearchColor = Color(0xFF262626);
-const blueColor = Color(0xFF0095F6);
+const blueColor = Color(0xFF016DB5);
 const primaryColor = Colors.white;
 const secondaryColor = Colors.grey;
