@@ -9,8 +9,6 @@ class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    // final TextEditingController emailTextController = TextEditingController();
-    // final TextEditingController passwordTextController = TextEditingController();
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -57,22 +55,34 @@ class LoginScreen extends StatelessWidget {
               }),
               kHeight20,
               //sign in button
-              InkWell(
-                onTap: () {},
-                child: Container(
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: const ShapeDecoration(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(5),
+              Consumer<LoginScreenProvider>(
+                  builder: (context, provider, child) {
+                return InkWell(
+                  onTap: () {
+                    provider.loginUser(context);
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: const ShapeDecoration(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(5),
+                          ),
                         ),
-                      ),
-                      color: blueColor),
-                  child: const Text("Login"),
-                ),
-              ),
+                        color: blueColor),
+                    child: provider.isLoading
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text("Login"),
+                  ),
+                );
+              }),
               Flexible(
                 flex: 2,
                 child: Container(),

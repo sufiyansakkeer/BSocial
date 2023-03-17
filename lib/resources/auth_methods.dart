@@ -1,13 +1,16 @@
 import 'dart:developer';
+
 import 'dart:typed_data';
 
+import 'package:bsocial/core/utils.dart';
 import 'package:bsocial/resources/storage_methods.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthMethods {
-  final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  //*sign up user
   Future<String> signUpUser({
     required String username,
     required String email,
@@ -16,10 +19,13 @@ class AuthMethods {
   }) async {
     String res = 'some error occurred';
     try {
-      if (username.isNotEmpty || password.isNotEmpty || email.isNotEmpty) {
+      if (username.isNotEmpty ||
+          password.isNotEmpty ||
+          email.isNotEmpty ||
+          file != null) {
         //* registering user
         //email and password will only saved in the firebase when we use this method
-        UserCredential credential = await auth.createUserWithEmailAndPassword(
+        UserCredential credential = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
@@ -30,7 +36,12 @@ class AuthMethods {
             await StorageMethods().uploadImages('profilePics', file, false);
         //adding user to database
         //? if the users in collection or uid in docs is already exist it will over write the data
-        await firestore.collection("users").doc(credential.user!.uid).set(
+        await firestore
+            .collection("users")
+            .doc(
+              credential.user!.uid,
+            )
+            .set(
           {
             'username': username,
             "uid": credential.user!.uid,
@@ -49,6 +60,29 @@ class AuthMethods {
         res = "Password should be at least 6 characters";
       }
     } catch (error) {
+      res = error.toString();
+    }
+    return res;
+  }
+
+  Future<String> loginUser(
+      {required String email, required String password}) async {
+    // await _auth.signOut();
+    log(email);
+    log(password);
+    String res = "some error occurred";
+    try {
+      if (email.isNotEmpty && password.isNotEmpty) {
+        //*here we don't need to store because we are signing only
+        final user = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(email: email, password: password);
+        log("${user.user}");
+        res = "success";
+      } else {
+        res = "please enter all the field";
+      }
+    } on FirebaseAuthException catch (error) {
+      log(error.toString());
       res = error.toString();
     }
     return res;

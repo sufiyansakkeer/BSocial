@@ -5,6 +5,7 @@ import 'package:bsocial/core/utils.dart';
 import 'package:bsocial/resources/auth_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class SignUpScreenProvider extends ChangeNotifier {
   final TextEditingController emailTextController = TextEditingController();
@@ -29,7 +30,16 @@ class SignUpScreenProvider extends ChangeNotifier {
 
     if (res != "success") {
       showSnackBar(res, context);
+    } else {
+      disposeTextfield(context);
     }
     log(res);
+  }
+
+  void disposeTextfield(context) {
+    final provider = Provider.of<SignUpScreenProvider>(context, listen: false);
+    provider.emailTextController.clear();
+    provider.passwordTextController.clear();
+    provider.userNameController.clear();
   }
 }

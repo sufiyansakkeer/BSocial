@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:bsocial/core/colors.dart';
 import 'package:bsocial/core/size.dart';
 import 'package:bsocial/core/utils.dart';
@@ -32,8 +30,10 @@ class SignUpScreen extends StatelessWidget {
                 kHeight20,
                 //logo
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 20,
+                  ),
                   child: Image.asset(
                     "assets/BSocial-1.png",
                     fit: BoxFit.contain,
@@ -110,7 +110,15 @@ class SignUpScreen extends StatelessWidget {
                 Consumer<SignUpScreenProvider>(builder: (ctx, provider, child) {
                   return InkWell(
                     onTap: () async {
-                      provider.signUpUser(context);
+                      if (provider.image != null) {
+                        provider.signUpUser(context);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Image is required"),
+                          ),
+                        );
+                      }
                     },
                     child: Container(
                       width: double.infinity,
