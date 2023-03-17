@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:typed_data';
 
+import 'package:bsocial/resources/storage_methods.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -24,6 +25,9 @@ class AuthMethods {
         );
 
         log(credential.user!.uid);
+
+        String photoUrl =
+            await StorageMethods().uploadImages('profilePics', file, false);
         //adding user to database
         //? if the users in collection or uid in docs is already exist it will over write the data
         await firestore.collection("users").doc(credential.user!.uid).set(
@@ -33,9 +37,16 @@ class AuthMethods {
             "email": email,
             "followers": [],
             "following": [],
+            "photoUrl": photoUrl,
           },
         );
         res = "success";
+      }
+    } on FirebaseAuthException catch (error) {
+      if (error.code == 'invalid-email') {
+        res = 'The email address is badly formatted.';
+      } else if (error.code == 'weak-password') {
+        res = "Password should be at least 6 characters";
       }
     } catch (error) {
       res = error.toString();
