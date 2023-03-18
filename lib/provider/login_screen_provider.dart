@@ -33,7 +33,7 @@ class LoginScreenProvider extends ChangeNotifier {
     } else {
       showSnackBar(res, context);
     }
-    isLoading = false;
+    // isLoading = false;
     log(res);
   }
 

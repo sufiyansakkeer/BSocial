@@ -1,8 +1,6 @@
 import 'dart:developer';
-
 import 'dart:typed_data';
-
-import 'package:bsocial/core/utils.dart';
+import 'package:bsocial/model/user_model.dart';
 import 'package:bsocial/resources/storage_methods.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,14 +10,14 @@ class AuthMethods {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   //*sign up user
   Future<String> signUpUser({
-    required String username,
+    required String userName,
     required String email,
     required String password,
     required Uint8List file,
   }) async {
     String res = 'some error occurred';
     try {
-      if (username.isNotEmpty ||
+      if (userName.isNotEmpty ||
           password.isNotEmpty ||
           email.isNotEmpty ||
           file != null) {
@@ -35,6 +33,14 @@ class AuthMethods {
         String photoUrl =
             await StorageMethods().uploadImages('profilePics', file, false);
         //adding user to database
+        UserModel userModel = UserModel(
+            email: email,
+            uid: credential.user!.uid,
+            photoUrl: photoUrl,
+            userName: userName,
+            followers: [],
+            following: []);
+
         //? if the users in collection or uid in docs is already exist it will over write the data
         await firestore
             .collection("users")
@@ -42,15 +48,8 @@ class AuthMethods {
               credential.user!.uid,
             )
             .set(
-          {
-            'username': username,
-            "uid": credential.user!.uid,
-            "email": email,
-            "followers": [],
-            "following": [],
-            "photoUrl": photoUrl,
-          },
-        );
+              userModel.toJson(),
+            );
         res = "success";
       }
     } on FirebaseAuthException catch (error) {

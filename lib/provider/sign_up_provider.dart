@@ -25,7 +25,7 @@ class SignUpScreenProvider extends ChangeNotifier {
 
   signUpUser(BuildContext context) async {
     String res = await AuthMethods().signUpUser(
-      username: userNameController.text,
+      userName: userNameController.text,
       email: emailTextController.text,
       password: passwordTextController.text,
       file: image!,
