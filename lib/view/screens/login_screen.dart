@@ -97,20 +97,25 @@ class LoginScreen extends StatelessWidget {
                     ),
                     child: const Text("Don't have an account? "),
                   ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 10,
-                      ),
-                      child: const Text(
-                        "Sign Up",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
+                  Consumer<LoginScreenProvider>(
+                      builder: (ctx, provider, child) {
+                    return GestureDetector(
+                      onTap: () {
+                        provider.navigateToSignUp(context);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                        ),
+                        child: const Text(
+                          "Sign Up",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  }),
                 ],
               ),
               //navigate to sign up page

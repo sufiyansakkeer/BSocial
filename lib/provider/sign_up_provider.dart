@@ -3,6 +3,10 @@ import 'dart:typed_data';
 
 import 'package:bsocial/core/utils.dart';
 import 'package:bsocial/resources/auth_methods.dart';
+import 'package:bsocial/view/layout/mobile_screen_layout.dart';
+import 'package:bsocial/view/layout/responsive_layout_building.dart';
+import 'package:bsocial/view/layout/web_screen_layout.dart';
+import 'package:bsocial/view/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -31,6 +35,14 @@ class SignUpScreenProvider extends ChangeNotifier {
     if (res != "success") {
       showSnackBar(res, context);
     } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const ResponsiveLayout(
+            webScreenLayout: WebScreenLayout(),
+            mobileScreenLayout: MobileScreenLayout(),
+          ),
+        ),
+      );
       disposeTextfield(context);
     }
     log(res);
@@ -41,5 +53,13 @@ class SignUpScreenProvider extends ChangeNotifier {
     provider.emailTextController.clear();
     provider.passwordTextController.clear();
     provider.userNameController.clear();
+  }
+
+  void navigateToLoginScreen(BuildContext context) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
+      ),
+    );
   }
 }

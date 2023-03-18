@@ -146,8 +146,9 @@ class SignUpScreen extends StatelessWidget {
                 //   flex: 1,
                 //   child: Container(),
                 // ),
+                kHeight30,
                 kHeight50,
-                kHeight50,
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -157,20 +158,25 @@ class SignUpScreen extends StatelessWidget {
                       ),
                       child: const Text("Already have an account ? "),
                     ),
-                    GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 10,
-                        ),
-                        child: const Text(
-                          "Login",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                    Consumer<SignUpScreenProvider>(
+                        builder: (ctx, provider, child) {
+                      return GestureDetector(
+                        onTap: () {
+                          provider.navigateToLoginScreen(context);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                          ),
+                          child: const Text(
+                            "Login",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                    ),
+                      );
+                    }),
                   ],
                 ),
                 //navigate to sign up page
