@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'dart:typed_data';
-
 import 'package:bsocial/core/utils.dart';
 import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/view/layout/mobile_screen_layout.dart';
@@ -37,7 +36,7 @@ class SignUpScreenProvider extends ChangeNotifier {
     } else {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => const ResponsiveLayout(
+          builder: (context) => ResponsiveLayout(
             webScreenLayout: WebScreenLayout(),
             mobileScreenLayout: MobileScreenLayout(),
           ),

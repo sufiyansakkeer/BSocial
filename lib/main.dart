@@ -1,17 +1,16 @@
 import 'package:bsocial/core/colors.dart';
 import 'package:bsocial/provider/login_screen_provider.dart';
+import 'package:bsocial/provider/mobile_screen_provider.dart';
+import 'package:bsocial/provider/users_provider.dart';
 import 'package:bsocial/provider/sign_up_provider.dart';
 import 'package:bsocial/view/layout/mobile_screen_layout.dart';
 import 'package:bsocial/view/layout/web_screen_layout.dart';
 import 'package:bsocial/view/screens/login_screen.dart';
-import 'package:bsocial/view/screens/sign_up_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'view/layout/responsive_layout_building.dart';
 
 void main() async {
@@ -47,16 +46,18 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => SignUpScreenProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (context) => UsersProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => MobileScreenProvider(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'BSocial',
         theme: ThemeData.dark()
             .copyWith(scaffoldBackgroundColor: mobileBackgroundColor),
-        // home: const ResponsiveLayout(
-        //   webScreenLayout: WebScreenLayout(),
-        //   mobileScreenLayout: MobileScreenLayout(),
-        // ),
         home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           // initialData: initialData,
@@ -65,7 +66,7 @@ class MyApp extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.active) {
               //here hasData is used to check if the user is authenticated or not
               if (snapshot.hasData) {
-                return const ResponsiveLayout(
+                return ResponsiveLayout(
                   webScreenLayout: WebScreenLayout(),
                   mobileScreenLayout: MobileScreenLayout(),
                 );

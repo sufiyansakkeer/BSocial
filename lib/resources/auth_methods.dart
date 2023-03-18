@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:typed_data';
+// import 'package:bsocial/model/user_model.dart' as model;
 import 'package:bsocial/model/user_model.dart';
 import 'package:bsocial/resources/storage_methods.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,7 +8,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<UserModel> getUserDetails() async {
+    User currentUser = _auth.currentUser!;
+    DocumentSnapshot snap =
+        await _firestore.collection("users").doc(currentUser.uid).get();
+    return UserModel.fromSnapShop(snap);
+  }
+
   //*sign up user
   Future<String> signUpUser({
     required String userName,
@@ -42,7 +51,7 @@ class AuthMethods {
             following: []);
 
         //? if the users in collection or uid in docs is already exist it will over write the data
-        await firestore
+        await _firestore
             .collection("users")
             .doc(
               credential.user!.uid,

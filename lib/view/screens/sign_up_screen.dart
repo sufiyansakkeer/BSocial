@@ -1,12 +1,8 @@
 import 'package:bsocial/core/colors.dart';
 import 'package:bsocial/core/size.dart';
-import 'package:bsocial/core/utils.dart';
-
 import 'package:bsocial/provider/sign_up_provider.dart';
-import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/view/widgets/text_field_input.dart';
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
 
 class SignUpScreen extends StatelessWidget {

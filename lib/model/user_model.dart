@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 class UserModel {
   final String email;
   final String uid;
@@ -24,4 +27,17 @@ class UserModel {
         "following": following,
         "photoUrl": photoUrl,
       };
+
+  static UserModel fromSnapShop(DocumentSnapshot snapshot) {
+    var snap = snapshot.data() as Map<String, dynamic>;
+
+    return UserModel(
+      userName: snap["username"],
+      uid: snap["uid"],
+      email: snap["email"],
+      followers: snap["followers"],
+      following: snap["following"],
+      photoUrl: snap["photoUrl"],
+    );
+  }
 }
