@@ -1,4 +1,5 @@
 import 'package:bsocial/core/colors.dart';
+import 'package:bsocial/provider/bottom_navigation_provider.dart';
 import 'package:bsocial/provider/login_screen_provider.dart';
 import 'package:bsocial/provider/mobile_screen_provider.dart';
 import 'package:bsocial/provider/users_provider.dart';
@@ -51,6 +52,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => MobileScreenProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => BottomNavigationProvider(),
         ),
       ],
       child: MaterialApp(
