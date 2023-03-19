@@ -1,5 +1,6 @@
 import 'package:bsocial/core/colors.dart';
 import 'package:bsocial/provider/bottom_navigation_provider.dart';
+import 'package:bsocial/provider/google_button_provider.dart';
 import 'package:bsocial/provider/login_screen_provider.dart';
 import 'package:bsocial/provider/mobile_screen_provider.dart';
 import 'package:bsocial/provider/users_provider.dart';
@@ -56,6 +57,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => BottomNavigationProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (context) => GoogleButtonProvider(),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -70,7 +74,7 @@ class MyApp extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.active) {
               //here hasData is used to check if the user is authenticated or not
               if (snapshot.hasData) {
-                return ResponsiveLayout(
+                return const ResponsiveLayout(
                   webScreenLayout: WebScreenLayout(),
                   mobileScreenLayout: MobileScreenLayout(),
                 );

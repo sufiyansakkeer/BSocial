@@ -1,6 +1,8 @@
 import 'package:bsocial/core/colors.dart';
 import 'package:bsocial/core/size.dart';
 import 'package:bsocial/provider/login_screen_provider.dart';
+import 'package:bsocial/resources/auth_methods.dart';
+import 'package:bsocial/view/widgets/google_sign_in_button.dart';
 import 'package:bsocial/view/widgets/text_field_input.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +13,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Container(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
           width: double.infinity,
@@ -83,11 +86,22 @@ class LoginScreen extends StatelessWidget {
                   ),
                 );
               }),
+              FutureBuilder(
+                future: AuthMethods().initializeFirebase(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return const Text('Error initializing Firebase');
+                  } else if (snapshot.connectionState == ConnectionState.done) {
+                    return GoogleSignInButton();
+                  }
+                  return const CircularProgressIndicator();
+                },
+              ),
               Flexible(
-                flex: 2,
+                flex: 10,
                 child: Container(),
               ),
-              kHeight20,
+              // kHeight20,
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

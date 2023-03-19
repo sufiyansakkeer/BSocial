@@ -1,14 +1,21 @@
 import 'dart:developer';
 import 'dart:typed_data';
-// import 'package:bsocial/model/user_model.dart' as model;
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:bsocial/model/user_model.dart';
 import 'package:bsocial/resources/storage_methods.dart';
+import 'package:bsocial/view/screens/login_screen.dart';
+import 'package:bsocial/view/widgets/custom_scackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  CustomSnackBar customSnackBar = CustomSnackBar();
 
   Future<UserModel> getUserDetails() async {
     User currentUser = _auth.currentUser!;
@@ -17,7 +24,13 @@ class AuthMethods {
     return UserModel.fromSnapShop(snap);
   }
 
-  //*sign up user
+  ////////////////////////////////* Initializing firebase /////////////////////////////////////////////
+  Future<FirebaseApp> initializeFirebase() async {
+    FirebaseApp firebaseApp = await Firebase.initializeApp();
+    return firebaseApp;
+  }
+
+  ////////////////////////////////* signUp user /////////////////////////////////////////////
   Future<String> signUpUser({
     required String userName,
     required String email,
@@ -73,11 +86,11 @@ class AuthMethods {
     return res;
   }
 
+////////////////////////////////* signing without google /////////////////////////////////////////////
   Future<String> loginUser(
       {required String email, required String password}) async {
     // await _auth.signOut();
-    log(email);
-    log(password);
+
     String res = "some error occurred";
     try {
       if (email.isNotEmpty && password.isNotEmpty) {
@@ -100,5 +113,92 @@ class AuthMethods {
       res = error.toString();
     }
     return res;
+  }
+
+////////////////////////////////* signOut with google /////////////////////////////////////////////
+  Future<void> signOutUser(BuildContext context) async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+
+    try {
+      if (!kIsWeb) {
+        await googleSignIn.signOut();
+      }
+      await _auth.signOut();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const LoginScreen(),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        customSnackBar.customSnackBar(
+          content: 'Error signing out. Try again.',
+        ),
+      );
+    }
+  }
+
+////////////////////////////////* signing with google /////////////////////////////////////////////
+  Future<User?> signInWithGoogle({required BuildContext context}) async {
+    User? user;
+
+    if (kIsWeb) {
+      GoogleAuthProvider authProvider = GoogleAuthProvider();
+
+      try {
+        final UserCredential userCredential =
+            await _auth.signInWithPopup(authProvider);
+
+        user = userCredential.user;
+      } catch (e) {
+        log(e.toString());
+      }
+    } else {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+
+      final GoogleSignInAccount? googleSignInAccount =
+          await googleSignIn.signIn();
+
+      if (googleSignInAccount != null) {
+        final GoogleSignInAuthentication googleSignInAuthentication =
+            await googleSignInAccount.authentication;
+
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleSignInAuthentication.accessToken,
+          idToken: googleSignInAuthentication.idToken,
+        );
+
+        try {
+          final UserCredential userCredential =
+              await _auth.signInWithCredential(credential);
+
+          user = userCredential.user;
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'account-exists-with-different-credential') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              customSnackBar.customSnackBar(
+                content:
+                    'The account already exists with a different credential.',
+              ),
+            );
+          } else if (e.code == 'invalid-credential') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              customSnackBar.customSnackBar(
+                content:
+                    'Error occurred while accessing credentials. Try again.',
+              ),
+            );
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            customSnackBar.customSnackBar(
+              content: 'Error occurred using Google Sign-In. Try again.',
+            ),
+          );
+        }
+      }
+    }
+
+    return user;
   }
 }

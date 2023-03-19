@@ -23,7 +23,7 @@ class LoginScreenProvider extends ChangeNotifier {
     if (res == "success") {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => ResponsiveLayout(
+          builder: (context) => const ResponsiveLayout(
             webScreenLayout: WebScreenLayout(),
             mobileScreenLayout: MobileScreenLayout(),
           ),
@@ -33,7 +33,7 @@ class LoginScreenProvider extends ChangeNotifier {
     } else {
       showSnackBar(res, context);
     }
-    // isLoading = false;
+    isLoading = false;
     log(res);
   }
 

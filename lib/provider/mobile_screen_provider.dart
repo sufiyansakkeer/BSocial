@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class MobileScreenProvider extends ChangeNotifier {
   final pages = [
-    HomeScreen(),
-    Settings(),
+    const HomeScreen(),
+    const Settings(),
   ];
 }
