@@ -30,7 +30,7 @@ class MobileScreenLayout extends StatelessWidget {
             margin: const EdgeInsets.only(left: 20, right: 20),
             currentIndex: provider.currentIndex,
             dotIndicatorColor: mobileBackgroundColor,
-            unselectedItemColor: Colors.grey[300],
+            unselectedItemColor: Colors.grey,
             enableFloatingNavBar: true,
             curve: Curves.easeInOutCubicEmphasized,
             onTap: (newIndex) {
@@ -52,8 +52,12 @@ class MobileScreenLayout extends StatelessWidget {
 
               /// Profile
               DotNavigationBarItem(
+                icon: const Icon(Icons.add_box_outlined),
+                selectedColor: mobileBackgroundColor,
+              ),
+              DotNavigationBarItem(
                 icon: const Icon(Icons.person),
-                selectedColor: const Color(0xff73544C),
+                selectedColor: mobileBackgroundColor,
               ),
             ],
           ),
