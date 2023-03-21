@@ -10,13 +10,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class GoogleSignInButton extends StatelessWidget {
-  const GoogleSignInButton({super.key});
-
+  const GoogleSignInButton({super.key, required this.text});
+  final String text;
   @override
   Widget build(BuildContext context) {
     return Consumer<GoogleButtonProvider>(builder: (context, provider, child) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
         child: provider.isSigningIn
             ? const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -51,25 +51,28 @@ class GoogleSignInButton extends StatelessWidget {
                 },
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const <Widget>[
-                      Image(
-                        image: AssetImage("assets/google_logo.png"),
-                        height: 24.0,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 10),
-                        child: Text(
-                          'Sign in with Google',
-                          style: TextStyle(
-                            color: Colors.black54,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        const Image(
+                          image: AssetImage("assets/google_logo.png"),
+                          height: 24.0,
                         ),
-                      )
-                    ],
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Text(
+                            text,
+                            style: const TextStyle(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),

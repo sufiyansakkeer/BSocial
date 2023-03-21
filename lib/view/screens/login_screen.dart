@@ -1,5 +1,5 @@
-import 'package:bsocial/core/colors.dart';
-import 'package:bsocial/core/size.dart';
+import 'package:bsocial/utils/colors.dart';
+import 'package:bsocial/utils/size.dart';
 import 'package:bsocial/provider/login_screen_provider.dart';
 import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/view/widgets/google_sign_in_button.dart';
@@ -13,17 +13,13 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Container(
+        // resizeToAvoidBottomInset: false,
+        body: SingleChildScrollView(
+            child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-          width: double.infinity,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Flexible(
-                flex: 2,
-                child: Container(),
-              ),
               kHeight20,
               //logo
               Container(
@@ -67,7 +63,7 @@ class LoginScreen extends StatelessWidget {
                   child: Container(
                     width: double.infinity,
                     alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
                     decoration: const ShapeDecoration(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(
@@ -86,24 +82,33 @@ class LoginScreen extends StatelessWidget {
                   ),
                 );
               }),
+              kHeight20,
+              const Text('OR'),
               FutureBuilder(
                 future: AuthMethods().initializeFirebase(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return const Text('Error initializing Firebase');
                   } else if (snapshot.connectionState == ConnectionState.done) {
-                    return const GoogleSignInButton();
+                    return const GoogleSignInButton(
+                      text: 'Sign in with Google',
+                    );
                   }
                   return const CircularProgressIndicator();
                 },
               ),
-              Flexible(
-                flex: 10,
-                child: Container(),
+              // Expanded(
+              //   child: SizedBox(
+              //     width: double.infinity,
+              //   ),
+              // )
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.17,
               ),
-              // kHeight20,
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -135,7 +140,7 @@ class LoginScreen extends StatelessWidget {
               //navigate to sign up page
             ],
           ),
-        ),
+        )),
       ),
     );
   }

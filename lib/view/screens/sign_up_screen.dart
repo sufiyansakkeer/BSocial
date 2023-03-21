@@ -1,6 +1,8 @@
-import 'package:bsocial/core/colors.dart';
-import 'package:bsocial/core/size.dart';
+import 'package:bsocial/resources/auth_methods.dart';
+import 'package:bsocial/utils/colors.dart';
+import 'package:bsocial/utils/size.dart';
 import 'package:bsocial/provider/sign_up_provider.dart';
+import 'package:bsocial/view/widgets/google_sign_in_button.dart';
 import 'package:bsocial/view/widgets/text_field_input.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,37 +40,37 @@ class SignUpScreen extends StatelessWidget {
                 kHeight50,
                 // kHeight50,
                 //avatar
-                Stack(
-                  children: [
-                    Consumer<SignUpScreenProvider>(
-                        builder: (context, provider, child) {
-                      return provider.image != null
-                          ? CircleAvatar(
-                              backgroundImage: MemoryImage(provider.image!),
-                              radius: 64,
-                            )
-                          : const CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                "https://img.freepik.com/free-icon/user_318-159711.jpg",
-                              ),
-                              radius: 64,
-                            );
-                    }),
-                    Positioned(
-                      bottom: -10,
-                      left: 80,
-                      child: Consumer<SignUpScreenProvider>(
-                          builder: (context, provider, child) {
-                        return IconButton(
-                          onPressed: provider.selectImage,
-                          icon: const Icon(
-                            Icons.add_a_photo_outlined,
-                          ),
-                        );
-                      }),
-                    ),
-                  ],
-                ),
+                // Stack(
+                //   children: [
+                //     Consumer<SignUpScreenProvider>(
+                //         builder: (context, provider, child) {
+                //       return provider.image != null
+                //           ? CircleAvatar(
+                //               backgroundImage: MemoryImage(provider.image!),
+                //               radius: 64,
+                //             )
+                //           : const CircleAvatar(
+                //               backgroundImage: NetworkImage(
+                //                 "https://img.freepik.com/free-icon/user_318-159711.jpg",
+                //               ),
+                //               radius: 64,
+                //             );
+                //     }),
+                //     Positioned(
+                //       bottom: -10,
+                //       left: 80,
+                //       child: Consumer<SignUpScreenProvider>(
+                //           builder: (context, provider, child) {
+                //         return IconButton(
+                //           onPressed: provider.selectImage,
+                //           icon: const Icon(
+                //             Icons.add_a_photo_outlined,
+                //           ),
+                //         );
+                //       }),
+                //     ),
+                //   ],
+                // ),
                 kHeight20,
                 //user name form field
                 Consumer<SignUpScreenProvider>(
@@ -106,20 +108,12 @@ class SignUpScreen extends StatelessWidget {
                 Consumer<SignUpScreenProvider>(builder: (ctx, provider, child) {
                   return InkWell(
                     onTap: () async {
-                      if (provider.image != null) {
-                        provider.signUpUser(context);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Image is required"),
-                          ),
-                        );
-                      }
+                      provider.signUpUser(context);
                     },
                     child: Container(
                       width: double.infinity,
                       alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                       decoration: const ShapeDecoration(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(
@@ -143,7 +137,29 @@ class SignUpScreen extends StatelessWidget {
                 //   child: Container(),
                 // ),
                 kHeight30,
-                kHeight50,
+                const Text('OR'),
+                FutureBuilder(
+                  future: AuthMethods().initializeFirebase(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return const Text('Error initializing Firebase');
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.done) {
+                      return const GoogleSignInButton(
+                        text: 'Sign Up with Google',
+                      );
+                    }
+                    return const CircularProgressIndicator();
+                  },
+                ),
+                // Expanded(
+                //   child: SizedBox(
+                //     width: double.infinity,
+                //   ),
+                // )
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.12,
+                ),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -1,4 +1,4 @@
-import 'package:bsocial/core/colors.dart';
+import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/provider/bottom_navigation_provider.dart';
 
 import 'package:dot_navigation_bar/dot_navigation_bar.dart';

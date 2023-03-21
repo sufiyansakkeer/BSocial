@@ -34,7 +34,9 @@ dependencies:
   cupertino_icons: ^1.0.2
   dot_navigation_bar: ^1.0.1+4
   firebase_auth: ^4.2.10
+  #The firebase_core plugin is responsible for connecting your Flutter app to your Firebase project
   firebase_core: ^2.7.1
+  # to interact with firebase storage
   firebase_storage: ^11.0.15
   flutter:
     sdk: flutter

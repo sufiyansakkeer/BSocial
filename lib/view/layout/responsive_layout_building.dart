@@ -1,4 +1,4 @@
-import 'package:bsocial/core/size.dart';
+import 'package:bsocial/utils/size.dart';
 import 'package:bsocial/provider/users_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

@@ -1,5 +1,5 @@
 import 'dart:developer';
-import 'dart:typed_data';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:bsocial/model/user_model.dart';
@@ -35,30 +35,36 @@ class AuthMethods {
     required String userName,
     required String email,
     required String password,
-    required Uint8List file,
+    // Uint8List? file,
   }) async {
     String res = 'some error occurred';
     try {
-      if (userName.isNotEmpty ||
-          password.isNotEmpty ||
-          email.isNotEmpty ||
-          file != null) {
+      log('sign up function is started');
+      if (userName.isEmpty) {
+        res = 'Please enter your username';
+      } else if (email.isEmpty) {
+        res = 'Please enter your email';
+      } else if (password.isEmpty) {
+        res = 'Please enter your password';
+      }
+      if (userName.isNotEmpty || password.isNotEmpty || email.isNotEmpty) {
         //* registering user
         //email and password will only saved in the firebase when we use this method
         UserCredential credential = await _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
         );
+        log('if statement is working ');
 
         log(credential.user!.uid);
 
-        String photoUrl =
-            await StorageMethods().uploadImages('profilePics', file, false);
+        // String photoUrl =
+        //     await StorageMethods().uploadImages('profilePics', file!, false);
         //adding user to database
         UserModel userModel = UserModel(
             email: email,
             uid: credential.user!.uid,
-            photoUrl: photoUrl,
+            photoUrl: '',
             userName: userName,
             followers: [],
             following: []);
@@ -73,6 +79,7 @@ class AuthMethods {
               userModel.toJson(),
             );
         res = "success";
+        log(res);
       }
     } on FirebaseAuthException catch (error) {
       if (error.code == 'invalid-email') {
@@ -93,15 +100,21 @@ class AuthMethods {
 
     String res = "some error occurred";
     try {
+      if (email.isEmpty) {
+        res = "enter your email";
+      } else if (password.isEmpty) {
+        res = "enter your password";
+      }
       if (email.isNotEmpty && password.isNotEmpty) {
         //*here we don't need to store because we are signing only
         final user = await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: password);
         log("${user.user}");
         res = "success";
-      } else {
-        res = "please enter all the field";
       }
+      // else {
+      //   res = "please enter all the field";
+      // }
     } on FirebaseAuthException catch (error) {
       if (error.code == 'user-not-found') {
         res = "This user doesn't exist";

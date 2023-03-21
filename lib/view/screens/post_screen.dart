@@ -1,4 +1,4 @@
-import 'package:bsocial/core/colors.dart';
+import 'package:bsocial/utils/colors.dart';
 import 'package:flutter/material.dart';
 
 class PostScreen extends StatelessWidget {

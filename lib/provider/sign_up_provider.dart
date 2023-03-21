@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'dart:typed_data';
-import 'package:bsocial/core/utils.dart';
+import 'package:bsocial/utils/utils.dart';
 import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/view/layout/mobile_screen_layout.dart';
 import 'package:bsocial/view/layout/responsive_layout_building.dart';
@@ -14,23 +14,24 @@ class SignUpScreenProvider extends ChangeNotifier {
   final TextEditingController emailTextController = TextEditingController();
   final TextEditingController passwordTextController = TextEditingController();
   final TextEditingController userNameController = TextEditingController();
-  Uint8List? image;
+  // Uint8List? image;
   bool isLoading = false;
   // BuildContext? context;
-  void selectImage() async {
-    image = await pickedFile(ImageSource.gallery);
-    notifyListeners();
-  }
+  // void selectImage() async {
+  //   image = await pickedFile(ImageSource.gallery);
+  //   notifyListeners();
+  // }
 
   signUpUser(BuildContext context) async {
     String res = await AuthMethods().signUpUser(
       userName: userNameController.text,
       email: emailTextController.text,
       password: passwordTextController.text,
-      file: image!,
+      // file: image!,
     );
+    log("$res in signup provider");
     isLoading = true;
-    if (context.mounted) {}
+    // if (context.mounted) {}
     if (res != "success") {
       showSnackBar(res, context);
     } else {
@@ -43,6 +44,8 @@ class SignUpScreenProvider extends ChangeNotifier {
         ),
       );
       disposeTextfield(context);
+      isLoading = false;
+      notifyListeners();
     }
     log(res);
   }
@@ -60,5 +63,6 @@ class SignUpScreenProvider extends ChangeNotifier {
         builder: (context) => const LoginScreen(),
       ),
     );
+    disposeTextfield(context);
   }
 }

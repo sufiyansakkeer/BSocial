@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:bsocial/core/utils.dart';
+import 'package:bsocial/utils/utils.dart';
 import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/view/layout/mobile_screen_layout.dart';
 import 'package:bsocial/view/layout/responsive_layout_building.dart';
@@ -50,5 +50,6 @@ class LoginScreenProvider extends ChangeNotifier {
         builder: (context) => const SignUpScreen(),
       ),
     );
+    disposeTextfield(context);
   }
 }
