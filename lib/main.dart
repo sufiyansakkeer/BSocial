@@ -67,8 +67,8 @@ class MyApp extends StatelessWidget {
         theme: ThemeData.dark()
             .copyWith(scaffoldBackgroundColor: mobileBackgroundColor),
         home: StreamBuilder(
+          // here we use authStateChanges to listen if there any changes in the user authentication
           stream: FirebaseAuth.instance.authStateChanges(),
-          // initialData: initialData,
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             //here we checking our connection is made with the stream,active means we have made connection with the stream
             if (snapshot.connectionState == ConnectionState.active) {

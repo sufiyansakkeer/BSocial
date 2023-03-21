@@ -124,6 +124,7 @@ class AuthMethods {
         await googleSignIn.signOut();
       }
       await _auth.signOut();
+      if (context.mounted) {}
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => const LoginScreen(),
@@ -141,7 +142,7 @@ class AuthMethods {
 ////////////////////////////////* signing with google /////////////////////////////////////////////
   Future<User?> signInWithGoogle({required BuildContext context}) async {
     User? user;
-
+    if (context.mounted) {}
     if (kIsWeb) {
       GoogleAuthProvider authProvider = GoogleAuthProvider();
 
@@ -174,6 +175,7 @@ class AuthMethods {
 
           user = userCredential.user;
         } on FirebaseAuthException catch (e) {
+          if (context.mounted) {}
           if (e.code == 'account-exists-with-different-credential') {
             ScaffoldMessenger.of(context).showSnackBar(
               customSnackBar.customSnackBar(

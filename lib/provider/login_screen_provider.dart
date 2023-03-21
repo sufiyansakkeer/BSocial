@@ -20,6 +20,7 @@ class LoginScreenProvider extends ChangeNotifier {
       password: passwordTextController.text,
     );
     isLoading = true;
+    if (context.mounted) {}
     if (res == "success") {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(

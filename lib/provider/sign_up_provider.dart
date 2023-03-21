@@ -30,7 +30,7 @@ class SignUpScreenProvider extends ChangeNotifier {
       file: image!,
     );
     isLoading = true;
-
+    if (context.mounted) {}
     if (res != "success") {
       showSnackBar(res, context);
     } else {

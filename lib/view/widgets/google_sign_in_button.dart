@@ -5,8 +5,6 @@ import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/view/layout/mobile_screen_layout.dart';
 import 'package:bsocial/view/layout/responsive_layout_building.dart';
 import 'package:bsocial/view/layout/web_screen_layout.dart';
-import 'package:bsocial/view/screens/home_screen.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -38,6 +36,7 @@ class GoogleSignInButton extends StatelessWidget {
                   User? user =
                       await AuthMethods().signInWithGoogle(context: context);
                   log('user called');
+                  if (context.mounted) {}
                   if (user != null) {
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
