@@ -63,10 +63,10 @@ class PostScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.4,
+                width: MediaQuery.of(context).size.width * 0.55,
                 child: const TextField(
                   decoration: InputDecoration(
-                    hintText: 'Write....',
+                    hintText: 'Write a caption....',
                     border: InputBorder.none,
                   ),
                   maxLines: 8,

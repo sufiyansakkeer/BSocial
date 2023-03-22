@@ -6,6 +6,7 @@ import 'package:bsocial/utils/utils.dart';
 import 'package:bsocial/view/widgets/google_sign_in_button.dart';
 import 'package:bsocial/view/widgets/text_field_input.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:provider/provider.dart';
 
 class SignUpScreen extends StatelessWidget {
@@ -135,9 +136,19 @@ class SignUpScreen extends StatelessWidget {
                 Consumer<SignUpScreenProvider>(builder: (ctx, provider, child) {
                   return InkWell(
                     onTap: () async {
-                      provider.passWordChecking()
-                          ? provider.signUpUser(context)
-                          : showSnackBar("'Password doesn't matching", context);
+                      bool result =
+                          await InternetConnectionChecker().hasConnection;
+                      if (context.mounted) {
+                        if (result) {
+                          provider.passWordChecking()
+                              ? provider.signUpUser(context)
+                              : showSnackBar(
+                                  "'Password doesn't matching", context);
+                        } else {
+                          showSnackBar(
+                              'Please check your internet connection', context);
+                        }
+                      }
                     },
                     child: Container(
                       width: double.infinity,

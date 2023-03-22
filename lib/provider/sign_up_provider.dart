@@ -1,5 +1,5 @@
 import 'dart:developer';
-import 'dart:typed_data';
+
 import 'package:bsocial/utils/utils.dart';
 import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/view/layout/mobile_screen_layout.dart';
@@ -7,7 +7,7 @@ import 'package:bsocial/view/layout/responsive_layout_building.dart';
 import 'package:bsocial/view/layout/web_screen_layout.dart';
 import 'package:bsocial/view/screens/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+
 import 'package:provider/provider.dart';
 
 class SignUpScreenProvider extends ChangeNotifier {
@@ -26,6 +26,7 @@ class SignUpScreenProvider extends ChangeNotifier {
   // }
 
   signUpUser(BuildContext context) async {
+    isLoading = false;
     String res = await AuthMethods().signUpUser(
       userName: userNameController.text,
       email: emailTextController.text,
@@ -33,23 +34,24 @@ class SignUpScreenProvider extends ChangeNotifier {
       // file: image!,
     );
     // log("$res in signUp provider");
-    isLoading = true;
-    // if (context.mounted) {}
-    if (res != "success") {
-      showSnackBar(res, context);
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const ResponsiveLayout(
-            webScreenLayout: WebScreenLayout(),
-            mobileScreenLayout: MobileScreenLayout(),
+    if (context.mounted) {
+      if (res != "success") {
+        showSnackBar(res, context);
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const ResponsiveLayout(
+              webScreenLayout: WebScreenLayout(),
+              mobileScreenLayout: MobileScreenLayout(),
+            ),
           ),
-        ),
-      );
-      disposeTextfield(context);
-      isLoading = false;
-      notifyListeners();
+        );
+        disposeTextfield(context);
+        isLoading = false;
+        notifyListeners();
+      }
     }
+
     log(res);
   }
 

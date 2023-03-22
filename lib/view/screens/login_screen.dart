@@ -2,9 +2,11 @@ import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/utils/size.dart';
 import 'package:bsocial/provider/login_screen_provider.dart';
 import 'package:bsocial/resources/auth_methods.dart';
+import 'package:bsocial/utils/utils.dart';
 import 'package:bsocial/view/widgets/google_sign_in_button.dart';
 import 'package:bsocial/view/widgets/text_field_input.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -62,8 +64,16 @@ class LoginScreen extends StatelessWidget {
               Consumer<LoginScreenProvider>(
                   builder: (context, provider, child) {
                 return InkWell(
-                  onTap: () {
-                    provider.loginUser(context);
+                  onTap: () async {
+                    bool result =
+                        await InternetConnectionChecker().hasConnection;
+                    if (context.mounted) {
+                      result
+                          ? provider.loginUser(context)
+                          : showSnackBar(
+                              'Your device is not connected to the internet',
+                              context);
+                    }
                   },
                   child: Container(
                     width: double.infinity,
