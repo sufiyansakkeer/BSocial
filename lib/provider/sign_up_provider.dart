@@ -26,7 +26,7 @@ class SignUpScreenProvider extends ChangeNotifier {
   // }
 
   signUpUser(BuildContext context) async {
-    isLoading = false;
+    isLoading = true;
     String res = await AuthMethods().signUpUser(
       userName: userNameController.text,
       email: emailTextController.text,
@@ -51,7 +51,8 @@ class SignUpScreenProvider extends ChangeNotifier {
         notifyListeners();
       }
     }
-
+    notifyListeners();
+    isLoading = false;
     log(res);
   }
 

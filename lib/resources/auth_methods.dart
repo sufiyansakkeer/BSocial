@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:bsocial/provider/sign_up_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:bsocial/model/user_model.dart';
@@ -10,6 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
 
 class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -86,6 +88,8 @@ class AuthMethods {
         res = 'The email address is badly formatted.';
       } else if (error.code == 'weak-password') {
         res = "Password should be at least 6 characters";
+      } else if (error.code == 'email-already-in-use') {
+        res = 'This email is already exist';
       }
     } catch (error) {
       res = error.toString();
