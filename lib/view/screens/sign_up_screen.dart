@@ -2,6 +2,7 @@ import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/utils/size.dart';
 import 'package:bsocial/provider/sign_up_provider.dart';
+import 'package:bsocial/utils/utils.dart';
 import 'package:bsocial/view/widgets/google_sign_in_button.dart';
 import 'package:bsocial/view/widgets/text_field_input.dart';
 import 'package:flutter/material.dart';
@@ -77,7 +78,7 @@ class SignUpScreen extends StatelessWidget {
                     builder: (context, provider, child) {
                   return TextFieldInput(
                     controller: provider.userNameController,
-                    hintText: "Enter your Username",
+                    hintText: "Username",
                     textInputType: TextInputType.text,
                   );
                 }),
@@ -88,7 +89,7 @@ class SignUpScreen extends StatelessWidget {
                     builder: (context, provider, child) {
                   return TextFieldInput(
                     controller: provider.emailTextController,
-                    hintText: "Enter your email",
+                    hintText: "Email",
                     textInputType: TextInputType.emailAddress,
                   );
                 }),
@@ -100,7 +101,33 @@ class SignUpScreen extends StatelessWidget {
                     controller: provider.passwordTextController,
                     hintText: "Password",
                     textInputType: TextInputType.text,
-                    isPass: true,
+                    isPass: provider.isPass1,
+                    suffixButton: GestureDetector(
+                      onTap: () => provider.showPassword1(),
+                      child: Icon(
+                        provider.isPass1
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                    ),
+                  );
+                }),
+                kHeight20,
+                Consumer<SignUpScreenProvider>(
+                    builder: (context, provider, child) {
+                  return TextFieldInput(
+                    controller: provider.passwordTextController2,
+                    hintText: "Password",
+                    textInputType: TextInputType.text,
+                    isPass: provider.isPass2,
+                    suffixButton: GestureDetector(
+                      onTap: () => provider.showPassword2(),
+                      child: Icon(
+                        provider.isPass2
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                    ),
                   );
                 }),
                 kHeight20,
@@ -108,7 +135,9 @@ class SignUpScreen extends StatelessWidget {
                 Consumer<SignUpScreenProvider>(builder: (ctx, provider, child) {
                   return InkWell(
                     onTap: () async {
-                      provider.signUpUser(context);
+                      provider.passWordChecking()
+                          ? provider.signUpUser(context)
+                          : showSnackBar("'Password doesn't matching", context);
                     },
                     child: Container(
                       width: double.infinity,
@@ -132,10 +161,7 @@ class SignUpScreen extends StatelessWidget {
                     ),
                   );
                 }),
-                // Flexible(
-                //   flex: 1,
-                //   child: Container(),
-                // ),
+
                 kHeight30,
                 const Text('OR'),
                 FutureBuilder(
@@ -158,7 +184,7 @@ class SignUpScreen extends StatelessWidget {
                 //   ),
                 // )
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.12,
+                  height: MediaQuery.of(context).size.height * 0.04,
                 ),
 
                 Row(

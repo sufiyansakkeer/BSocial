@@ -46,11 +46,16 @@ class LoginScreen extends StatelessWidget {
               Consumer<LoginScreenProvider>(
                   builder: (context, provider, child) {
                 return TextFieldInput(
-                  controller: provider.passwordTextController,
-                  hintText: "Password",
-                  textInputType: TextInputType.text,
-                  isPass: true,
-                );
+                    controller: provider.passwordTextController,
+                    hintText: "Password",
+                    textInputType: TextInputType.text,
+                    isPass: provider.isPass,
+                    suffixButton: GestureDetector(
+                      child: provider.isPass
+                          ? const Icon(Icons.visibility_off)
+                          : const Icon(Icons.visibility),
+                      onTap: () => provider.showPassword(),
+                    ));
               }),
               kHeight20,
               //sign in button

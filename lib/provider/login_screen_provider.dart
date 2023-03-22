@@ -14,6 +14,7 @@ class LoginScreenProvider extends ChangeNotifier {
   final TextEditingController emailTextController = TextEditingController();
   final TextEditingController passwordTextController = TextEditingController();
   bool isLoading = false;
+  bool isPass = true;
   loginUser(BuildContext context) async {
     String res = await AuthMethods().loginUser(
       email: emailTextController.text,
@@ -51,5 +52,11 @@ class LoginScreenProvider extends ChangeNotifier {
       ),
     );
     disposeTextfield(context);
+  }
+
+  showPassword() {
+    isPass = !isPass;
+    log(isPass.toString());
+    notifyListeners();
   }
 }
