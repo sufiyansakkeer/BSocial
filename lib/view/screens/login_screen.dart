@@ -105,9 +105,7 @@ class LoginScreen extends StatelessWidget {
                   if (snapshot.hasError) {
                     return const Text('Error initializing Firebase');
                   } else if (snapshot.connectionState == ConnectionState.done) {
-                    return const GoogleSignInButton(
-                      text: 'Sign in with Google',
-                    );
+                    return const GoogleSignInButton();
                   }
                   return const CircularProgressIndicator();
                 },

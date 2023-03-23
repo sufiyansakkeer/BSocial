@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:uuid/uuid.dart';
 
 class StorageMethods {
   final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
@@ -18,6 +19,14 @@ class StorageMethods {
         _firebaseStorage.ref().child(childName).child(_auth.currentUser!.uid);
     // putting the data in the reference location ,
     // here we used put data instead of put file because we need to put from the web also
+//? if we are posting some images the user will have multiple post ,
+//? so each post should have unique id , hence we are making the child name as the id
+
+    if (isPost) {
+      String id = const Uuid().v1();
+      ref.child(id);
+    }
+
 //? here we used upload task because we will get the control how our file is upload to the firebase
     UploadTask uploadTask = ref.putData(file);
 //?by upload task we will get a snap shot

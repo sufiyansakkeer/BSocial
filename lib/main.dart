@@ -1,3 +1,4 @@
+import 'package:bsocial/provider/post_image_provider.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/provider/bottom_navigation_provider.dart';
 import 'package:bsocial/provider/google_button_provider.dart';
@@ -59,6 +60,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => GoogleButtonProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => PostImageProvider(),
         ),
       ],
       child: MaterialApp(

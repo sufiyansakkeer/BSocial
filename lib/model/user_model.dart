@@ -11,7 +11,7 @@ class UserModel {
   UserModel({
     required this.email,
     required this.uid,
-    this.photoUrl = '',
+    required this.photoUrl,
     required this.userName,
     required this.followers,
     required this.following,

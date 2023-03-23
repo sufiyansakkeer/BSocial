@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:bsocial/utils/utils.dart';
 import 'package:bsocial/resources/auth_methods.dart';
@@ -7,6 +8,8 @@ import 'package:bsocial/view/layout/responsive_layout_building.dart';
 import 'package:bsocial/view/layout/web_screen_layout.dart';
 import 'package:bsocial/view/screens/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:provider/provider.dart';
 
@@ -15,7 +18,7 @@ class SignUpScreenProvider extends ChangeNotifier {
   final TextEditingController passwordTextController = TextEditingController();
   final TextEditingController passwordTextController2 = TextEditingController();
   final TextEditingController userNameController = TextEditingController();
-  // Uint8List? image;
+  Uint8List? image;
   bool isLoading = false;
   bool isPass1 = true;
   bool isPass2 = true;
@@ -24,14 +27,28 @@ class SignUpScreenProvider extends ChangeNotifier {
   //   image = await pickedFile(ImageSource.gallery);
   //   notifyListeners();
   // }
+  assignImage() async {
+    final ByteData bytes = await rootBundle.load('assets/images/images.jpeg');
+    image = bytes.buffer.asUint8List();
+    notifyListeners();
+  }
 
   signUpUser(BuildContext context) async {
     isLoading = true;
+    bool flags = false;
+    if (image == null) {
+      await assignImage();
+      flags = true;
+    } else {
+      image = image;
+      flags = false;
+    }
+    log(flags.toString());
     String res = await AuthMethods().signUpUser(
       userName: userNameController.text,
       email: emailTextController.text,
       password: passwordTextController.text,
-      // file: image!,
+      file: image!,
     );
     // log("$res in signUp provider");
     if (context.mounted) {

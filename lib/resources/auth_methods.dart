@@ -1,17 +1,17 @@
 import 'dart:developer';
+import 'dart:typed_data';
 
-import 'package:bsocial/provider/sign_up_provider.dart';
+import 'package:bsocial/resources/storage_methods.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:bsocial/model/user_model.dart';
-import 'package:bsocial/resources/storage_methods.dart';
+
 import 'package:bsocial/view/screens/login_screen.dart';
 import 'package:bsocial/view/widgets/custom_scackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:provider/provider.dart';
 
 class AuthMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -37,7 +37,7 @@ class AuthMethods {
     required String userName,
     required String email,
     required String password,
-    // Uint8List? file,
+    required Uint8List file,
   }) async {
     String res = 'some error occurred';
     try {
@@ -49,7 +49,10 @@ class AuthMethods {
       } else if (password.isEmpty) {
         res = 'Please enter your password';
       }
-      if (userName.isNotEmpty || password.isNotEmpty || email.isNotEmpty) {
+      if (userName.isNotEmpty ||
+          password.isNotEmpty ||
+          email.isNotEmpty ||
+          file != null) {
         //* registering user
         //email and password will only saved in the firebase when we use this method
         UserCredential credential = await _auth.createUserWithEmailAndPassword(
@@ -60,13 +63,13 @@ class AuthMethods {
 
         log(credential.user!.uid);
 
-        // String photoUrl =
-        //     await StorageMethods().uploadImages('profilePics', file!, false);
+        String photoUrl =
+            await StorageMethods().uploadImages('profilePics', file, false);
         //adding user to database
         UserModel userModel = UserModel(
             email: email,
             uid: credential.user!.uid,
-            photoUrl: '',
+            photoUrl: photoUrl,
             userName: userName,
             followers: [],
             following: []);
