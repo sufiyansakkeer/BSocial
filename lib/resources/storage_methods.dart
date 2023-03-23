@@ -24,7 +24,7 @@ class StorageMethods {
 
     if (isPost) {
       String id = const Uuid().v1();
-      ref.child(id);
+      ref = ref.child(id);
     }
 
 //? here we used upload task because we will get the control how our file is upload to the firebase

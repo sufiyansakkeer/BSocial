@@ -105,7 +105,7 @@ class AuthMethods {
       {required String email, required String password}) async {
     // await _auth.signOut();
 
-    String res = "some error occurred";
+    String res = "Incorrect Email Or Password";
     try {
       if (email.isEmpty) {
         res = "enter your email";
@@ -117,6 +117,9 @@ class AuthMethods {
         final user = await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: password);
         log("${user.user}");
+        if (user.user?.photoURL == null) {
+        } else {}
+
         res = "success";
       }
       // else {
@@ -218,6 +221,9 @@ class AuthMethods {
             ),
           );
         }
+      } else {
+        // signUpUser(userName: userName, email: email, password: password, file: file)
+        log("account is doesn't exist");
       }
     }
 

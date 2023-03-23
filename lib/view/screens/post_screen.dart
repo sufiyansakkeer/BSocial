@@ -44,12 +44,17 @@ class PostScreen extends StatelessWidget {
             appBar: AppBar(
               backgroundColor: mobileBackgroundColor,
               elevation: 0,
-              leading: IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  Icons.adaptive.arrow_back,
-                ),
-              ),
+              leading:
+                  Consumer<PostImageProvider>(builder: (context, value, child) {
+                return IconButton(
+                  onPressed: () {
+                    value.clearImage();
+                  },
+                  icon: Icon(
+                    Icons.adaptive.arrow_back,
+                  ),
+                );
+              }),
               title: const Text('Post to'),
               actions: [
                 Consumer<PostImageProvider>(builder: (context, value, child) {
@@ -66,6 +71,7 @@ class PostScreen extends StatelessWidget {
                         userModel.photoUrl,
                         context,
                       );
+                      value.clearImage();
                     },
                     child: const Text(
                       'Post',
@@ -80,6 +86,11 @@ class PostScreen extends StatelessWidget {
             ),
             body: Column(
               children: [
+                Provider.of<PostImageProvider>(context).isLoading
+                    ? const LinearProgressIndicator()
+                    : Padding(
+                        padding: EdgeInsets.all(0),
+                      ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   crossAxisAlignment: CrossAxisAlignment.start,

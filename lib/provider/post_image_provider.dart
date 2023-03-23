@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 class PostImageProvider extends ChangeNotifier {
   Uint8List? file;
   final TextEditingController descriptionController = TextEditingController();
-
+  bool isLoading = false;
   selectImage(BuildContext context) async {
     showDialog(
       context: context,
@@ -54,6 +54,8 @@ class PostImageProvider extends ChangeNotifier {
 
   void postImage(String uid, String userName, String profileImage,
       BuildContext context) async {
+    isLoading = true;
+    notifyListeners();
     try {
       String res = await FireStoreMethods().uploadPost(
         descriptionController.text,
@@ -64,12 +66,21 @@ class PostImageProvider extends ChangeNotifier {
       );
       if (context.mounted) {}
       if (res == 'success') {
+        isLoading = false;
         showSnackBar('Posted', context);
+        notifyListeners();
       } else {
+        isLoading = false;
         showSnackBar(res, context);
+        notifyListeners();
       }
     } catch (e) {
       showSnackBar(e.toString(), context);
     }
+  }
+
+  void clearImage() {
+    file = null;
+    notifyListeners();
   }
 }
