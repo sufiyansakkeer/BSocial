@@ -1,3 +1,4 @@
+import 'package:bsocial/resources/auth_methods.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -5,9 +6,16 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
-        child: Text('Profile'),
+        child: TextButton(
+          onPressed: () {
+            AuthMethods().signOutUser(context);
+          },
+          child: const Text(
+            'sign out',
+          ),
+        ),
       ),
     );
   }

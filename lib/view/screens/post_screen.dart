@@ -71,6 +71,7 @@ class PostScreen extends StatelessWidget {
                         userModel.photoUrl,
                         context,
                       );
+
                       value.clearImage();
                     },
                     child: const Text(

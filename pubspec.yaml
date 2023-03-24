@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  blurrycontainer: ^1.0.2
   cloud_firestore: ^4.4.4
   cupertino_icons: ^1.0.2
   dot_navigation_bar: ^1.0.1+4

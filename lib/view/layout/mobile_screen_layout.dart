@@ -21,7 +21,7 @@ class MobileScreenLayout extends StatelessWidget {
           builder: (context, provider, child) {
         return provider.pages[provider.currentIndex];
       }),
-      extendBody: true,
+      extendBody: false,
       bottomNavigationBar: Consumer<BottomNavigationProvider>(
           builder: (BuildContext context, provider, Widget? child) {
         return Padding(
@@ -31,7 +31,7 @@ class MobileScreenLayout extends StatelessWidget {
             currentIndex: provider.currentIndex,
             dotIndicatorColor: mobileBackgroundColor,
             unselectedItemColor: Colors.grey,
-            enableFloatingNavBar: true,
+            enableFloatingNavBar: false,
             curve: Curves.easeInOutCubicEmphasized,
             onTap: (newIndex) {
               provider.onTapIcon(newIndex);

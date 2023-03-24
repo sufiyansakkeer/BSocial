@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:bsocial/resources/firestore_methods.dart';
 import 'package:bsocial/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -14,34 +15,44 @@ class PostImageProvider extends ChangeNotifier {
     showDialog(
       context: context,
       builder: (context) {
-        return SimpleDialog(
-          title: const Text(
-            'Create a Post',
+        return BlurryContainer(
+          color: Colors.transparent,
+          child: SimpleDialog(
+            title: const Text(
+              'Create a Post',
+            ),
+            children: [
+              SimpleDialogOption(
+                padding: const EdgeInsets.all(20),
+                child: const Text("take a photo"),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  file = await pickedFile(
+                    ImageSource.camera,
+                  );
+                  notifyListeners();
+                },
+              ),
+              SimpleDialogOption(
+                padding: const EdgeInsets.all(20),
+                child: const Text("Choose from Gallery"),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  file = await pickedFile(
+                    ImageSource.gallery,
+                  );
+                  notifyListeners();
+                },
+              ),
+              SimpleDialogOption(
+                padding: const EdgeInsets.all(20),
+                child: const Text("Cancel"),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
           ),
-          children: [
-            SimpleDialogOption(
-              padding: const EdgeInsets.all(20),
-              child: const Text("take a photo"),
-              onPressed: () async {
-                Navigator.of(context).pop();
-                file = await pickedFile(
-                  ImageSource.camera,
-                );
-                notifyListeners();
-              },
-            ),
-            SimpleDialogOption(
-              padding: const EdgeInsets.all(20),
-              child: const Text("Choose from Gallery"),
-              onPressed: () async {
-                Navigator.of(context).pop();
-                file = await pickedFile(
-                  ImageSource.gallery,
-                );
-                notifyListeners();
-              },
-            ),
-          ],
         );
       },
     );
