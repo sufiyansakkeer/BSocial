@@ -90,7 +90,7 @@ class PostImageProvider extends ChangeNotifier {
     }
   }
 
-  void clearImage() {
+  void clearImage() async {
     file = null;
     notifyListeners();
   }

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:bsocial/model/post_model.dart';
@@ -40,5 +41,34 @@ class FireStoreMethods {
       res = error.toString();
     }
     return res;
+  }
+
+  Future<void> likePost(String postId, String uid, List likes) async {
+    try {
+      //here we are checking if there anything already in the like field the using the uid,
+      // if the uid is exist we will delete that uid ,
+      // other wise we will add that uid
+      if (likes.contains(uid)) {
+        await _firestore.collection("posts").doc(postId).update(
+          {
+            "likes": FieldValue.arrayRemove(
+              [uid],
+            ),
+          },
+        );
+      } else {
+        await _firestore.collection("posts").doc(postId).update(
+          {
+            "likes": FieldValue.arrayUnion(
+              [uid],
+            ),
+          },
+        );
+      }
+    } catch (e) {
+      log(
+        e.toString(),
+      );
+    }
   }
 }

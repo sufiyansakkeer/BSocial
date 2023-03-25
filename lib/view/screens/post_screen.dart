@@ -59,7 +59,7 @@ class PostScreen extends StatelessWidget {
               actions: [
                 Consumer<PostImageProvider>(builder: (context, value, child) {
                   return TextButton(
-                    onPressed: () {
+                    onPressed: () async {
                       // value.removeImage();
                       // Navigator.of(context).pop();
                       final UserModel userModel =

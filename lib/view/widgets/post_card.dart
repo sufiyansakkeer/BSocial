@@ -1,6 +1,7 @@
 import 'package:bsocial/model/user_model.dart';
 import 'package:bsocial/provider/post_card_provider.dart';
 import 'package:bsocial/provider/users_provider.dart';
+import 'package:bsocial/resources/firestore_methods.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/view/widgets/like_animation.dart';
 
@@ -14,6 +15,7 @@ class PostCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     WidgetsFlutterBinding.ensureInitialized();
+    final UserModel user = Provider.of<UsersProvider>(context).getUser;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       color: mobileBackgroundColor,
@@ -87,8 +89,10 @@ class PostCard extends StatelessWidget {
           //image section
           Consumer<PostCardProvider>(builder: (context, provider, child) {
             return GestureDetector(
-              onDoubleTap: () {
+              onDoubleTap: () async {
                 provider.animationTrue();
+                await FireStoreMethods()
+                    .likePost(snap["photoId"], user.uid, snap["likes"]);
               },
               child: Stack(
                 alignment: Alignment.center,
@@ -126,19 +130,26 @@ class PostCard extends StatelessWidget {
 
           Row(
             children: [
-              Consumer<UsersProvider>(builder: (context, provider, child) {
+              Consumer<PostCardProvider>(builder: (context, provider, child) {
                 return LikeAnimation(
-                  isAnimation: true,
-                  // snap["likes"].contains(
-                  //   provider.getUser.uid,
-                  // ),
+                  isAnimation: snap["likes"].contains(
+                    user.uid,
+                  ),
                   smallLike: true,
                   child: IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.favorite,
-                      color: Colors.red,
-                    ),
+                    onPressed: () async {
+                      // provider.animationTrue();
+                      await FireStoreMethods()
+                          .likePost(snap["photoId"], user.uid, snap["likes"]);
+                    },
+                    icon: snap["likes"].contains(user.uid)
+                        ? const Icon(
+                            Icons.favorite,
+                            color: Colors.red,
+                          )
+                        : const Icon(
+                            Icons.favorite_border,
+                          ),
                   ),
                 );
               }),
