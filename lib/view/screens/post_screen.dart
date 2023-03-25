@@ -71,7 +71,7 @@ class PostScreen extends StatelessWidget {
                         userModel.photoUrl,
                         context,
                       );
-
+                      value.disposeController();
                       value.clearImage();
                     },
                     child: const Text(
@@ -89,8 +89,10 @@ class PostScreen extends StatelessWidget {
               children: [
                 Provider.of<PostImageProvider>(context).isLoading
                     ? const LinearProgressIndicator()
-                    : Padding(
-                        padding: EdgeInsets.all(0),
+                    : const Padding(
+                        padding: EdgeInsets.all(
+                          0,
+                        ),
                       ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,

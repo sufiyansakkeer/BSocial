@@ -40,6 +40,7 @@ dependencies:
   google_sign_in: ^6.0.2
   image_picker: ^0.8.7
   internet_connection_checker: ^1.0.0+1
+  intl: ^0.17.0
   provider: ^6.0.5
   uuid: ^3.0.7
 
