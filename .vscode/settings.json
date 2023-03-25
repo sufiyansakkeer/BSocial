@@ -3,6 +3,7 @@
         "firestore",
         "LTRB",
         "scackbar",
-        "Schyler"
+        "Schyler",
+        "vsync"
     ]
 }

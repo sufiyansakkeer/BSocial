@@ -1,13 +1,19 @@
+import 'package:bsocial/model/user_model.dart';
+import 'package:bsocial/provider/post_card_provider.dart';
+import 'package:bsocial/provider/users_provider.dart';
 import 'package:bsocial/utils/colors.dart';
-import 'package:bsocial/utils/size.dart';
+import 'package:bsocial/view/widgets/like_animation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class PostCard extends StatelessWidget {
   const PostCard({super.key, this.snap});
   final snap;
   @override
   Widget build(BuildContext context) {
+    WidgetsFlutterBinding.ensureInitialized();
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       color: mobileBackgroundColor,
@@ -79,25 +85,63 @@ class PostCard extends StatelessWidget {
             ),
           ),
           //image section
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.35,
-            width: double.infinity,
-            child: Image.network(
-              snap["postUrl"],
-              fit: BoxFit.cover,
-            ),
-          ),
+          Consumer<PostCardProvider>(builder: (context, provider, child) {
+            return GestureDetector(
+              onDoubleTap: () {
+                provider.animationTrue();
+              },
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.35,
+                    width: double.infinity,
+                    child: Image.network(
+                      snap["postUrl"],
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 300),
+                    opacity: provider.isLikeAnimation ? 1 : 0,
+                    child: LikeAnimation(
+                      isAnimation: provider.isLikeAnimation,
+                      duration: const Duration(
+                        milliseconds: 350,
+                      ),
+                      onEnd: () {
+                        provider.animationFalse();
+                      },
+                      child: const Icon(
+                        Icons.favorite_sharp,
+                        size: 100,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
           //like comment share
 
           Row(
             children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.favorite,
-                  color: Colors.red,
-                ),
-              ),
+              Consumer<UsersProvider>(builder: (context, provider, child) {
+                return LikeAnimation(
+                  isAnimation: true,
+                  // snap["likes"].contains(
+                  //   provider.getUser.uid,
+                  // ),
+                  smallLike: true,
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.favorite,
+                      color: Colors.red,
+                    ),
+                  ),
+                );
+              }),
               IconButton(
                 onPressed: () {},
                 icon: const Icon(

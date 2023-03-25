@@ -1,3 +1,4 @@
+import 'package:bsocial/provider/post_card_provider.dart';
 import 'package:bsocial/provider/post_image_provider.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/provider/bottom_navigation_provider.dart';
@@ -63,6 +64,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => PostImageProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => PostCardProvider(),
         ),
       ],
       child: MaterialApp(
