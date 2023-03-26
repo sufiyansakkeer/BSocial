@@ -3,6 +3,7 @@ import 'package:bsocial/provider/post_card_provider.dart';
 import 'package:bsocial/provider/users_provider.dart';
 import 'package:bsocial/resources/firestore_methods.dart';
 import 'package:bsocial/utils/colors.dart';
+import 'package:bsocial/view/screens/comment_screen.dart';
 import 'package:bsocial/view/widgets/like_animation.dart';
 
 import 'package:flutter/material.dart';
@@ -154,7 +155,11 @@ class PostCard extends StatelessWidget {
                 );
               }),
               IconButton(
-                onPressed: () {},
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => CommentScreen(),
+                  ),
+                ),
                 icon: const Icon(
                   Icons.comment_outlined,
                   // color: Colors.red,
