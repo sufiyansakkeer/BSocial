@@ -10,7 +10,14 @@ import 'package:flutter/material.dart';
 class UsersProvider extends ChangeNotifier {
   UserModel? _user;
   final AuthMethods _authMethods = AuthMethods();
-  UserModel get getUser => _user!;
+  UserModel? get getUser {
+    if (_user != null) {
+      return _user;
+    } else {
+      return null;
+    }
+  }
+
   Future<void> refreshUser() async {}
   String userName = "";
 

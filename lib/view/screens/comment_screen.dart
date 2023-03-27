@@ -1,68 +1,116 @@
+import 'dart:developer';
+
+import 'package:bsocial/model/user_model.dart';
+import 'package:bsocial/provider/comment_provider.dart';
+import 'package:bsocial/provider/users_provider.dart';
+import 'package:bsocial/resources/firestore_methods.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/view/widgets/comment_card.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+
+import 'package:provider/provider.dart';
 
 class CommentScreen extends StatelessWidget {
-  const CommentScreen({super.key});
+  const CommentScreen({super.key, required this.snap});
+  final snap;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: mobileBackgroundColor,
-        elevation: 0,
-        title: Text(
-          "comments",
-        ),
-        centerTitle: true,
-      ),
-      body: CommentCard(),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          height: kToolbarHeight,
-          margin: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          padding: EdgeInsets.only(left: 16, right: 8),
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundImage: NetworkImage(
-                  "https://plus.unsplash.com/premium_photo-1663936756535-6c29f2dc04a4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8cmFuZG9tfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=1600&q=60",
-                ),
-                radius: 18,
+    final UserModel userModel = Provider.of<UsersProvider>(context).getUser!;
+    return userModel == null
+        ? const CircularProgressIndicator()
+        : Scaffold(
+            appBar: AppBar(
+              backgroundColor: mobileBackgroundColor,
+              elevation: 0,
+              title: const Text(
+                "comments",
               ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(left: 16),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "comment as username",
-                      border: InputBorder.none,
+              centerTitle: true,
+            ),
+            body: StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection("posts")
+                  .doc(snap["photoId"])
+                  .collection("comments")
+                  .snapshots(),
+              // initialData: initialData,
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else {
+                  return ListView.builder(
+                    itemBuilder: (context, index) {
+                      log((snapshot.data! as dynamic).docs.length.toString());
+                      return const CommentCard();
+                    },
+                    itemCount: (snapshot.data! as dynamic).docs.length,
+                  );
+                }
+              },
+            ),
+            bottomNavigationBar: SafeArea(
+              child: Container(
+                height: kToolbarHeight,
+                margin: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                padding: const EdgeInsets.only(left: 16, right: 8),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: NetworkImage(
+                        userModel.photoUrl,
+                      ),
+                      radius: 18,
                     ),
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: () {},
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    vertical: 10,
-                  ),
-                  child: Text(
-                    "Post",
-                    style: TextStyle(
-                      color: blueColor,
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: Consumer<CommentProvider>(
+                            builder: (context, value, child) {
+                          return TextField(
+                            controller: value.commentController,
+                            decoration: InputDecoration(
+                              hintText: "comment as ${userModel.userName}",
+                              border: InputBorder.none,
+                            ),
+                          );
+                        }),
+                      ),
                     ),
-                  ),
+                    Consumer<CommentProvider>(builder: (context, value, child) {
+                      return InkWell(
+                        onTap: () async {
+                          await FireStoreMethods().postComment(
+                            snap["photoId"],
+                            value.commentController.text,
+                            userModel.uid,
+                            userModel.photoUrl,
+                            userModel.userName,
+                          );
+                          value.disposeController();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                          ),
+                          child: const Text(
+                            "Post",
+                            style: TextStyle(
+                              color: blueColor,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
   }
 }

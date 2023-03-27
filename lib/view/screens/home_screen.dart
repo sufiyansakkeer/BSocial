@@ -1,4 +1,3 @@
-import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/view/widgets/post_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,6 +9,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsFlutterBinding.ensureInitialized();
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -23,7 +23,7 @@ class HomeScreen extends StatelessWidget {
           actions: [
             IconButton(
               onPressed: () {},
-              icon: Icon(
+              icon: const Icon(
                 Icons.messenger,
               ),
             ),
@@ -36,16 +36,17 @@ class HomeScreen extends StatelessWidget {
           builder: (BuildContext context,
               AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
+              return const Center(
                 child: CircularProgressIndicator(),
               );
+            } else {
+              return ListView.builder(
+                itemCount: snapshot.data!.docs.length,
+                itemBuilder: (context, index) {
+                  return PostCard(snap: snapshot.data!.docs[index].data());
+                },
+              );
             }
-            return ListView.builder(
-              itemCount: snapshot.data!.docs.length,
-              itemBuilder: (context, index) {
-                return PostCard(snap: snapshot.data!.docs[index].data());
-              },
-            );
           },
         ),
         // Container(

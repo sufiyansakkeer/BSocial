@@ -64,7 +64,7 @@ class PostScreen extends StatelessWidget {
                       // Navigator.of(context).pop();
                       final UserModel userModel =
                           Provider.of<UsersProvider>(context, listen: false)
-                              .getUser;
+                              .getUser!;
                       value.postImage(
                         userModel.uid,
                         userModel.userName,
@@ -102,7 +102,7 @@ class PostScreen extends StatelessWidget {
                         builder: (context, provider, child) {
                       return CircleAvatar(
                         backgroundImage:
-                            NetworkImage(provider.getUser.photoUrl),
+                            NetworkImage(provider.getUser!.photoUrl),
                       );
                     }),
                     SizedBox(
