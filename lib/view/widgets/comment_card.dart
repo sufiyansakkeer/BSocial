@@ -1,15 +1,17 @@
 import 'package:bsocial/model/user_model.dart';
 import 'package:bsocial/provider/users_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class CommentCard extends StatelessWidget {
-  const CommentCard({super.key});
+  const CommentCard({super.key, required this.snap});
+  final snap;
   @override
   Widget build(BuildContext context) {
     final UserModel? userModel = Provider.of<UsersProvider>(context).getUser;
     return userModel == null
-        ? CircularProgressIndicator()
+        ? const CircularProgressIndicator()
         : Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -19,7 +21,7 @@ class CommentCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   backgroundImage: NetworkImage(
-                    userModel.photoUrl,
+                    snap["profilePic"],
                   ),
                   radius: 18,
                 ),
@@ -36,13 +38,13 @@ class CommentCard extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
-                                text: "username",
-                                style: TextStyle(
+                                text: snap["name"],
+                                style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               TextSpan(
-                                text: " some description",
+                                text: " ${snap["text"]}",
                               ),
                             ],
                           ),
@@ -50,7 +52,9 @@ class CommentCard extends StatelessWidget {
                         Padding(
                           padding: EdgeInsets.only(top: 4),
                           child: Text(
-                            "23,12 ,22",
+                            DateFormat.yMMMd().format(
+                              snap["datePublished"].toDate(),
+                            ),
                             style: TextStyle(
                               fontWeight: FontWeight.w400,
                             ),
@@ -61,8 +65,8 @@ class CommentCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.all(0),
-                  child: Icon(
+                  padding: const EdgeInsets.all(0),
+                  child: const Icon(
                     Icons.favorite_border,
                   ),
                 )

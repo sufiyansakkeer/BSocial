@@ -45,7 +45,9 @@ class CommentScreen extends StatelessWidget {
                   return ListView.builder(
                     itemBuilder: (context, index) {
                       log((snapshot.data! as dynamic).docs.length.toString());
-                      return const CommentCard();
+                      return CommentCard(
+                        snap: snapshot.data!.docs[index].data(),
+                      );
                     },
                     itemCount: (snapshot.data! as dynamic).docs.length,
                   );
