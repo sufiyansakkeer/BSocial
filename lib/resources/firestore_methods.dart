@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:bsocial/model/post_model.dart';
 import 'package:bsocial/resources/storage_methods.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:uuid/uuid.dart';
 
 class FireStoreMethods {
@@ -97,6 +99,27 @@ class FireStoreMethods {
       }
     } catch (e) {
       log(e.toString());
+    }
+  }
+
+  //
+  Future<void> deletePost(String postId) async {
+    try {
+      await _firestore.collection("posts").doc(postId).delete();
+      showSimpleNotification(
+        const Text(
+          "Post deleted successfully",
+          textAlign: TextAlign.center,
+        ),
+        position: NotificationPosition.bottom,
+        background: Colors.white,
+      );
+    } catch (e) {
+      showSimpleNotification(
+        const Text(
+          "Some error occurred while deleting the post",
+        ),
+      );
     }
   }
 }

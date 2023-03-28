@@ -71,7 +71,11 @@ class PostCard extends StatelessWidget {
                                 children: ['Delete']
                                     .map(
                                       (e) => InkWell(
-                                        onTap: () {},
+                                        onTap: () {
+                                          FireStoreMethods()
+                                              .deletePost(snap["photoId"]);
+                                          Navigator.of(context).pop();
+                                        },
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 16),
@@ -95,7 +99,7 @@ class PostCard extends StatelessWidget {
                 Consumer<PostCardProvider>(builder: (context, provider, child) {
                   return GestureDetector(
                     onDoubleTap: () async {
-                      provider.animationTrue();
+                      // provider.animationTrue();
                       await FireStoreMethods()
                           .likePost(snap["photoId"], user.uid, snap["likes"]);
                     },
