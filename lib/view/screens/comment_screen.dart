@@ -34,6 +34,7 @@ class CommentScreen extends StatelessWidget {
                   .collection("posts")
                   .doc(snap["photoId"])
                   .collection("comments")
+                  .orderBy("datePublished", descending: true)
                   .snapshots(),
               // initialData: initialData,
               builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -41,10 +42,12 @@ class CommentScreen extends StatelessWidget {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
+                } else if (snapshot.connectionState == ConnectionState.none) {
+                  return Container();
                 } else {
                   return ListView.builder(
                     itemBuilder: (context, index) {
-                      log((snapshot.data! as dynamic).docs.length.toString());
+                      log(snapshot.data!.docs.length.toString());
                       return CommentCard(
                         snap: snapshot.data!.docs[index].data(),
                       );

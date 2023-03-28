@@ -31,7 +31,10 @@ class HomeScreen extends StatelessWidget {
         ),
         body: StreamBuilder(
           // here we use snapshot instead of get , because get will return a future function
-          stream: FirebaseFirestore.instance.collection('posts').snapshots(),
+          stream: FirebaseFirestore.instance
+              .collection('posts')
+              .orderBy("datePublished", descending: true)
+              .snapshots(),
           // initialData: initialData,
           builder: (BuildContext context,
               AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {

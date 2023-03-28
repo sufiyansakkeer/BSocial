@@ -76,7 +76,7 @@ class FireStoreMethods {
       String profilePic, String name) async {
     try {
       if (text.isNotEmpty) {
-        String commentId = Uuid().v1();
+        String commentId = const Uuid().v1();
         await _firestore
             .collection("posts")
             .doc(postId)

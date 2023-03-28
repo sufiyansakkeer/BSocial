@@ -53,7 +53,13 @@ class SignUpScreenProvider extends ChangeNotifier {
     // log("$res in signUp provider");
     if (context.mounted) {
       if (res != "success") {
-        showSnackBar(res, context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              res,
+            ),
+          ),
+        );
       } else {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(

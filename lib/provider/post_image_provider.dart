@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:blurrycontainer/blurrycontainer.dart';
@@ -5,6 +6,7 @@ import 'package:bsocial/resources/firestore_methods.dart';
 import 'package:bsocial/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
 class PostImageProvider extends ChangeNotifier {
@@ -76,17 +78,41 @@ class PostImageProvider extends ChangeNotifier {
         profileImage,
       );
       if (context.mounted) {}
+
       if (res == 'success') {
+        // showSnackBar('Posted', context);
+        showSimpleNotification(
+          const Text(
+            "Posted",
+            textAlign: TextAlign.center,
+          ),
+          position: NotificationPosition.bottom,
+          background: Colors.white,
+        );
         isLoading = false;
-        showSnackBar('Posted', context);
         notifyListeners();
       } else {
         isLoading = false;
-        showSnackBar(res, context);
+        showSimpleNotification(
+          Text(
+            res,
+            textAlign: TextAlign.center,
+          ),
+          background: Colors.white,
+        );
         notifyListeners();
       }
+      //   else {
+      //   log("is mounted: ${context.mounted.toString()}");
+      // }
     } catch (e) {
-      showSnackBar(e.toString(), context);
+      showSimpleNotification(
+        Text(
+          e.toString(),
+          textAlign: TextAlign.center,
+        ),
+        background: Colors.white,
+      );
     }
   }
 

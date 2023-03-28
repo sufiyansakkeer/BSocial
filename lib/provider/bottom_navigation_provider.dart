@@ -8,7 +8,7 @@ class BottomNavigationProvider extends ChangeNotifier {
   final pages = [
     const HomeScreen(),
     const SearchScreen(),
-    const PostScreen(),
+    PostScreen(),
     const ProfileScreen(),
   ];
   int currentIndex = 0;

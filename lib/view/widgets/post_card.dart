@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 
 class PostCard extends StatelessWidget {
   const PostCard({super.key, this.snap});
-  final snap;
+  final dynamic snap;
   @override
   Widget build(BuildContext context) {
     // WidgetsFlutterBinding.ensureInitialized();

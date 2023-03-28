@@ -8,6 +8,7 @@ import 'package:bsocial/provider/login_screen_provider.dart';
 import 'package:bsocial/provider/mobile_screen_provider.dart';
 import 'package:bsocial/provider/users_provider.dart';
 import 'package:bsocial/provider/sign_up_provider.dart';
+
 import 'package:bsocial/view/layout/mobile_screen_layout.dart';
 import 'package:bsocial/view/layout/web_screen_layout.dart';
 import 'package:bsocial/view/screens/login_screen.dart';
@@ -15,6 +16,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'view/layout/responsive_layout_building.dart';
 
@@ -73,38 +75,40 @@ class MyApp extends StatelessWidget {
           create: (context) => CommentProvider(),
         ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'BSocial',
-        theme: ThemeData.dark()
-            .copyWith(scaffoldBackgroundColor: mobileBackgroundColor),
-        home: StreamBuilder(
-          // here we use authStateChanges to listen if there any changes in the user authentication
-          stream: FirebaseAuth.instance.authStateChanges(),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            //here we checking our connection is made with the stream,active means we have made connection with the stream
-            if (snapshot.connectionState == ConnectionState.active) {
-              //here hasData is used to check if the user is authenticated or not
-              if (snapshot.hasData) {
-                return const ResponsiveLayout(
-                  webScreenLayout: WebScreenLayout(),
-                  mobileScreenLayout: MobileScreenLayout(),
-                );
-              } else if (snapshot.hasError) {
-                return Center(
-                  child: Text('${snapshot.error}'),
+      child: OverlaySupport.global(
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'BSocial',
+          theme: ThemeData.dark()
+              .copyWith(scaffoldBackgroundColor: mobileBackgroundColor),
+          home: StreamBuilder(
+            // here we use authStateChanges to listen if there any changes in the user authentication
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (BuildContext context, AsyncSnapshot snapshot) {
+              //here we checking our connection is made with the stream,active means we have made connection with the stream
+              if (snapshot.connectionState == ConnectionState.active) {
+                //here hasData is used to check if the user is authenticated or not
+                if (snapshot.hasData) {
+                  return const ResponsiveLayout(
+                    webScreenLayout: WebScreenLayout(),
+                    mobileScreenLayout: MobileScreenLayout(),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('${snapshot.error}'),
+                  );
+                }
+              }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
                 );
               }
-            }
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                ),
-              );
-            }
-            return const LoginScreen();
-          },
+              return const LoginScreen();
+            },
+          ),
         ),
       ),
     );
