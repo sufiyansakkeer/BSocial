@@ -5,6 +5,7 @@ import 'package:bsocial/resources/firestore_methods.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/view/screens/comment_screen.dart';
 import 'package:bsocial/view/widgets/like_animation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -17,6 +18,7 @@ class PostCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // WidgetsFlutterBinding.ensureInitialized();
+
     final UserModel? user = Provider.of<UsersProvider>(context).getUser;
     return user != null
         ? Container(
@@ -227,12 +229,40 @@ class PostCard extends StatelessWidget {
                         ),
                       ),
                       InkWell(
-                        onTap: () {},
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => CommentScreen(
+                              snap: snap,
+                            ),
+                          ),
+                        ),
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: const Text(
-                            "View all 200 comments",
-                            style: TextStyle(color: secondaryColor),
+                          child: StreamBuilder(
+                            stream: FirebaseFirestore.instance
+                                .collection("posts")
+                                .doc(snap["photoId"])
+                                .collection('comments')
+                                .snapshots(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<
+                                        QuerySnapshot<Map<String, dynamic>>>
+                                    snapshot) {
+                              if (snapshot.hasData) {
+                                if (snapshot.data!.docs.isEmpty) {
+                                  return const Text(
+                                    "comments",
+                                    style: TextStyle(color: secondaryColor),
+                                  );
+                                }
+                                return Text(
+                                  "View all ${snapshot.data!.docs.length} comments",
+                                  style: const TextStyle(color: secondaryColor),
+                                );
+                              } else {
+                                return const Text("View all");
+                              }
+                            },
                           ),
                         ),
                       ),
