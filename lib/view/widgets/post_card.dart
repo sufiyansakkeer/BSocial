@@ -9,6 +9,7 @@ import 'package:bsocial/view/widgets/like_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PostCard extends StatelessWidget {
   const PostCard({super.key, this.snap});
@@ -252,6 +253,19 @@ class PostCard extends StatelessWidget {
               ],
             ),
           )
-        : CircularProgressIndicator();
+        : Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: SizedBox(
+              width: double.infinity,
+              height: 100.0,
+              child: Shimmer.fromColors(
+                baseColor: const Color(0xFF4D4D4D),
+                highlightColor: const Color(0xFF4D4D4D),
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.7,
+                ),
+              ),
+            ),
+          );
   }
 }
