@@ -1,6 +1,7 @@
 import 'package:bsocial/provider/comment_provider.dart';
 import 'package:bsocial/provider/post_card_provider.dart';
 import 'package:bsocial/provider/post_image_provider.dart';
+import 'package:bsocial/provider/profile_screen_provider.dart';
 import 'package:bsocial/provider/search_provider.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/provider/bottom_navigation_provider.dart';
@@ -78,12 +79,15 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => SearchProvider(),
         ),
+        ChangeNotifierProvider(
+          create: (context) => ProfileScreenProvider(),
+        ),
       ],
       child: OverlaySupport.global(
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'BSocial',
-          theme: ThemeData.dark()
+          theme: ThemeData.dark(useMaterial3: true)
               .copyWith(scaffoldBackgroundColor: mobileBackgroundColor),
           home: StreamBuilder(
             // here we use authStateChanges to listen if there any changes in the user authentication
@@ -93,6 +97,8 @@ class MyApp extends StatelessWidget {
               if (snapshot.connectionState == ConnectionState.active) {
                 //here hasData is used to check if the user is authenticated or not
                 if (snapshot.hasData) {
+                  Provider.of<ProfileScreenProvider>(context, listen: false)
+                      .getData(FirebaseAuth.instance.currentUser!.uid);
                   return const ResponsiveLayout(
                     webScreenLayout: WebScreenLayout(),
                     mobileScreenLayout: MobileScreenLayout(),

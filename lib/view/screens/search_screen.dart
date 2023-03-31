@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:bsocial/provider/search_provider.dart';
 import 'package:bsocial/utils/colors.dart';
+import 'package:bsocial/view/screens/profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -69,14 +70,26 @@ class SearchScreen extends StatelessWidget {
                         return ListView.builder(
                           itemBuilder: (context, index) {
                             log("${(snapshot.data)}");
-                            return ListTile(
-                              leading: CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                    (snapshot.data! as dynamic).docs[index]
-                                        ["photoUrl"]),
+                            return InkWell(
+                              onTap: () async {
+                                await Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => ProfileScreen(
+                                      uid: (snapshot.data! as dynamic)
+                                          .docs[index]["uid"],
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                      (snapshot.data! as dynamic).docs[index]
+                                          ["photoUrl"]),
+                                ),
+                                title: Text(
+                                    snapshot.data!.docs[index]["username"]),
                               ),
-                              title:
-                                  Text(snapshot.data!.docs[index]["username"]),
                             );
                           },
                           itemCount: (snapshot.data! as dynamic).docs.length,
@@ -106,7 +119,7 @@ class SearchScreen extends StatelessWidget {
                           crossAxisSpacing: 10,
                           gridDelegate:
                               SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3),
+                                  crossAxisCount: 2),
                           itemBuilder: (context, index) {
                             return Image.network(
                                 snapshot.data.docs[index]["postUrl"]);
