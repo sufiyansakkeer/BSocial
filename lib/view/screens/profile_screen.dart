@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:bsocial/provider/profile_screen_provider.dart';
 import 'package:bsocial/provider/users_provider.dart';
 import 'package:bsocial/resources/auth_methods.dart';
+import 'package:bsocial/resources/firestore_methods.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/view/widgets/follow_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -95,23 +96,41 @@ class ProfileScreen extends StatelessWidget {
                                         borderColor: Colors.white,
                                         backgroundColor: mobileBackgroundColor,
                                         textColor: Colors.white,
-                                        function: () {},
+                                        function: () {
+                                          AuthMethods().signOutUser(context);
+                                        },
                                       )
                                     : value.isFollowing
                                         ? FollowButton(
-                                            text: "Un follow",
+                                            text: "follow",
                                             borderColor: mobileBackgroundColor,
                                             backgroundColor: Colors.white,
                                             textColor: mobileBackgroundColor,
-                                            function: () {},
+                                            function: () async {
+                                              await FireStoreMethods()
+                                                  .followUser(
+                                                      FirebaseAuth.instance
+                                                          .currentUser!.uid,
+                                                      uid);
+
+                                              value.isFollowFunctionInc();
+                                            },
                                           )
                                         : FollowButton(
-                                            text: "Follow",
+                                            text: "Unfollow",
                                             borderColor: Colors.white,
                                             backgroundColor:
                                                 mobileBackgroundColor,
                                             textColor: Colors.white,
-                                            function: () {},
+                                            function: () async {
+                                              await FireStoreMethods()
+                                                  .followUser(
+                                                      FirebaseAuth.instance
+                                                          .currentUser!.uid,
+                                                      uid);
+                                              value.isFollowingDec();
+                                              log("${value.isFollowing} value");
+                                            },
                                           ),
                                 // FollowButton(
                                 //   text: "sign Out",
@@ -130,42 +149,42 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                Consumer<ProfileScreenProvider>(
-                    builder: (context, value, child) {
-                  // value.getData(uid);
-                  return Container(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.only(
-                      top: 2,
-                    ),
-                    child: Text(
-                      value.userData["username"],
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  );
-                }),
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: EdgeInsets.only(
-                    top: 2,
-                  ),
-                  child: Text(
-                    "some description",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
+                // Consumer<ProfileScreenProvider>(
+                //     builder: (context, value, child) {
+                //   // value.getData(uid);
+                //   return Container(
+                //     alignment: Alignment.centerLeft,
+                //     padding: const EdgeInsets.only(
+                //       top: 2,
+                //     ),
+                //     child: Text(
+                //       value.userData["username"],
+                //       style: const TextStyle(
+                //         fontWeight: FontWeight.bold,
+                //       ),
+                //     ),
+                //   );
+                // }),
+                // Container(
+                //   alignment: Alignment.centerLeft,
+                //   padding: const EdgeInsets.only(
+                //     top: 2,
+                //   ),
+                //   child: const Text(
+                //     "some description",
+                //     style: TextStyle(
+                //       fontWeight: FontWeight.w400,
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),
-          Divider(),
+          const Divider(),
           FutureBuilder(
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
+                return const Center(
                   child: CircularProgressIndicator(),
                 );
               }
@@ -175,7 +194,7 @@ class ProfileScreen extends StatelessWidget {
                 return GridView.builder(
                   shrinkWrap: true,
                   itemCount: (snapshot.data! as dynamic).docs.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     childAspectRatio: 1,
                     crossAxisSpacing: 5,
@@ -193,7 +212,7 @@ class ProfileScreen extends StatelessWidget {
                   },
                 );
               } else {
-                return Center(
+                return const Center(
                   child: Text("Add Post to See here"),
                 );
               }
@@ -225,13 +244,13 @@ class ProfileScreen extends StatelessWidget {
       children: [
         Text(
           number.toString(),
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
         ),
         Container(
-          margin: EdgeInsets.symmetric(
+          margin: const EdgeInsets.symmetric(
             horizontal: 4,
             vertical: 12,
           ),

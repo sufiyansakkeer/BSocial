@@ -31,4 +31,16 @@ class ProfileScreenProvider extends ChangeNotifier {
       showSimpleNotification(Text(e.toString()));
     }
   }
+
+  isFollowFunctionInc() {
+    isFollowing = false;
+    followers++;
+    notifyListeners();
+  }
+
+  isFollowingDec() {
+    isFollowing = true;
+    followers--;
+    notifyListeners();
+  }
 }

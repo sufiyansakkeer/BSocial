@@ -25,7 +25,6 @@ class PostScreen extends StatelessWidget {
     return Provider.of<PostImageProvider>(context).file == null
         ? SafeArea(
             child: Scaffold(
-              key: scaffoldKey,
               body: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
