@@ -162,6 +162,47 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           Divider(),
+          FutureBuilder(
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              if (snapshot.hasData) {
+                log("snapshot has data");
+                return GridView.builder(
+                  shrinkWrap: true,
+                  itemCount: (snapshot.data! as dynamic).docs.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 1,
+                    crossAxisSpacing: 5,
+                    mainAxisSpacing: 1.5,
+                  ),
+                  itemBuilder: (context, index) {
+                    DocumentSnapshot snap =
+                        (snapshot.data! as dynamic).docs[index];
+                    return Container(
+                      child: Image.network(
+                        snap["postUrl"],
+                        fit: BoxFit.fill,
+                      ),
+                    );
+                  },
+                );
+              } else {
+                return Center(
+                  child: Text("Add Post to See here"),
+                );
+              }
+            },
+            future: FirebaseFirestore.instance
+                .collection("posts")
+                .where("uid", isEqualTo: uid)
+                .get(),
+          )
         ],
       ),
       // body: Center(
