@@ -18,7 +18,11 @@ class LoginScreen extends StatelessWidget {
         // resizeToAvoidBottomInset: false,
         body: SingleChildScrollView(
             child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+          padding: MediaQuery.of(context).size.width > webScreenHeight
+              ? EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width / 3,
+                  vertical: 20)
+              : EdgeInsets.symmetric(horizontal: 30, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [

@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:blurrycontainer/blurrycontainer.dart';
@@ -7,7 +6,6 @@ import 'package:bsocial/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:overlay_support/overlay_support.dart';
-import 'package:provider/provider.dart';
 
 class PostImageProvider extends ChangeNotifier {
   Uint8List? file;

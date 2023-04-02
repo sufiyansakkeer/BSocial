@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:bsocial/provider/profile_screen_provider.dart';
-import 'package:bsocial/provider/users_provider.dart';
+
 import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/resources/firestore_methods.dart';
 import 'package:bsocial/utils/colors.dart';
@@ -9,7 +9,7 @@ import 'package:bsocial/view/widgets/follow_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:overlay_support/overlay_support.dart';
+
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -50,7 +50,7 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     Consumer<ProfileScreenProvider>(
                         builder: (context, value, child) {
-                      log("logggg 1 ${value.postLength}");
+                      log("length of post is ${value.postLength}");
                       // value.getData(uid);
                       return CircleAvatar(
                         backgroundColor: Colors.grey,
@@ -86,6 +86,7 @@ class ProfileScreen extends StatelessWidget {
                           }),
                           Consumer<ProfileScreenProvider>(
                               builder: (context, value, child) {
+                            // value.isChecking(uid);
                             return Row(
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -102,21 +103,6 @@ class ProfileScreen extends StatelessWidget {
                                       )
                                     : value.isFollowing
                                         ? FollowButton(
-                                            text: "follow",
-                                            borderColor: mobileBackgroundColor,
-                                            backgroundColor: Colors.white,
-                                            textColor: mobileBackgroundColor,
-                                            function: () async {
-                                              await FireStoreMethods()
-                                                  .followUser(
-                                                      FirebaseAuth.instance
-                                                          .currentUser!.uid,
-                                                      uid);
-
-                                              value.isFollowFunctionInc();
-                                            },
-                                          )
-                                        : FollowButton(
                                             text: "Unfollow",
                                             borderColor: Colors.white,
                                             backgroundColor:
@@ -128,8 +114,23 @@ class ProfileScreen extends StatelessWidget {
                                                       FirebaseAuth.instance
                                                           .currentUser!.uid,
                                                       uid);
-                                              value.isFollowingDec();
+                                              value.isFollowFunctionInc();
                                               log("${value.isFollowing} value");
+                                            },
+                                          )
+                                        : FollowButton(
+                                            text: "follow",
+                                            borderColor: mobileBackgroundColor,
+                                            backgroundColor: Colors.white,
+                                            textColor: mobileBackgroundColor,
+                                            function: () async {
+                                              await FireStoreMethods()
+                                                  .followUser(
+                                                      FirebaseAuth.instance
+                                                          .currentUser!.uid,
+                                                      uid);
+
+                                              value.isFollowingDec();
                                             },
                                           ),
                                 // FollowButton(

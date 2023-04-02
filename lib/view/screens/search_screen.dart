@@ -1,9 +1,11 @@
 import 'dart:developer';
 
+import 'package:bsocial/provider/profile_screen_provider.dart';
 import 'package:bsocial/provider/search_provider.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/view/screens/profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
@@ -69,9 +71,26 @@ class SearchScreen extends StatelessWidget {
                         }
                         return ListView.builder(
                           itemBuilder: (context, index) {
-                            log("${(snapshot.data)}");
                             return InkWell(
                               onTap: () async {
+                                log("${snapshot.data!.docs[index]["username"]}");
+                                var result = await FirebaseFirestore.instance
+                                    .collection("users")
+                                    .doc((snapshot.data! as dynamic).docs[index]
+                                        ["uid"])
+                                    .get();
+                                var followerSnap = result.data()!["followers"];
+                                for (var uid in followerSnap) {
+                                  if (uid ==
+                                      FirebaseAuth.instance.currentUser!.uid) {
+                                    log("loop is workig");
+                                    Provider.of<ProfileScreenProvider>(context,
+                                            listen: false)
+                                        .isFollowin = true;
+                                    break;
+                                  }
+                                }
+                                log("${followerSnap.toString()} is the checking function");
                                 await Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (context) => ProfileScreen(
@@ -102,7 +121,7 @@ class SearchScreen extends StatelessWidget {
                       // initialData: InitialData,
                       builder: (BuildContext context, AsyncSnapshot snapshot) {
                         if (!snapshot.hasData) {
-                          return Center(
+                          return const Center(
                             child: Text(
                               "Error while fetching Data",
                             ),
@@ -110,7 +129,7 @@ class SearchScreen extends StatelessWidget {
                         }
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(
+                          return const Center(
                             child: CircularProgressIndicator(),
                           );
                         }
@@ -118,7 +137,7 @@ class SearchScreen extends StatelessWidget {
                           mainAxisSpacing: 10,
                           crossAxisSpacing: 10,
                           gridDelegate:
-                              SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                              const SliverSimpleGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2),
                           itemBuilder: (context, index) {
                             return Image.network(

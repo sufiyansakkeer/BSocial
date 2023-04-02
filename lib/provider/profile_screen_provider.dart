@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 
@@ -11,6 +12,7 @@ class ProfileScreenProvider extends ChangeNotifier {
   int followers = 0;
   int following = 0;
   bool isFollowing = false;
+  DocumentSnapshot? snapFollow;
   getData(String uid) async {
     try {
       var userSnap =
@@ -32,15 +34,31 @@ class ProfileScreenProvider extends ChangeNotifier {
     }
   }
 
+  set isFollowin(bool value) {
+    isFollowing = value;
+    notifyListeners();
+  }
+
   isFollowFunctionInc() {
     isFollowing = false;
-    followers++;
+    followers--;
     notifyListeners();
   }
 
   isFollowingDec() {
     isFollowing = true;
-    followers--;
+    followers++;
     notifyListeners();
+  }
+
+  isChecking(String uid) async {
+    snapFollow =
+        await FirebaseFirestore.instance.collection("users").doc(uid).get();
+    if ((snapFollow!.data() as dynamic)["followers"]
+        .contain(FirebaseAuth.instance.currentUser!.uid)) {
+      isFollowing = true;
+    } else {
+      isFollowing = false;
+    }
   }
 }

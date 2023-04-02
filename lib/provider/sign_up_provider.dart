@@ -1,7 +1,5 @@
 import 'dart:developer';
-import 'dart:typed_data';
 
-import 'package:bsocial/utils/utils.dart';
 import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/view/layout/mobile_screen_layout.dart';
 import 'package:bsocial/view/layout/responsive_layout_building.dart';
@@ -9,7 +7,6 @@ import 'package:bsocial/view/layout/web_screen_layout.dart';
 import 'package:bsocial/view/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
 
 import 'package:provider/provider.dart';
 

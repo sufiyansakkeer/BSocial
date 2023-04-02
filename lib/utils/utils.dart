@@ -1,12 +1,7 @@
 import 'dart:developer';
 
-import 'package:bsocial/utils/utils.dart';
-import 'package:bsocial/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
-import 'utils.dart';
-import 'package:flutter/scheduler.dart';
 
 GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
