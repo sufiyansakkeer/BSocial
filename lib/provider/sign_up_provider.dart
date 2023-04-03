@@ -7,8 +7,11 @@ import 'package:bsocial/view/layout/web_screen_layout.dart';
 import 'package:bsocial/view/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:provider/provider.dart';
+
+import '../utils/utils.dart';
 
 class SignUpScreenProvider extends ChangeNotifier {
   final TextEditingController emailTextController = TextEditingController();
@@ -20,10 +23,11 @@ class SignUpScreenProvider extends ChangeNotifier {
   bool isPass1 = true;
   bool isPass2 = true;
   // BuildContext? context;
-  // void selectImage() async {
-  //   image = await pickedFile(ImageSource.gallery);
-  //   notifyListeners();
-  // }
+  void selectImage() async {
+    image = await pickedFile(ImageSource.gallery);
+    notifyListeners();
+  }
+
   assignImage() async {
     final ByteData bytes = await rootBundle.load('assets/images/images.jpeg');
     image = bytes.buffer.asUint8List();

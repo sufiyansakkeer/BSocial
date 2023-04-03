@@ -99,6 +99,7 @@ class MyApp extends StatelessWidget {
                 if (snapshot.hasData) {
                   Provider.of<ProfileScreenProvider>(context, listen: false)
                       .getData(FirebaseAuth.instance.currentUser!.uid);
+                  Provider.of<UsersProvider>(context, listen: false).refreshUi;
                   return const ResponsiveLayout(
                     webScreenLayout: WebScreenLayout(),
                     mobileScreenLayout: MobileScreenLayout(),

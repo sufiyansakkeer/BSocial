@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:bsocial/model/post_model.dart';
 import 'package:bsocial/resources/storage_methods.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:uuid/uuid.dart';
@@ -156,5 +157,15 @@ class FireStoreMethods {
     } catch (e) {
       log(e.toString());
     }
+  }
+
+  Future<List> sortPost() async {
+    var snap = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+
+    List followData = (snap.data()! as dynamic)["following"];
+    return followData;
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:bsocial/model/post_model.dart';
 import 'package:bsocial/model/user_model.dart';
 import 'package:bsocial/provider/comment_provider.dart';
 import 'package:bsocial/provider/users_provider.dart';
@@ -12,8 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class CommentScreen extends StatelessWidget {
-  const CommentScreen({super.key, required this.snap});
-  final snap;
+  const CommentScreen({super.key, required this.postModel});
+  final PostModel postModel;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,7 @@ class CommentScreen extends StatelessWidget {
             body: StreamBuilder(
               stream: FirebaseFirestore.instance
                   .collection("posts")
-                  .doc(snap["photoId"])
+                  .doc(postModel.photoId)
                   .collection("comments")
                   .orderBy("datePublished", descending: true)
                   .snapshots(),
@@ -91,7 +92,7 @@ class CommentScreen extends StatelessWidget {
                       return InkWell(
                         onTap: () async {
                           await FireStoreMethods().postComment(
-                            snap["photoId"],
+                            postModel.photoId,
                             value.commentController.text,
                             userModel.uid,
                             userModel.photoUrl,

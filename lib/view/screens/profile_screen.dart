@@ -5,6 +5,7 @@ import 'package:bsocial/provider/profile_screen_provider.dart';
 import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/resources/firestore_methods.dart';
 import 'package:bsocial/utils/colors.dart';
+import 'package:bsocial/view/screens/edit_screen.dart';
 import 'package:bsocial/view/widgets/follow_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -37,6 +38,18 @@ class ProfileScreen extends StatelessWidget {
           );
         }),
         elevation: 0,
+        actions: [
+          FirebaseAuth.instance.currentUser!.uid == uid
+              ? IconButton(
+                  onPressed: () {
+                    AuthMethods().signOutUser(context);
+                  },
+                  icon: const Icon(
+                    Icons.exit_to_app_rounded,
+                  ),
+                )
+              : const Text(""),
+        ],
       ),
       body: ListView(
         children: [
@@ -98,7 +111,12 @@ class ProfileScreen extends StatelessWidget {
                                         backgroundColor: mobileBackgroundColor,
                                         textColor: Colors.white,
                                         function: () {
-                                          AuthMethods().signOutUser(context);
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  EditScreen(),
+                                            ),
+                                          );
                                         },
                                       )
                                     : value.isFollowing

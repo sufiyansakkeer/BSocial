@@ -1,3 +1,4 @@
+import 'package:bsocial/model/post_model.dart';
 import 'package:bsocial/model/user_model.dart';
 import 'package:bsocial/provider/post_card_provider.dart';
 import 'package:bsocial/provider/users_provider.dart';
@@ -13,8 +14,8 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 class PostCard extends StatelessWidget {
-  const PostCard({super.key, this.snap});
-  final dynamic snap;
+  const PostCard({super.key, required this.postModel});
+  final PostModel postModel;
   @override
   Widget build(BuildContext context) {
     // WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +37,7 @@ class PostCard extends StatelessWidget {
                       CircleAvatar(
                         radius: 16,
                         backgroundImage: NetworkImage(
-                          snap['profileImg'],
+                          postModel.postUrl,
                         ),
                       ),
                       Expanded(
@@ -49,7 +50,7 @@ class PostCard extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                snap['username'],
+                                postModel.userName,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -73,7 +74,7 @@ class PostCard extends StatelessWidget {
                                       (e) => InkWell(
                                         onTap: () {
                                           FireStoreMethods()
-                                              .deletePost(snap["photoId"]);
+                                              .deletePost(postModel.photoId);
                                           Navigator.of(context).pop();
                                         },
                                         child: Container(
@@ -100,8 +101,8 @@ class PostCard extends StatelessWidget {
                   return GestureDetector(
                     onDoubleTap: () async {
                       // provider.animationTrue();
-                      await FireStoreMethods()
-                          .likePost(snap["photoId"], user.uid, snap["likes"]);
+                      await FireStoreMethods().likePost(
+                          postModel.photoId, user.uid, postModel.likes);
                     },
                     child: Stack(
                       alignment: Alignment.center,
@@ -110,7 +111,7 @@ class PostCard extends StatelessWidget {
                           height: MediaQuery.of(context).size.height * 0.35,
                           width: double.infinity,
                           child: Image.network(
-                            snap["postUrl"],
+                            postModel.postUrl,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -142,7 +143,7 @@ class PostCard extends StatelessWidget {
                     Consumer<PostCardProvider>(
                         builder: (context, provider, child) {
                       return LikeAnimation(
-                        isAnimation: snap["likes"].contains(
+                        isAnimation: postModel.likes.contains(
                           user.uid,
                         ),
                         smallLike: true,
@@ -150,9 +151,9 @@ class PostCard extends StatelessWidget {
                           onPressed: () async {
                             // provider.animationTrue();
                             await FireStoreMethods().likePost(
-                                snap["photoId"], user.uid, snap["likes"]);
+                                postModel.photoId, user.uid, postModel.likes);
                           },
-                          icon: snap["likes"].contains(user.uid)
+                          icon: postModel.likes.contains(user.uid)
                               ? const Icon(
                                   Icons.favorite,
                                   color: Colors.red,
@@ -167,7 +168,7 @@ class PostCard extends StatelessWidget {
                       onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => CommentScreen(
-                            snap: snap,
+                            postModel: postModel,
                           ),
                         ),
                       ),
@@ -207,7 +208,7 @@ class PostCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "${snap["likes"].length} likes",
+                        "${postModel.likes.length} likes",
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       Container(
@@ -220,13 +221,13 @@ class PostCard extends StatelessWidget {
                             ),
                             children: [
                               TextSpan(
-                                text: snap['username'],
+                                text: postModel.userName,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               TextSpan(
-                                text: " ${snap["description"]}",
+                                text: " ${postModel.description}",
                               ),
                             ],
                           ),
@@ -236,7 +237,7 @@ class PostCard extends StatelessWidget {
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => CommentScreen(
-                              snap: snap,
+                              postModel: postModel,
                             ),
                           ),
                         ),
@@ -245,7 +246,7 @@ class PostCard extends StatelessWidget {
                           child: StreamBuilder(
                             stream: FirebaseFirestore.instance
                                 .collection("posts")
-                                .doc(snap["photoId"])
+                                .doc(postModel.photoId)
                                 .collection('comments')
                                 .snapshots(),
                             builder: (BuildContext context,
@@ -274,7 +275,7 @@ class PostCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 4),
                         child: Text(
                           DateFormat.yMMMd().format(
-                            snap["datePublished"].toDate(),
+                            postModel.datePublished.toDate(),
                           ),
                           style: const TextStyle(
                             color: secondaryColor,

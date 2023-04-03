@@ -46,7 +46,7 @@ class PostModel {
       postUrl: snap["postUrl"],
       profileImg: snap["profileImg"],
       uid: snap["uid"],
-      userName: snap["userName"],
+      userName: snap["username"],
     );
   }
 }

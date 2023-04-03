@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:developer';
 
 import 'package:bsocial/provider/profile_screen_provider.dart';
@@ -36,6 +38,18 @@ class SearchScreen extends StatelessWidget {
                 },
               );
             }),
+            actions: [
+              Consumer<SearchProvider>(builder: (context, provider, child) {
+                return IconButton(
+                  onPressed: () {
+                    provider.disposeMethod();
+                  },
+                  icon: Icon(
+                    Icons.close_rounded,
+                  ),
+                );
+              }),
+            ],
             elevation: 0,
           ),
           body: Padding(
