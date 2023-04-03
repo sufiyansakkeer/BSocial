@@ -1,4 +1,6 @@
+import 'package:bsocial/provider/update_screen_provider.dart';
 import 'package:bsocial/utils/colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -12,7 +14,8 @@ import '../../utils/utils.dart';
 import '../widgets/text_field_input.dart';
 
 class EditScreen extends StatelessWidget {
-  const EditScreen({super.key});
+  EditScreen({super.key});
+  User currentUser = FirebaseAuth.instance.currentUser!;
 
   @override
   Widget build(BuildContext context) {
@@ -37,24 +40,17 @@ class EditScreen extends StatelessWidget {
                 // avatar
                 Stack(
                   children: [
-                    Consumer<SignUpScreenProvider>(
+                    Consumer<UpdateScreenProvider>(
                         builder: (context, provider, child) {
-                      return provider.image != null
-                          ? CircleAvatar(
-                              backgroundImage: MemoryImage(provider.image!),
-                              radius: 64,
-                            )
-                          : const CircleAvatar(
-                              backgroundImage: NetworkImage(
-                                "https://img.freepik.com/free-icon/user_318-159711.jpg",
-                              ),
-                              radius: 64,
-                            );
+                      return CircleAvatar(
+                        backgroundImage: MemoryImage(provider.image!),
+                        radius: 64,
+                      );
                     }),
                     Positioned(
                       bottom: -10,
                       left: 80,
-                      child: Consumer<SignUpScreenProvider>(
+                      child: Consumer<UpdateScreenProvider>(
                           builder: (context, provider, child) {
                         return IconButton(
                           onPressed: provider.selectImage,
@@ -68,7 +64,7 @@ class EditScreen extends StatelessWidget {
                 ),
                 kHeight20,
                 //user name form field
-                Consumer<SignUpScreenProvider>(
+                Consumer<UpdateScreenProvider>(
                     builder: (context, provider, child) {
                   return TextFieldInput(
                     controller: provider.userNameController,
@@ -81,17 +77,17 @@ class EditScreen extends StatelessWidget {
                 //email form field
 
                 //sign in button
-                Consumer<SignUpScreenProvider>(builder: (ctx, provider, child) {
+                Consumer<UpdateScreenProvider>(builder: (ctx, provider, child) {
                   return InkWell(
                     onTap: () async {
                       bool result =
                           await InternetConnectionChecker().hasConnection;
                       if (context.mounted) {
                         if (result) {
-                          provider.passWordChecking()
-                              ? provider.signUpUser(context)
-                              : showSnackBar(
-                                  "'Password doesn't matching", context);
+                          provider.upDateFunction(
+                              image: provider.image!,
+                              username: provider.userNameController.text);
+                          Navigator.of(context).pop();
                         } else {
                           showSnackBar(
                               'Please check your internet connection', context);

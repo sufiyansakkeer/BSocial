@@ -3,6 +3,7 @@ import 'package:bsocial/provider/post_card_provider.dart';
 import 'package:bsocial/provider/post_image_provider.dart';
 import 'package:bsocial/provider/profile_screen_provider.dart';
 import 'package:bsocial/provider/search_provider.dart';
+import 'package:bsocial/provider/update_screen_provider.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/provider/bottom_navigation_provider.dart';
 import 'package:bsocial/provider/google_button_provider.dart';
@@ -81,6 +82,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => ProfileScreenProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => UpdateScreenProvider(),
         ),
       ],
       child: OverlaySupport.global(

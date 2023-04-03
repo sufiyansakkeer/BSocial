@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:bsocial/provider/profile_screen_provider.dart';
+import 'package:bsocial/provider/update_screen_provider.dart';
 
 import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/resources/firestore_methods.dart';
@@ -105,20 +106,26 @@ class ProfileScreen extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 FirebaseAuth.instance.currentUser!.uid == uid
-                                    ? FollowButton(
-                                        text: "Edit Profile",
-                                        borderColor: Colors.white,
-                                        backgroundColor: mobileBackgroundColor,
-                                        textColor: Colors.white,
-                                        function: () {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  EditScreen(),
-                                            ),
-                                          );
-                                        },
-                                      )
+                                    ? Consumer<UpdateScreenProvider>(
+                                        builder: (context, value, child) {
+                                        return FollowButton(
+                                          text: "Edit Profile",
+                                          borderColor: Colors.white,
+                                          backgroundColor:
+                                              mobileBackgroundColor,
+                                          textColor: Colors.white,
+                                          function: () {
+                                            value.getData();
+
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    EditScreen(),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      })
                                     : value.isFollowing
                                         ? FollowButton(
                                             text: "Unfollow",
