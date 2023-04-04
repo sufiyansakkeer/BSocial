@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../resources/storage_methods.dart';
@@ -29,14 +30,19 @@ class UpdateScreenProvider extends ChangeNotifier {
     log("get data function started");
     userData = currentUserDetails.data()!;
     userNameController.text = userData["username"];
-    image = assignImage(userData["photoUrl"]);
+    image = await assignImage(userData["photoUrl"]);
+    notifyListeners();
+    log(image.toString());
   }
 
-  assignImage(String tempImg) async {
-    log("$tempImg");
-    final ByteData bytes = await rootBundle.load(tempImg);
-    image = bytes.buffer.asUint8List();
-    notifyListeners();
+  Future<Uint8List> assignImage(String tempImg) async {
+    // final ByteData bytes = await rootBundle.load(tempImg);
+    Response response = await get(Uri.parse(tempImg));
+    log(response.statusCode.toString());
+    log(response.bodyBytes.length.toString());
+    return response.bodyBytes.buffer.asUint8List();
+    // log('bytes: ${bytes.lengthInBytes}');
+    // image = bytes.buffer.asUint8List();
   }
 
   upDateFunction({required Uint8List image, required String username}) async {

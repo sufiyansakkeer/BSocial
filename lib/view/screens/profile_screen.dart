@@ -116,13 +116,13 @@ class ProfileScreen extends StatelessWidget {
                                           textColor: Colors.white,
                                           function: () {
                                             value.getData();
-
                                             Navigator.of(context).push(
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     EditScreen(),
                                               ),
                                             );
+                                            value.getData();
                                           },
                                         );
                                       })

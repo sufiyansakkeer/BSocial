@@ -42,6 +42,7 @@ class EditScreen extends StatelessWidget {
                   children: [
                     Consumer<UpdateScreenProvider>(
                         builder: (context, provider, child) {
+                      // provider.getData;
                       return CircleAvatar(
                         backgroundImage: MemoryImage(provider.image!),
                         radius: 64,
