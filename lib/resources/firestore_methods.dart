@@ -168,4 +168,5 @@ class FireStoreMethods {
     List followData = (snap.data()! as dynamic)["following"];
     return followData;
   }
+
 }

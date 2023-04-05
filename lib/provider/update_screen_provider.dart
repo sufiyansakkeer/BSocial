@@ -32,7 +32,7 @@ class UpdateScreenProvider extends ChangeNotifier {
     userNameController.text = userData["username"];
     image = await assignImage(userData["photoUrl"]);
     notifyListeners();
-    log(image.toString());
+    // log(image.toString());
   }
 
   Future<Uint8List> assignImage(String tempImg) async {

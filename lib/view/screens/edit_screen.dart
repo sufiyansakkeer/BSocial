@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:provider/provider.dart';
 
-import '../../provider/sign_up_provider.dart';
-
 import '../../utils/size.dart';
 import '../../utils/utils.dart';
 

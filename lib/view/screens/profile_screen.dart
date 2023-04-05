@@ -7,6 +7,8 @@ import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/resources/firestore_methods.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/view/screens/edit_screen.dart';
+import 'package:bsocial/view/screens/followers_screen.dart';
+import 'package:bsocial/view/screens/following_screen.dart';
 import 'package:bsocial/view/widgets/follow_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -43,7 +45,36 @@ class ProfileScreen extends StatelessWidget {
           FirebaseAuth.instance.currentUser!.uid == uid
               ? IconButton(
                   onPressed: () {
-                    AuthMethods().signOutUser(context);
+                    showDialog(
+                      context: context,
+                      builder: ((context) {
+                        return AlertDialog(
+                          title: const Text(
+                            'alert! ',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          content: const Text('Do you want to Sign out.'),
+                          actions: [
+                            TextButton(
+                                onPressed: (() {
+                                  AuthMethods().signOutUser(context);
+                                  Navigator.of(context).pop();
+                                }),
+                                child: const Text(
+                                  'yes',
+                                )),
+                            TextButton(
+                              onPressed: (() {
+                                Navigator.of(context).pop();
+                              }),
+                              child: const Text(
+                                'no',
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                    );
                   },
                   icon: const Icon(
                     Icons.exit_to_app_rounded,
@@ -87,13 +118,34 @@ class ProfileScreen extends StatelessWidget {
                                   value.postLength,
                                   "Posts",
                                 ),
-                                buildStatColumn(
-                                  value.followers,
-                                  'Followers',
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            FollowersScreen(userUid: uid),
+                                      ),
+                                    );
+                                  },
+                                  child: buildStatColumn(
+                                    value.followers,
+                                    'Followers',
+                                  ),
                                 ),
-                                buildStatColumn(
-                                  value.following,
-                                  'Following',
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => FollowingScreen(
+                                          userUid: '',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: buildStatColumn(
+                                    value.following,
+                                    'Following',
+                                  ),
                                 ),
                               ],
                             );
@@ -158,15 +210,6 @@ class ProfileScreen extends StatelessWidget {
                                               value.isFollowingDec();
                                             },
                                           ),
-                                // FollowButton(
-                                //   text: "sign Out",
-                                //   borderColor: Colors.white,
-                                //   backgroundColor: mobileBackgroundColor,
-                                //   textColor: Colors.white,
-                                //   function: () {
-                                //     AuthMethods().signOutUser(context);
-                                //   },
-                                // ),
                               ],
                             );
                           }),
@@ -250,16 +293,6 @@ class ProfileScreen extends StatelessWidget {
           )
         ],
       ),
-      // body: Center(
-      //   child: TextButton(
-      //     onPressed: () {
-      //       AuthMethods().signOutUser(context);
-      //     },
-      //     child: const Text(
-      //       'sign out',
-      //     ),
-      //   ),
-      // ),
     );
   }
 
