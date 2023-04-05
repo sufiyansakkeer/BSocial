@@ -2,47 +2,41 @@ import 'dart:developer';
 
 import 'package:bsocial/model/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
-class FollowerProvider extends ChangeNotifier {
-  var userData = {};
-  List followers = [];
+class FollowingProvider extends ChangeNotifier {
   List<UserModel>? userModelList;
   bool isLoading = false;
-  getUserFollowers({required String userUid}) async {
-    isLoading = true;
+  getAllFollowing(String userUid) async {
+    log('following function started');
     userModelList = [];
-    log("get user followers function started");
     try {
+      isLoading = true;
       var userSnap = await FirebaseFirestore.instance
           .collection("users")
           .doc(userUid)
           .get();
-
+      var currentUserData = userSnap.data();
+      List following = currentUserData!["following"];
+      log(following.length.toString());
       var fullSnap = await FirebaseFirestore.instance.collection("users").get();
-      userData = userSnap.data()!;
-      followers = userSnap.data()!["followers"];
-      log("${followers.length} followers");
-      for (var uid in followers) {
+      for (var uid in following) {
         for (var element in fullSnap.docs) {
           if (uid == element.data()["uid"]) {
-            log("inside if");
             userModelList!.add(
               UserModel(
-                email: element["email"],
+                email: element.data()["email"],
                 uid: uid,
-                photoUrl: element["photoUrl"],
-                userName: element["username"],
-                followers: element["followers"],
-                following: element["following"],
+                photoUrl: element.data()["photoUrl"],
+                userName: element.data()["username"],
+                followers: element.data()["followers"],
+                following: element.data()["following"],
               ),
             );
             break;
           }
         }
       }
-      log(userModelList!.length.toString());
-      notifyListeners();
     } catch (e) {
       log(e.toString());
     }

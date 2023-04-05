@@ -41,32 +41,36 @@ class _FollowersScreenState extends State<FollowersScreen> {
           builder: (BuildContext context, AsyncSnapshot snapshot) {
             return Consumer<FollowerProvider>(
                 builder: (context, provider, child) {
-              return ListView.builder(
-                itemCount: provider.userModelList!.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: ListTile(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ProfileScreen(
-                              uid: provider.userModelList![index].uid,
+              return provider.isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : ListView.builder(
+                      itemCount: provider.userModelList!.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          child: ListTile(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => ProfileScreen(
+                                    uid: provider.userModelList![index].uid,
+                                  ),
+                                ),
+                              );
+                            },
+                            title: Text(
+                              provider.userModelList![index].userName,
+                            ),
+                            leading: CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                provider.userModelList![index].photoUrl,
+                              ),
                             ),
                           ),
                         );
                       },
-                      title: Text(
-                        provider.userModelList![index].userName,
-                      ),
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(
-                          provider.userModelList![index].photoUrl,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
+                    );
             });
           },
         ),

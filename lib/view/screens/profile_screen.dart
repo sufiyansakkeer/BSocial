@@ -137,7 +137,7 @@ class ProfileScreen extends StatelessWidget {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) => FollowingScreen(
-                                          userUid: '',
+                                          userUid: uid,
                                         ),
                                       ),
                                     );
