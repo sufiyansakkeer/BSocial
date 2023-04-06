@@ -49,6 +49,7 @@ class _FollowingScreenState extends State<FollowingScreen> {
                       itemCount: provider.userModelList!.length,
                       itemBuilder: (context, index) {
                         return Card(
+                          color: Theme.of(context).colorScheme.onPrimary,
                           child: ListTile(
                             onTap: () {
                               Navigator.of(context).push(

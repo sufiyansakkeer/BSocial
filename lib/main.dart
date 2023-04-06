@@ -1,3 +1,4 @@
+import 'package:bsocial/provider/chat_search_provider.dart';
 import 'package:bsocial/provider/comment_provider.dart';
 import 'package:bsocial/provider/followers_provider.dart';
 import 'package:bsocial/provider/following_provider.dart';
@@ -93,6 +94,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => FollowingProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ChatSearchProvider(),
         ),
       ],
       child: OverlaySupport.global(

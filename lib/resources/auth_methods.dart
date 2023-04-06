@@ -147,6 +147,7 @@ class AuthMethods {
         await googleSignIn.signOut();
       }
       await _auth.signOut();
+      // log(FirebaseAuth.instance.currentUser!.uid);
       if (context.mounted) {}
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -197,6 +198,20 @@ class AuthMethods {
               await _auth.signInWithCredential(credential);
 
           user = userCredential.user;
+          UserModel userModel = UserModel(
+            email: userCredential.user!.email!,
+            uid: userCredential.user!.uid,
+            photoUrl: user!.photoURL!,
+            userName: userCredential.user!.displayName!,
+            followers: [],
+            following: [],
+          );
+          if (userCredential.additionalUserInfo!.isNewUser) {
+            _firestore
+                .collection("users")
+                .doc(userCredential.user!.uid)
+                .set(userModel.toJson());
+          }
         } on FirebaseAuthException catch (e) {
           if (context.mounted) {}
           if (e.code == 'account-exists-with-different-credential') {

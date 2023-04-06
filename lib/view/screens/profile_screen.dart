@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({
     super.key,
     required this.uid,
@@ -25,9 +25,26 @@ class ProfileScreen extends StatelessWidget {
   final String uid;
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Provider.of<ProfileScreenProvider>(context, listen: false)
+          .getData(widget.uid);
+      Provider.of<ProfileScreenProvider>(context, listen: false)
+          .isChecking(widget.uid);
+    });
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     log("building widget");
-    Provider.of<ProfileScreenProvider>(context, listen: false).getData(uid);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: mobileBackgroundColor,
@@ -42,7 +59,7 @@ class ProfileScreen extends StatelessWidget {
         }),
         elevation: 0,
         actions: [
-          FirebaseAuth.instance.currentUser!.uid == uid
+          FirebaseAuth.instance.currentUser!.uid == widget.uid
               ? IconButton(
                   onPressed: () {
                     showDialog(
@@ -57,6 +74,7 @@ class ProfileScreen extends StatelessWidget {
                           actions: [
                             TextButton(
                                 onPressed: (() {
+                                  log(FirebaseAuth.instance.currentUser!.uid);
                                   AuthMethods().signOutUser(context);
                                   Navigator.of(context).pop();
                                 }),
@@ -122,8 +140,8 @@ class ProfileScreen extends StatelessWidget {
                                   onTap: () {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
-                                        builder: (context) =>
-                                            FollowersScreen(userUid: uid),
+                                        builder: (context) => FollowersScreen(
+                                            userUid: widget.uid),
                                       ),
                                     );
                                   },
@@ -137,7 +155,7 @@ class ProfileScreen extends StatelessWidget {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) => FollowingScreen(
-                                          userUid: uid,
+                                          userUid: widget.uid,
                                         ),
                                       ),
                                     );
@@ -157,7 +175,8 @@ class ProfileScreen extends StatelessWidget {
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                FirebaseAuth.instance.currentUser!.uid == uid
+                                FirebaseAuth.instance.currentUser!.uid ==
+                                        widget.uid
                                     ? Consumer<UpdateScreenProvider>(
                                         builder: (context, value, child) {
                                         return FollowButton(
@@ -190,8 +209,8 @@ class ProfileScreen extends StatelessWidget {
                                                   .followUser(
                                                       FirebaseAuth.instance
                                                           .currentUser!.uid,
-                                                      uid);
-                                              value.isFollowFunctionInc();
+                                                      widget.uid);
+                                              value.isFollowingDec();
                                               log("${value.isFollowing} value");
                                             },
                                           )
@@ -205,9 +224,9 @@ class ProfileScreen extends StatelessWidget {
                                                   .followUser(
                                                       FirebaseAuth.instance
                                                           .currentUser!.uid,
-                                                      uid);
+                                                      widget.uid);
 
-                                              value.isFollowingDec();
+                                              value.isFollowFunctionInc();
                                             },
                                           ),
                               ],
@@ -288,7 +307,7 @@ class ProfileScreen extends StatelessWidget {
             },
             future: FirebaseFirestore.instance
                 .collection("posts")
-                .where("uid", isEqualTo: uid)
+                .where("uid", isEqualTo: widget.uid)
                 .get(),
           )
         ],

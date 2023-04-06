@@ -336,6 +336,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.11.0+2"
+  google_sign_in_web_redirect:
+    dependency: "direct main"
+    description:
+      name: google_sign_in_web_redirect
+      sha256: db22f094b4b962bb7d7e550ea0027a0836b5027d04e12a5417be0a4d93159794
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   http:
     dependency: "direct main"
     description:

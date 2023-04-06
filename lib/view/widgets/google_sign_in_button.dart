@@ -9,6 +9,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../provider/profile_screen_provider.dart';
+
 class GoogleSignInButton extends StatelessWidget {
   const GoogleSignInButton({
     super.key,
@@ -40,6 +42,8 @@ class GoogleSignInButton extends StatelessWidget {
                   log('user called');
                   if (context.mounted) {}
                   if (user != null) {
+                    Provider.of<ProfileScreenProvider>(context, listen: false)
+                        .getData(FirebaseAuth.instance.currentUser!.uid);
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
                         builder: (context) => const ResponsiveLayout(

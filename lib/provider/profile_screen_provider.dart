@@ -32,6 +32,7 @@ class ProfileScreenProvider extends ChangeNotifier {
     } catch (e) {
       showSimpleNotification(Text(e.toString()));
     }
+    notifyListeners();
   }
 
   set isFollowin(bool value) {
@@ -40,14 +41,14 @@ class ProfileScreenProvider extends ChangeNotifier {
   }
 
   isFollowFunctionInc() {
-    isFollowing = false;
-    followers--;
+    isFollowing = true;
+    followers++;
     notifyListeners();
   }
 
   isFollowingDec() {
-    isFollowing = true;
-    followers++;
+    isFollowing = false;
+    followers--;
     notifyListeners();
   }
 
@@ -60,5 +61,6 @@ class ProfileScreenProvider extends ChangeNotifier {
     } else {
       isFollowing = false;
     }
+    notifyListeners();
   }
 }

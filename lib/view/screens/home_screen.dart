@@ -2,6 +2,7 @@ import 'package:bsocial/model/post_model.dart';
 import 'package:bsocial/model/user_model.dart';
 import 'package:bsocial/provider/users_provider.dart';
 import 'package:bsocial/utils/colors.dart';
+import 'package:bsocial/view/screens/chat_main_screen.dart';
 import 'package:bsocial/view/widgets/post_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -58,7 +59,13 @@ class HomeScreen extends StatelessWidget {
                   elevation: 0,
                   actions: [
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ChatMainScreen(),
+                          ),
+                        );
+                      },
                       icon: const Icon(
                         Icons.messenger,
                       ),
