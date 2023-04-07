@@ -23,66 +23,145 @@ class ChatSearch extends StatelessWidget {
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
         ),
-        child: Consumer<ChatSearchProvider>(builder: (context, value, child) {
-          return Column(
-            children: [
-              TextFormField(
+        child: Column(
+          children: [
+            Consumer<ChatSearchProvider>(builder: (context, value, child) {
+              return TextFormField(
                 controller: value.chatSearchController,
+                decoration: InputDecoration(
+                  hintText: "Search User",
+                  filled: true,
+                  fillColor: Theme.of(context).colorScheme.onPrimary,
+                ),
                 onFieldSubmitted: (text) {
-                  log(text);
+                  if (text.isEmpty) {
+                    value.onClearUserFunction();
+                    log("text is empty");
+                  } else {
+                    value.onSearchUserFunction();
+                  }
                 },
-              ),
-              kHeight20,
-              FilledButton(
-                onPressed: () {
-                  value.showUser;
-                },
-                child: const Text(
-                  "Search",
-                ),
-              ),
-              Expanded(
-                child: FutureBuilder(
-                  future: FirebaseFirestore.instance
-                      .collection("users")
-                      // .doc(FirebaseAuth.instance.currentUser!.uid)
-                      .where("username",
-                          isGreaterThanOrEqualTo:
-                              value.chatSearchController.text)
-                      .get(),
-                  builder: (BuildContext context, AsyncSnapshot snapshot) {
-                    log((snapshot.data! as dynamic).docs.length.toString());
-                    if (!snapshot.hasData) {
-                      return Center(child: Text("no users found"));
-                    } else {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                          child: CircularProgressIndicator(),
+              );
+            }),
+            kHeight20,
+            // FilledButton(
+            //   onPressed: () {
+            //     value.showUser;
+            //   },
+            //   child: const Text(
+            //     "Search",
+            //   ),
+            // ),
+            Expanded(child: Consumer<ChatSearchProvider>(
+                    builder: (context, value, child) {
+              return value.showUser
+                  ? FutureBuilder(
+                      future: FirebaseFirestore.instance
+                          .collection("users")
+                          // .doc(FirebaseAuth.instance.currentUser!.uid)
+                          .where("username",
+                              isGreaterThanOrEqualTo:
+                                  value.chatSearchController.text)
+                          .get(),
+                      builder: (BuildContext context, AsyncSnapshot snapshot) {
+                        // log((snapshot.data! as dynamic).docs.length.toString());
+                        if (!snapshot.hasData) {
+                          log("snapshot has no data");
+                          return const Center(
+                            child: Text(
+                              "no users found",
+                            ),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return const Center(
+                            child: Text(
+                              "Some error occurred while fetching data",
+                            ),
+                          );
+                        }
+                        //  else {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        return
+                            // value.showUser
+                            //     ?
+                            ListView.builder(
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                    snapshot.data.docs[index]["photoUrl"]),
+                              ),
+                              title:
+                                  Text(snapshot.data.docs[index]["username"]),
+                            );
+                          },
+                          itemCount: snapshot.data.docs.length,
                         );
-                      } else {
-                        return value.showUser
-                            ? ListView.builder(
-                                itemBuilder: (context, index) {
-                                  return ListTile(
-                                    leading: CircleAvatar(
-                                      backgroundColor: Colors.blue,
-                                    ),
-                                    title: Text("username"),
-                                  );
-                                },
-                                itemCount: snapshot.data.docs.length,
-                              )
-                            : Center(
-                                child: Text("No user found"),
-                              );
-                      }
-                    }
-                  },
+                      },
+                    )
+                  : FutureBuilder(
+                      future: FirebaseFirestore.instance
+                          .collection("users")
+                          // .doc(FirebaseAuth.instance.currentUser!.uid)
+
+                          .get(),
+                      builder: (BuildContext context, AsyncSnapshot snapshot) {
+                        // log((snapshot.data! as dynamic).docs.length.toString());
+                        if (!snapshot.hasData) {
+                          log("snapshot has no data");
+                          return const Center(
+                            child: Text(
+                              "no users found",
+                            ),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return const Center(
+                            child: Text(
+                              "Some error occurred while fetching data",
+                            ),
+                          );
+                        }
+                        //  else {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                        return
+                            // value.showUser
+                            //     ?
+                            ListView.builder(
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                    snapshot.data.docs[index]["photoUrl"]),
+                              ),
+                              title:
+                                  Text(snapshot.data.docs[index]["username"]),
+                            );
+                          },
+                          itemCount: snapshot.data.docs.length,
+                        );
+                      },
+                    );
+            })
+                // : const Center(
+                //     child: Text(
+                //       "No user found",
+                //     ),
+                //   ),
                 ),
-              ),
-            ],
-          );
-        }),
+          ],
+        ),
       ),
     );
   }
