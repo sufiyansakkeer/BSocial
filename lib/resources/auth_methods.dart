@@ -116,6 +116,7 @@ class AuthMethods {
         //*here we don't need to store because we are signing only
         final user = await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: password);
+
         log("${user.user}");
         if (user.user?.photoURL == null) {
         } else {}

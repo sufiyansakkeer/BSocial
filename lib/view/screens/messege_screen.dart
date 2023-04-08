@@ -5,6 +5,7 @@ import 'package:bsocial/model/user_model.dart';
 import 'package:bsocial/provider/message_screen_provider.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/utils/size.dart';
+import 'package:bsocial/view/widgets/message_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -47,37 +48,36 @@ class MessageScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: Container(
-              child: StreamBuilder(
-                stream: _firestore
-                    .collection("chatRoom")
-                    .doc(chatRoomId)
-                    .collection("chats")
-                    .orderBy("createdOn", descending: false)
-                    .snapshots(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (!snapshot.hasData) {
-                    log("snapshot has no data");
-                    return Container();
-                  }
-                  if (snapshot.hasError) {
-                    return const Center(
-                      child: Text("Check your Internet connection"),
-                    );
-                  }
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  return ListView.builder(
-                    itemBuilder: (context, index) {
-                      return Text(snapshot.data.docs[index]["message"]);
-                    },
-                    itemCount: snapshot.data.docs.length,
+            child: StreamBuilder(
+              stream: _firestore
+                  .collection("chatRoom")
+                  .doc(chatRoomId)
+                  .collection("chats")
+                  .orderBy("createdOn", descending: false)
+                  .snapshots(),
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (!snapshot.hasData) {
+                  log("snapshot has no data");
+                  return Container();
+                }
+                if (snapshot.hasError) {
+                  return const Center(
+                    child: Text("Check your Internet connection"),
                   );
-                },
-              ),
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                return ListView.builder(
+                  itemBuilder: (context, index) {
+                    Map<String, dynamic> map = snapshot.data.docs[index].data();
+                    return message(map: map, context: context);
+                  },
+                  itemCount: snapshot.data.docs.length,
+                );
+              },
             ),
           ),
           Row(
