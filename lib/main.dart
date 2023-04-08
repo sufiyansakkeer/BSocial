@@ -2,6 +2,7 @@ import 'package:bsocial/provider/chat_search_provider.dart';
 import 'package:bsocial/provider/comment_provider.dart';
 import 'package:bsocial/provider/followers_provider.dart';
 import 'package:bsocial/provider/following_provider.dart';
+import 'package:bsocial/provider/message_screen_provider.dart';
 import 'package:bsocial/provider/post_card_provider.dart';
 import 'package:bsocial/provider/post_image_provider.dart';
 import 'package:bsocial/provider/profile_screen_provider.dart';
@@ -97,6 +98,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => ChatSearchProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => MessageProvider(),
         ),
       ],
       child: OverlaySupport.global(

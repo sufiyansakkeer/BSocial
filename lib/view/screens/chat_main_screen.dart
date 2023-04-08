@@ -1,5 +1,6 @@
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/view/screens/chat_search_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ChatMainScreen extends StatelessWidget {
@@ -30,6 +31,15 @@ class ChatMainScreen extends StatelessWidget {
           ),
         ],
       ),
+      // body: StreamBuilder(
+      //   stream: FirebaseFirestore.instance.collection("collectionPath"),
+      //   initialData: initialData,
+      //   builder: (BuildContext context, AsyncSnapshot snapshot) {
+      //     return Container(
+      //       child: child,
+      //     );
+      //   },
+      // ),,
     );
   }
 }

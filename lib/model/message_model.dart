@@ -1,22 +1,24 @@
-class MessageModel {
-  String? sender;
-  bool? seen;
-  String? text;
-  DateTime? createdOn;
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-  MessageModel({this.sender, this.text, this.createdOn});
+class MessageModel {
+  String? sendBy;
+  bool? seen;
+  String? message;
+  FieldValue? createdOn;
+
+  MessageModel({required this.sendBy, required this.message, this.createdOn});
   MessageModel.fromJson(Map<String, dynamic> json) {
-    sender = json["sender"];
+    sendBy = json["sendBy"];
     seen = json["seen"];
-    text = json["text"];
-    createdOn = json["createdOn"].toDate();
+    message = json["message"];
+    createdOn = json["createdOn"];
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "sender": sender,
+      "sendBy": sendBy,
       "seen": seen,
-      "text": text,
+      "message": message,
       "createdOn": createdOn,
     };
   }
