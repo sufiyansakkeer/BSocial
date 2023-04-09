@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bsocial/model/post_model.dart';
 import 'package:bsocial/model/user_model.dart';
 import 'package:bsocial/provider/users_provider.dart';
@@ -17,12 +19,12 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     WidgetsFlutterBinding.ensureInitialized();
     return Consumer<UsersProvider>(builder: (context, usersProvider, child) {
-      return StreamBuilder(
+      return FutureBuilder(
         // here we use snapshot instead of get , because get will return a future function
-        stream: FirebaseFirestore.instance
+        future: FirebaseFirestore.instance
             .collection('posts')
             .orderBy("datePublished", descending: true)
-            .snapshots(),
+            .get(),
         // initialData: initialData,
         builder: (BuildContext context,
             AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
@@ -76,14 +78,33 @@ class HomeScreen extends StatelessWidget {
                   itemCount: postModelList.length,
                   itemBuilder: (context, index) {
                     // if (snapshot.data!.docs[index].data()["uid"]) {}
+
                     return postModelList.isEmpty
                         ? Center(
                             child: Text(
                               "Please Follow some one",
                             ),
                           )
-                        : PostCard(
-                            postModel: postModelList[index],
+                        : StreamBuilder(
+                            stream: FirebaseFirestore.instance
+                                .collection("users")
+                                .doc(postModelList[index].uid)
+                                .snapshots(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot userSnapshot) {
+                              if (userSnapshot.hasError) {
+                                return Center(
+                                  child: Text(
+                                      "Some error occured while fetching data"),
+                                );
+                              }
+                              log("builder is building");
+                              return PostCard(
+                                postModel: postModelList[index],
+                                photoUrl: userSnapshot.data["photoUrl"],
+                                username: userSnapshot.data["username"],
+                              );
+                            },
                           );
                   },
                 ),
@@ -93,5 +114,15 @@ class HomeScreen extends StatelessWidget {
         },
       );
     });
+  }
+
+  Future<UserModel> usermodelFunction(PostModel postModel) async {
+    var snap = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(postModel.uid)
+        .get();
+
+    UserModel userModel = (snap.data() as dynamic);
+    return userModel;
   }
 }

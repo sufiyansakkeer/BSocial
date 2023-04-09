@@ -307,6 +307,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             },
             future: FirebaseFirestore.instance
                 .collection("posts")
+                // .orderBy("datePublished", descending: true)
                 .where("uid", isEqualTo: widget.uid)
                 .get(),
           )

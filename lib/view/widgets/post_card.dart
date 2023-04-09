@@ -7,6 +7,7 @@ import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/view/screens/comment_screen.dart';
 import 'package:bsocial/view/widgets/like_animation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -14,8 +15,15 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 class PostCard extends StatelessWidget {
-  const PostCard({super.key, required this.postModel});
+  const PostCard({
+    super.key,
+    required this.postModel,
+    required this.username,
+    required this.photoUrl,
+  });
   final PostModel postModel;
+  final String username;
+  final String photoUrl;
   @override
   Widget build(BuildContext context) {
     // WidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +45,7 @@ class PostCard extends StatelessWidget {
                       CircleAvatar(
                         radius: 16,
                         backgroundImage: NetworkImage(
-                          postModel.postUrl,
+                          photoUrl,
                         ),
                       ),
                       Expanded(
@@ -50,7 +58,7 @@ class PostCard extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                postModel.userName,
+                                username,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -221,7 +229,7 @@ class PostCard extends StatelessWidget {
                             ),
                             children: [
                               TextSpan(
-                                text: postModel.userName,
+                                text: username,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
