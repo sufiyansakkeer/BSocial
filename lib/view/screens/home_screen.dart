@@ -19,99 +19,92 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     WidgetsFlutterBinding.ensureInitialized();
     return Consumer<UsersProvider>(builder: (context, usersProvider, child) {
-      return FutureBuilder(
-        // here we use snapshot instead of get , because get will return a future function
-        future: FirebaseFirestore.instance
-            .collection('posts')
-            .orderBy("datePublished", descending: true)
-            .get(),
-        // initialData: initialData,
-        builder: (BuildContext context,
-            AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
-          if (snapshot.hasError) {
-            return const Center(
-              child: Text("Error while fetching data"),
-            );
-          } else {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+      return RefreshIndicator(
+        onRefresh: () {
+          return FirebaseFirestore.instance
+              .collection("posts")
+              .orderBy("datePublished", descending: true)
+              .get();
+        },
+        child: StreamBuilder(
+          // here we use snapshot instead of get , because get will return a future function
+          stream: FirebaseFirestore.instance
+              .collection('posts')
+              .orderBy("datePublished", descending: true)
+              .snapshots(),
+          // initialData: initialData,
+          builder: (BuildContext context,
+              AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+            if (snapshot.hasError) {
               return const Center(
-                child: CircularProgressIndicator(),
+                child: Text("Error while fetching data"),
               );
             } else {
-              final UserModel? user = usersProvider.getUser;
-              List<PostModel> postModelList = snapshot.data!.docs
-                  .map((e) => PostModel.fromSnapShop(e))
-                  .toList();
-              if (user != null) {
-                postModelList = postModelList
-                    .where((element) => user.following.contains(element.uid))
-                    .toList();
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
               } else {
-                postModelList = [];
-              }
+                final UserModel? user = usersProvider.getUser;
+                List<PostModel> postModelList = snapshot.data!.docs
+                    .map((e) => PostModel.fromSnapShop(e))
+                    .toList();
+                if (user != null) {
+                  postModelList = postModelList
+                      .where((element) => user.following.contains(element.uid))
+                      .toList();
+                } else {
+                  postModelList = [];
+                }
 
-              return Scaffold(
-                appBar: AppBar(
-                  backgroundColor: mobileBackgroundColor,
-                  centerTitle: false,
-                  title: Image.asset(
-                    "assets/BSocial-1.png",
-                    height: MediaQuery.of(context).size.height * 0.035,
-                  ),
-                  elevation: 0,
-                  actions: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ChatMainScreen(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.messenger,
-                      ),
+                return Scaffold(
+                  appBar: AppBar(
+                    backgroundColor: mobileBackgroundColor,
+                    centerTitle: false,
+                    title: Image.asset(
+                      "assets/BSocial-1.png",
+                      height: MediaQuery.of(context).size.height * 0.035,
                     ),
-                  ],
-                ),
-                body: ListView.builder(
-                  itemCount: postModelList.length,
-                  itemBuilder: (context, index) {
-                    // if (snapshot.data!.docs[index].data()["uid"]) {}
-
-                    return postModelList.isEmpty
-                        ? Center(
-                            child: Text(
-                              "Please Follow some one",
+                    elevation: 0,
+                    actions: [
+                      IconButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => ChatMainScreen(),
                             ),
-                          )
-                        : StreamBuilder(
-                            stream: FirebaseFirestore.instance
-                                .collection("users")
-                                .doc(postModelList[index].uid)
-                                .snapshots(),
-                            builder: (BuildContext context,
-                                AsyncSnapshot userSnapshot) {
-                              if (userSnapshot.hasError) {
-                                return Center(
-                                  child: Text(
-                                      "Some error occured while fetching data"),
-                                );
-                              }
-                              log("builder is building");
-                              return PostCard(
-                                postModel: postModelList[index],
-                                photoUrl: userSnapshot.data["photoUrl"],
-                                username: userSnapshot.data["username"],
-                              );
-                            },
                           );
-                  },
-                ),
-              );
+                        },
+                        icon: const Icon(
+                          Icons.messenger,
+                        ),
+                      ),
+                    ],
+                  ),
+                  body: ListView.builder(
+                    itemCount: postModelList.length,
+                    itemBuilder: (context, index) {
+                      // if (snapshot.data!.docs[index].data()["uid"]) {}
+
+                      return postModelList.isEmpty
+                          ? Center(
+                              child: Text(
+                                "Please Follow some one",
+                              ),
+                            )
+                          : PostCard(
+                              postModel: postModelList[index],
+                              // photoUrl: userSnapshot.data["photoUrl"],
+                              // username: userSnapshot.data["username"],
+                            );
+                      ;
+                    },
+                  ),
+                );
+              }
             }
-          }
-        },
+          },
+        ),
       );
     });
   }

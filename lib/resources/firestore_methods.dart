@@ -51,6 +51,7 @@ class FireStoreMethods {
       //here we are checking if there anything already in the like field the using the uid,
       // if the uid is exist we will delete that uid ,
       // other wise we will add that uid
+      log("liked post");
       if (likes.contains(uid)) {
         await _firestore.collection("posts").doc(postId).update(
           {
@@ -168,5 +169,4 @@ class FireStoreMethods {
     List followData = (snap.data()! as dynamic)["following"];
     return followData;
   }
-
 }

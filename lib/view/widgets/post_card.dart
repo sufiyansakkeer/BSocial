@@ -18,12 +18,10 @@ class PostCard extends StatelessWidget {
   const PostCard({
     super.key,
     required this.postModel,
-    required this.username,
-    required this.photoUrl,
   });
   final PostModel postModel;
-  final String username;
-  final String photoUrl;
+  // final String username;
+  // final String photoUrl;
   @override
   Widget build(BuildContext context) {
     // WidgetsFlutterBinding.ensureInitialized();
@@ -45,7 +43,7 @@ class PostCard extends StatelessWidget {
                       CircleAvatar(
                         radius: 16,
                         backgroundImage: NetworkImage(
-                          photoUrl,
+                          postModel.profileImg,
                         ),
                       ),
                       Expanded(
@@ -58,7 +56,7 @@ class PostCard extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                username,
+                                postModel.userName,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -229,7 +227,7 @@ class PostCard extends StatelessWidget {
                             ),
                             children: [
                               TextSpan(
-                                text: username,
+                                text: postModel.userName,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),

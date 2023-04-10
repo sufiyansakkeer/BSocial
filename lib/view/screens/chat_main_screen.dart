@@ -1,7 +1,10 @@
 import 'dart:developer';
 
+import 'package:bsocial/model/user_model.dart';
+import 'package:bsocial/resources/chat_methods.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/view/screens/chat_search_screen.dart';
+import 'package:bsocial/view/screens/messege_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -57,6 +60,25 @@ class ChatMainScreen extends StatelessWidget {
           return ListView.builder(
             itemBuilder: (context, index) {
               return ListTile(
+                onTap: () {
+                  String chatRoomId = ChatMethods().checkingId(
+                      user1: snapshot.data.docs[index]["uid"],
+                      currentUser: FirebaseAuth.instance.currentUser!.uid);
+
+                  UserModel targetUser = UserModel(
+                      email: snapshot.data.docs[index]["email"],
+                      uid: snapshot.data.docs[index]["uid"],
+                      photoUrl: snapshot.data.docs[index]["photoUrl"],
+                      userName: snapshot.data.docs[index]["username"],
+                      followers: snapshot.data.docs[index]["followers"],
+                      following: snapshot.data.docs[index]["following"]);
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => MessageScreen(
+                      chatRoomId: chatRoomId,
+                      targetUser: targetUser,
+                    ),
+                  ));
+                },
                 leading: CircleAvatar(
                   backgroundImage:
                       NetworkImage(snapshot.data.docs[index]["photoUrl"]),

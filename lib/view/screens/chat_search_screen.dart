@@ -96,6 +96,30 @@ class ChatSearch extends StatelessWidget {
                             ListView.builder(
                           itemBuilder: (context, index) {
                             return ListTile(
+                              onTap: () {
+                                String chatRoomId = ChatMethods().checkingId(
+                                    user1: snapshot.data.docs[index]["uid"],
+                                    currentUser:
+                                        FirebaseAuth.instance.currentUser!.uid);
+
+                                UserModel targetUser = UserModel(
+                                    email: snapshot.data.docs[index]["email"],
+                                    uid: snapshot.data.docs[index]["uid"],
+                                    photoUrl: snapshot.data.docs[index]
+                                        ["photoUrl"],
+                                    userName: snapshot.data.docs[index]
+                                        ["username"],
+                                    followers: snapshot.data.docs[index]
+                                        ["followers"],
+                                    following: snapshot.data.docs[index]
+                                        ["following"]);
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => MessageScreen(
+                                    chatRoomId: chatRoomId,
+                                    targetUser: targetUser,
+                                  ),
+                                ));
+                              },
                               leading: CircleAvatar(
                                 backgroundImage: NetworkImage(
                                     snapshot.data.docs[index]["photoUrl"]),
