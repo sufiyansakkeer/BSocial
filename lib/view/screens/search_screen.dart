@@ -52,116 +52,128 @@ class SearchScreen extends StatelessWidget {
             ],
             elevation: 0,
           ),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Consumer<SearchProvider>(builder: (context, value, child) {
-              return value.isShowUser
-                  ? FutureBuilder(
-                      future: FirebaseFirestore.instance
-                          .collection("users")
-                          .where(
-                            "username",
-                            isGreaterThanOrEqualTo: value.searchController.text,
-                          )
-                          .get(),
-                      // initialData: InitialData,
-                      builder: (BuildContext context, AsyncSnapshot snapshot) {
-                        if (!snapshot.hasData) {
-                          return const Center(
-                            child: Text("No data found"),
-                          );
-                        }
-                        if (snapshot.hasError) {
-                          return const Center(
-                            child:
-                                Text("Some error occurred while fetching data"),
-                          );
-                        }
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        return ListView.builder(
-                          itemBuilder: (context, index) {
-                            return InkWell(
-                              onTap: () async {
-                                log("${snapshot.data!.docs[index]["username"]}");
-                                var result = await FirebaseFirestore.instance
-                                    .collection("users")
-                                    .doc((snapshot.data! as dynamic).docs[index]
-                                        ["uid"])
-                                    .get();
-                                var followerSnap = result.data()!["followers"];
-                                for (var uid in followerSnap) {
-                                  if (uid ==
-                                      FirebaseAuth.instance.currentUser!.uid) {
-                                    log("loop is workig");
-                                    Provider.of<ProfileScreenProvider>(context,
-                                            listen: false)
-                                        .isFollowin = true;
-                                    break;
+          body: RefreshIndicator(
+            onRefresh: () {
+              return FirebaseFirestore.instance.collection("posts").get();
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Consumer<SearchProvider>(builder: (context, value, child) {
+                return value.isShowUser
+                    ? FutureBuilder(
+                        future: FirebaseFirestore.instance
+                            .collection("users")
+                            .where(
+                              "username",
+                              isGreaterThanOrEqualTo:
+                                  value.searchController.text,
+                            )
+                            .get(),
+                        // initialData: InitialData,
+                        builder:
+                            (BuildContext context, AsyncSnapshot snapshot) {
+                          if (!snapshot.hasData) {
+                            return const Center(
+                              child: Text("No data found"),
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return const Center(
+                              child: Text(
+                                  "Some error occurred while fetching data"),
+                            );
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          return ListView.builder(
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                onTap: () async {
+                                  log("${snapshot.data!.docs[index]["username"]}");
+                                  var result = await FirebaseFirestore.instance
+                                      .collection("users")
+                                      .doc((snapshot.data! as dynamic)
+                                          .docs[index]["uid"])
+                                      .get();
+                                  var followerSnap =
+                                      result.data()!["followers"];
+                                  for (var uid in followerSnap) {
+                                    if (uid ==
+                                        FirebaseAuth
+                                            .instance.currentUser!.uid) {
+                                      log("loop is workig");
+                                      Provider.of<ProfileScreenProvider>(
+                                              context,
+                                              listen: false)
+                                          .isFollowin = true;
+                                      break;
+                                    }
                                   }
-                                }
-                                log("${followerSnap.toString()} is the checking function");
-                                await Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => ProfileScreen(
-                                      uid: (snapshot.data! as dynamic)
-                                          .docs[index]["uid"],
+                                  log("${followerSnap.toString()} is the checking function");
+                                  await Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => ProfileScreen(
+                                        uid: (snapshot.data! as dynamic)
+                                            .docs[index]["uid"],
+                                      ),
                                     ),
+                                  );
+                                },
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        (snapshot.data! as dynamic).docs[index]
+                                            ["photoUrl"]),
                                   ),
-                                );
-                              },
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                      (snapshot.data! as dynamic).docs[index]
-                                          ["photoUrl"]),
+                                  title: Text(
+                                      snapshot.data!.docs[index]["username"]),
                                 ),
-                                title: Text(
-                                    snapshot.data!.docs[index]["username"]),
+                              );
+                            },
+                            itemCount: (snapshot.data! as dynamic).docs.length,
+                          );
+                        },
+                      )
+                    : FutureBuilder(
+                        future: FirebaseFirestore.instance
+                            .collection("posts")
+                            .get(),
+                        // initialData: InitialData,
+                        builder:
+                            (BuildContext context, AsyncSnapshot snapshot) {
+                          if (!snapshot.hasData) {
+                            return const Center(
+                              child: Text(
+                                "Error while fetching Data",
                               ),
                             );
-                          },
-                          itemCount: (snapshot.data! as dynamic).docs.length,
-                        );
-                      },
-                    )
-                  : FutureBuilder(
-                      future:
-                          FirebaseFirestore.instance.collection("posts").get(),
-                      // initialData: InitialData,
-                      builder: (BuildContext context, AsyncSnapshot snapshot) {
-                        if (!snapshot.hasData) {
-                          return const Center(
-                            child: Text(
-                              "Error while fetching Data",
-                            ),
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          return MasonryGridView.builder(
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 10,
+                            gridDelegate:
+                                const SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2),
+                            itemBuilder: (context, index) {
+                              return Image.network(
+                                  snapshot.data.docs[index]["postUrl"]);
+                            },
+                            itemCount: snapshot.data.docs.length,
                           );
-                        }
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        return MasonryGridView.builder(
-                          mainAxisSpacing: 10,
-                          crossAxisSpacing: 10,
-                          gridDelegate:
-                              const SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2),
-                          itemBuilder: (context, index) {
-                            return Image.network(
-                                snapshot.data.docs[index]["postUrl"]);
-                          },
-                          itemCount: snapshot.data.docs.length,
-                        );
-                      },
-                    );
-            }),
+                        },
+                      );
+              }),
+            ),
           )),
     );
   }

@@ -12,12 +12,47 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
+
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+  @override
+  void initState() {
     WidgetsFlutterBinding.ensureInitialized();
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    setStatus("online");
+  }
+
+  void setStatus(String status) async {
+    _firebaseFirestore
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({
+      "status": status,
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      //online
+      setStatus("online");
+    } else {
+      //offline
+      setStatus("offline");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Consumer<UsersProvider>(builder: (context, usersProvider, child) {
       return RefreshIndicator(
         onRefresh: () {

@@ -38,8 +38,40 @@ class MessageScreen extends StatelessWidget {
               ),
             ),
             kWidth,
-            Text(
-              targetUser.userName,
+            Column(
+              children: [
+                Text(
+                  targetUser.userName,
+                ),
+                StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection("users")
+                      .doc(targetUser.uid)
+                      .snapshots(),
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (snapshot.hasError) {
+                      return const Center(
+                        child: Text(
+                          "offline",
+                          style: TextStyle(fontSize: 10),
+                        ),
+                      );
+                    }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: Text(
+                          "offline",
+                          style: TextStyle(fontSize: 10),
+                        ),
+                      );
+                    }
+                    return Text(
+                      snapshot.data["status"],
+                      style: const TextStyle(fontSize: 10),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),
@@ -89,7 +121,7 @@ class MessageScreen extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 10),
                     child: TextFormField(
                       controller: value.messageController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: "  Message",
                       ),
                     ),
@@ -102,7 +134,7 @@ class MessageScreen extends StatelessWidget {
                     value.onSentFunction(
                         userUid: targetUser.uid, chatRoomId: chatRoomId);
                   },
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.send,
                   ),
                 );

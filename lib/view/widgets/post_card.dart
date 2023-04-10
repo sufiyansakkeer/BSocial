@@ -65,40 +65,40 @@ class PostCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      IconButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => Dialog(
-                              child: ListView(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                shrinkWrap: true,
-                                children: ['Delete']
-                                    .map(
-                                      (e) => InkWell(
-                                        onTap: () {
-                                          FireStoreMethods()
-                                              .deletePost(postModel.photoId);
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 16),
-                                          child: Text(e),
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                              ),
-                            ),
-                          );
-                        },
-                        icon: const Icon(
-                          Icons.more_vert_outlined,
-                        ),
-                      ),
+                      // IconButton(
+                      //   onPressed: () {
+                      //     showDialog(
+                      //       context: context,
+                      //       builder: (context) => Dialog(
+                      //         child: ListView(
+                      //           padding: const EdgeInsets.symmetric(
+                      //             vertical: 16,
+                      //           ),
+                      //           shrinkWrap: true,
+                      //           children: ['Delete']
+                      //               .map(
+                      //                 (e) => InkWell(
+                      //                   onTap: () {
+                      //                     FireStoreMethods()
+                      //                         .deletePost(postModel.photoId);
+                      //                     Navigator.of(context).pop();
+                      //                   },
+                      //                   child: Container(
+                      //                     padding: const EdgeInsets.symmetric(
+                      //                         horizontal: 16),
+                      //                     child: Text(e),
+                      //                   ),
+                      //                 ),
+                      //               )
+                      //               .toList(),
+                      //         ),
+                      //       ),
+                      //     );
+                      //   },
+                      //   icon: const Icon(
+                      //     Icons.more_vert_outlined,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -183,13 +183,13 @@ class PostCard extends StatelessWidget {
                         // color: Colors.red,
                       ),
                     ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.send,
-                        // color: Colors.red,
-                      ),
-                    ),
+                    // IconButton(
+                    //   onPressed: () {},
+                    //   icon: const Icon(
+                    //     Icons.send,
+                    //     // color: Colors.red,
+                    //   ),
+                    // ),
                     // Expanded(
                     //   child: Align(
                     //     alignment: Alignment.bottomRight,

@@ -7,7 +7,7 @@ class UserModel {
   final String userName;
   final List followers;
   final List following;
-
+  final String status;
   UserModel({
     required this.email,
     required this.uid,
@@ -15,6 +15,7 @@ class UserModel {
     required this.userName,
     required this.followers,
     required this.following,
+    this.status = "offline",
   });
 //here we used string as the first dataType because the key is string type,
 //* when we call this function , it will convert the arguments into the object file
@@ -25,6 +26,7 @@ class UserModel {
         "followers": followers,
         "following": following,
         "photoUrl": photoUrl,
+        "status": status,
       };
 
   static UserModel fromSnapShop(DocumentSnapshot snapshot) {
@@ -37,6 +39,7 @@ class UserModel {
       followers: snap["followers"],
       following: snap["following"],
       photoUrl: snap["photoUrl"],
+      status: snap["status"],
     );
   }
 }
