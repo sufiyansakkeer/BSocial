@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:bsocial/model/chat_room_model.dart';
 import 'package:bsocial/model/user_model.dart';
 import 'package:bsocial/provider/message_screen_provider.dart';
 import 'package:bsocial/utils/colors.dart';

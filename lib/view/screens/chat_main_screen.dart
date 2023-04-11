@@ -17,7 +17,7 @@ class ChatMainScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: mobileBackgroundColor,
-        title: Text(
+        title: const Text(
           "Chat screen",
         ),
         centerTitle: true,
@@ -31,7 +31,7 @@ class ChatMainScreen extends StatelessWidget {
                 ),
               );
             },
-            icon: Icon(
+            icon: const Icon(
               Icons.search,
             ),
           ),

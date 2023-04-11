@@ -7,9 +7,9 @@ class WebScreenLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("data"),
+        title: const Text("data"),
       ),
-      body: Center(child: Text("this is web")),
+      body: const Center(child: Text("this is web")),
     );
   }
 }
