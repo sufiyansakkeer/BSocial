@@ -22,7 +22,7 @@ class LoginScreen extends StatelessWidget {
               ? EdgeInsets.symmetric(
                   horizontal: MediaQuery.of(context).size.width / 3,
                   vertical: 20)
-              : EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+              : const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [

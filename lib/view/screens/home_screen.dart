@@ -106,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => ChatMainScreen(),
+                              builder: (context) => const ChatMainScreen(),
                             ),
                           );
                         },
@@ -122,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       // if (snapshot.data!.docs[index].data()["uid"]) {}
 
                       return postModelList.isEmpty
-                          ? Center(
+                          ? const Center(
                               child: Text(
                                 "Please Follow some one",
                               ),
@@ -132,7 +132,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                               // photoUrl: userSnapshot.data["photoUrl"],
                               // username: userSnapshot.data["username"],
                             );
-                      ;
                     },
                   ),
                 );

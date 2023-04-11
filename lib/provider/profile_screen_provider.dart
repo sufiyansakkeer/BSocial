@@ -53,7 +53,7 @@ class ProfileScreenProvider extends ChangeNotifier {
   }
 
   isChecking(String uid) async {
-    var currentUserData = await FirebaseAuth.instance.currentUser;
+    var currentUserData = FirebaseAuth.instance.currentUser;
     snapFollow =
         await FirebaseFirestore.instance.collection("users").doc(uid).get();
     if ((snapFollow!.data() as dynamic)["followers"]

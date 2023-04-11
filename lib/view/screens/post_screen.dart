@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:bsocial/model/user_model.dart';
 import 'package:bsocial/provider/post_image_provider.dart';
 import 'package:bsocial/provider/users_provider.dart';
@@ -7,7 +5,7 @@ import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:image_picker/image_picker.dart';
+
 import 'package:provider/provider.dart';
 
 class PostScreen extends StatelessWidget {
