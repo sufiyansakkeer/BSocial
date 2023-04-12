@@ -1,6 +1,6 @@
 import 'package:bsocial/view/screens/home_screen.dart';
 import 'package:bsocial/view/screens/post_screen.dart';
-import 'package:bsocial/view/screens/profile_screen.dart';
+import 'package:bsocial/view/screens/profile_screen/profile_screen.dart';
 import 'package:bsocial/view/screens/search_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

@@ -1,6 +1,6 @@
 import 'package:bsocial/provider/following_provider.dart';
 import 'package:bsocial/utils/colors.dart';
-import 'package:bsocial/view/screens/profile_screen.dart';
+import 'package:bsocial/view/screens/profile_screen/profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 

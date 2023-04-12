@@ -27,7 +27,7 @@ class ProfileScreenProvider extends ChangeNotifier {
       postLength = postSnap.docs.length;
       followers = userSnap.data()!["followers"].length;
       following = userSnap.data()!["following"].length;
-      log("message");
+      log("get data function started");
       notifyListeners();
     } catch (e) {
       showSimpleNotification(Text(e.toString()));
@@ -53,15 +53,20 @@ class ProfileScreenProvider extends ChangeNotifier {
   }
 
   isChecking(String uid) async {
-    var currentUserData = FirebaseAuth.instance.currentUser;
-    snapFollow =
-        await FirebaseFirestore.instance.collection("users").doc(uid).get();
-    if ((snapFollow!.data() as dynamic)["followers"]
-        .contain(currentUserData!.uid)) {
-      isFollowing = true;
-    } else {
-      isFollowing = false;
+    try {
+      var currentUserData = FirebaseAuth.instance.currentUser;
+      snapFollow =
+          await FirebaseFirestore.instance.collection("users").doc(uid).get();
+      List followingList = (snapFollow!.data() as dynamic)["followers"];
+      if (followingList.contains(currentUserData!.uid)) {
+        isFollowing = true;
+      } else {
+        isFollowing = false;
+      }
+      notifyListeners();
+    } catch (e) {
+      // showSimpleNotification(Text(e.toString()));
+      log(e.toString());
     }
-    notifyListeners();
   }
 }
