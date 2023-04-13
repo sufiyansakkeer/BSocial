@@ -10,6 +10,7 @@ import 'package:bsocial/view/screens/edit_screen.dart';
 import 'package:bsocial/view/screens/followers_screen.dart';
 import 'package:bsocial/view/screens/following_screen.dart';
 import 'package:bsocial/view/screens/profile_screen/widgets/profile_app_bar.dart';
+import 'package:bsocial/view/screens/profile_screen/widgets/profile_photos_collection.dart';
 import 'package:bsocial/view/widgets/follow_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -55,6 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: ProfileAppBar(context, widget.uid),
       body: RefreshIndicator(
         onRefresh: () {
+          Restart.restartApp();
           Provider.of<ProfileScreenProvider>(context, listen: false)
               .isChecking(widget.uid);
           return Provider.of<ProfileScreenProvider>(context, listen: false)
@@ -101,49 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const Divider(),
-            FutureBuilder(
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-
-                if (snapshot.hasData) {
-                  log("snapshot has data");
-                  return GridView.builder(
-                    shrinkWrap: true,
-                    itemCount: (snapshot.data! as dynamic).docs.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      childAspectRatio: 1,
-                      crossAxisSpacing: 5,
-                      mainAxisSpacing: 1.5,
-                    ),
-                    itemBuilder: (context, index) {
-                      DocumentSnapshot snap =
-                          (snapshot.data! as dynamic).docs[index];
-                      return Container(
-                        child: Image.network(
-                          snap["postUrl"],
-                          fit: BoxFit.fill,
-                        ),
-                      );
-                    },
-                  );
-                } else {
-                  return const Center(
-                    child: Text("Add Post to See here"),
-                  );
-                }
-              },
-              future: FirebaseFirestore.instance
-                  .collection("posts")
-                  // .orderBy("datePublished", descending: true)
-                  .where("uid", isEqualTo: widget.uid)
-                  .get(),
-            )
+            ProfilePhotos(widget: widget)
           ],
         ),
       ),

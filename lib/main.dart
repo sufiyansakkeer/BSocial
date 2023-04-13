@@ -15,7 +15,7 @@ import 'package:bsocial/provider/login_screen_provider.dart';
 import 'package:bsocial/provider/mobile_screen_provider.dart';
 import 'package:bsocial/provider/users_provider.dart';
 import 'package:bsocial/provider/sign_up_provider.dart';
-
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:bsocial/view/layout/mobile_screen_layout.dart';
 import 'package:bsocial/view/layout/web_screen_layout.dart';
 import 'package:bsocial/view/screens/login_screen.dart';
@@ -45,7 +45,7 @@ void main() async {
     await Firebase.initializeApp();
   }
 
-  runApp(const MyApp());
+  runApp(Phoenix(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -109,41 +109,51 @@ class MyApp extends StatelessWidget {
           title: 'BSocial',
           theme: ThemeData.dark(useMaterial3: true)
               .copyWith(scaffoldBackgroundColor: mobileBackgroundColor),
-          home: StreamBuilder(
-            // here we use authStateChanges to listen if there any changes in the user authentication
-            stream: FirebaseAuth.instance.authStateChanges(),
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              //here we checking our connection is made with the stream,active means we have made connection with the stream
-              if (snapshot.connectionState == ConnectionState.active) {
-                //here hasData is used to check if the user is authenticated or not
-                if (snapshot.hasData) {
-                  Provider.of<ProfileScreenProvider>(context, listen: false)
-                      .getData(FirebaseAuth.instance.currentUser!.uid);
-                  Provider.of<UpdateScreenProvider>(context, listen: false)
-                      .getData();
-                  Provider.of<UsersProvider>(context, listen: false).refreshUi;
-                  return const ResponsiveLayout(
-                    webScreenLayout: WebScreenLayout(),
-                    mobileScreenLayout: MobileScreenLayout(),
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text('${snapshot.error}'),
-                  );
-                }
-              }
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                  ),
-                );
-              }
-              return const LoginScreen();
-            },
-          ),
+          home: Main(),
         ),
       ),
+    );
+  }
+}
+
+class Main extends StatelessWidget {
+  const Main({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      // here we use authStateChanges to listen if there any changes in the user authentication
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (BuildContext context, AsyncSnapshot snapshot) {
+        //here we checking our connection is made with the stream,active means we have made connection with the stream
+        if (snapshot.connectionState == ConnectionState.active) {
+          //here hasData is used to check if the user is authenticated or not
+          if (snapshot.hasData) {
+            Provider.of<ProfileScreenProvider>(context, listen: false)
+                .getData(FirebaseAuth.instance.currentUser!.uid);
+            Provider.of<UpdateScreenProvider>(context, listen: false).getData();
+            Provider.of<UsersProvider>(context, listen: false).refreshUi;
+            return const ResponsiveLayout(
+              webScreenLayout: WebScreenLayout(),
+              mobileScreenLayout: MobileScreenLayout(),
+            );
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('${snapshot.error}'),
+            );
+          }
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Colors.white,
+            ),
+          );
+        }
+        return const LoginScreen();
+      },
     );
   }
 }

@@ -28,7 +28,7 @@ class _FollowingScreenState extends State<FollowingScreen> {
       appBar: AppBar(
         backgroundColor: mobileBackgroundColor,
         title: const Text(
-          "Followers",
+          "Following",
         ),
         centerTitle: true,
       ),

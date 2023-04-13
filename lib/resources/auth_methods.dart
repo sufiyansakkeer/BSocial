@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:typed_data';
+import 'package:bsocial/main.dart';
 import 'package:bsocial/resources/storage_methods.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -145,6 +146,7 @@ class AuthMethods {
     try {
       if (!kIsWeb) {
         await googleSignIn.signOut();
+        // await googleSignIn.disconnect();
       }
       String status = "offline";
       // Provider.of<BottomNavigationProvider>(context).onTapIcon(0);
@@ -152,15 +154,19 @@ class AuthMethods {
           .collection("users")
           .doc(_auth.currentUser!.uid)
           .update({"status": status});
+      await FirebaseAuth.instance.signOut();
+
       await _auth.signOut();
       // log(FirebaseAuth.instance.currentUser!.uid);
       if (context.mounted) {}
-      Navigator.of(context).pushReplacement(
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (context) => const LoginScreen(),
+          builder: (context) => const Main(),
         ),
+        (route) => false,
       );
     } catch (e) {
+      log(e.toString());
       ScaffoldMessenger.of(context).showSnackBar(
         customSnackBar.customSnackBar(
           content: 'Error signing out. Try again.',

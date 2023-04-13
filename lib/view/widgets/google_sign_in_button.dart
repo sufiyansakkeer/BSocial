@@ -7,7 +7,9 @@ import 'package:bsocial/view/layout/responsive_layout_building.dart';
 import 'package:bsocial/view/layout/web_screen_layout.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:provider/provider.dart';
+import 'package:restart_app/restart_app.dart';
 
 import '../../provider/profile_screen_provider.dart';
 
@@ -40,9 +42,10 @@ class GoogleSignInButton extends StatelessWidget {
                   User? user =
                       await AuthMethods().signInWithGoogle(context: context);
                   log('user called');
-                  if (context.mounted) {}
+                  // if (context.mounted) {}
                   if (user != null) {
-                    Provider.of<ProfileScreenProvider>(context, listen: false)
+                    await Provider.of<ProfileScreenProvider>(context,
+                            listen: false)
                         .getData(FirebaseAuth.instance.currentUser!.uid);
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
@@ -53,6 +56,7 @@ class GoogleSignInButton extends StatelessWidget {
                       ),
                     );
                   }
+                  Phoenix.rebirth(context);
                   provider.signInFalse();
                 },
                 child: Padding(

@@ -10,7 +10,9 @@ import 'package:bsocial/view/screens/sign_up_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:provider/provider.dart';
+import 'package:restart_app/restart_app.dart';
 
 class LoginScreenProvider extends ChangeNotifier {
   final TextEditingController emailTextController = TextEditingController();
@@ -28,15 +30,17 @@ class LoginScreenProvider extends ChangeNotifier {
       await Provider.of<ProfileScreenProvider>(context, listen: false)
           .getData(FirebaseAuth.instance.currentUser!.uid);
 
-      Navigator.of(context).pushReplacement(
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (context) => const ResponsiveLayout(
             webScreenLayout: WebScreenLayout(),
             mobileScreenLayout: MobileScreenLayout(),
           ),
         ),
+        (route) => false,
       );
       disposeTextfield(context);
+      Phoenix.rebirth(context);
     } else {
       showSnackBar(res, context);
     }
