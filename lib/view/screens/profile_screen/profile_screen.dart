@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:bsocial/provider/profile_screen_provider.dart';
 import 'package:bsocial/provider/update_screen_provider.dart';
 
-import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/resources/firestore_methods.dart';
 import 'package:bsocial/utils/colors.dart';
 import 'package:bsocial/view/screens/edit_screen.dart';
@@ -12,17 +11,12 @@ import 'package:bsocial/view/screens/following_screen.dart';
 import 'package:bsocial/view/screens/profile_screen/widgets/profile_app_bar.dart';
 import 'package:bsocial/view/screens/profile_screen/widgets/profile_photos_collection.dart';
 import 'package:bsocial/view/widgets/follow_button.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({

@@ -28,11 +28,11 @@ Widget message({required MessageModelTwo map, required BuildContext context}) {
                 style: const TextStyle(fontSize: 10),
               ),
               map.sendBy != FirebaseAuth.instance.currentUser!.uid
-                  ? Icon(
+                  ? const Icon(
                       Icons.done_all,
                       color: Colors.grey,
                     )
-                  : Text(""),
+                  : const Text(""),
             ],
           ),
         ],

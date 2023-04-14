@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:bsocial/resources/auth_methods.dart';
 import 'package:bsocial/view/screens/account_page.dart';
+import 'package:bsocial/view/screens/edit_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,14 +21,26 @@ class MenuBottomSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            leading: Icon(
-              Icons.settings,
+            leading: const Icon(
+              Icons.info_outline,
               color: Colors.white,
             ),
-            title: Text("Settings"),
+            title: const Text("About"),
             onTap: () {
               Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (context) => AccountPage(),
+                builder: (context) => const AccountPage(),
+              ));
+            },
+          ),
+          ListTile(
+            leading: const Icon(
+              Icons.edit,
+              color: Colors.white,
+            ),
+            title: const Text("Edit Profile"),
+            onTap: () {
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => EditScreen(),
               ));
             },
           ),

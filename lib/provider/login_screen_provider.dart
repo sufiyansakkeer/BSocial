@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:bsocial/provider/profile_screen_provider.dart';
 import 'package:bsocial/utils/utils.dart';
 import 'package:bsocial/resources/auth_methods.dart';
@@ -8,11 +7,9 @@ import 'package:bsocial/view/layout/responsive_layout_building.dart';
 import 'package:bsocial/view/layout/web_screen_layout.dart';
 import 'package:bsocial/view/screens/sign_up_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:provider/provider.dart';
-import 'package:restart_app/restart_app.dart';
 
 class LoginScreenProvider extends ChangeNotifier {
   final TextEditingController emailTextController = TextEditingController();

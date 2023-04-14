@@ -9,7 +9,7 @@ import 'package:bsocial/view/widgets/message_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:grouped_list/grouped_list.dart';
+
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sticky_headers/sticky_headers/widget.dart';
@@ -107,18 +107,6 @@ class MessageScreen extends StatelessWidget {
                     child: CircularProgressIndicator(),
                   );
                 }
-                // return GroupedListView(
-                //   elements: snapshot.data.docs,
-                //   groupBy: (element) => snapshot.data.docs["createdOn"],
-                //   groupSeparatorBuilder: (value) => Container(
-                //     child: Text(value),
-                //   ),
-                //   itemBuilder: (context, element) => Card(
-                //     child: ListTile(
-                //       title: Text("skjkj"),
-                //     ),
-                //   ),
-                // );
                 List<MessageModelTwo> messageList = [];
                 for (var element in snapshot.data.docs) {
                   log("for loop is working ${element['message']}",

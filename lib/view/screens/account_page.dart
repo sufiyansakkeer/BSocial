@@ -1,9 +1,8 @@
 import 'package:bsocial/utils/colors.dart';
+import 'package:bsocial/view/screens/privacy_policy.dart';
 import 'package:bsocial/view/screens/terms_and_condition.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 
 class AccountPage extends StatelessWidget {
   const AccountPage({super.key});
@@ -12,30 +11,26 @@ class AccountPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Settings Page"),
+        title: const Text("Settings Page"),
         backgroundColor: mobileBackgroundColor,
       ),
       body: Column(
         children: [
           ListTile(
-            onTap: () {},
-            title: Text("Edit Profile"),
-          ),
-          ListTile(
-            onTap: () {},
-            title: Text("About"),
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const TermsAndCondition(),
+              ));
+            },
+            title: const Text("Terms and Condition"),
           ),
           ListTile(
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => TermsAndCondition(),
+                builder: (context) => const PrivacyPolicy(),
               ));
             },
-            title: Text("Terms and Condition"),
-          ),
-          ListTile(
-            onTap: () {},
-            title: Text("Privacy and Policy"),
+            title: const Text("Privacy and Policy"),
           ),
         ],
       ),

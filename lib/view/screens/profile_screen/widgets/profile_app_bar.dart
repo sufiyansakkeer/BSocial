@@ -1,12 +1,11 @@
 import 'dart:developer';
 
 import 'package:bsocial/provider/profile_screen_provider.dart';
-import 'package:bsocial/resources/auth_methods.dart';
+
 import 'package:bsocial/view/widgets/menu_bottom_sheet.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../utils/colors.dart';
 

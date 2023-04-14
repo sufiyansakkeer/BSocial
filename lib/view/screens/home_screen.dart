@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:bsocial/model/post_model.dart';
 import 'package:bsocial/model/user_model.dart';
 import 'package:bsocial/provider/users_provider.dart';
