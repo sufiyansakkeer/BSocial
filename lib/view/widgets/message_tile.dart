@@ -15,13 +15,25 @@ Widget message({required MessageModelTwo map, required BuildContext context}) {
       padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 10),
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(map.message ?? ""),
-          Text(
-            DateFormat.jm().format(
-              map.createdOn!,
-            ),
-            style: const TextStyle(fontSize: 10),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                DateFormat.jm().format(
+                  map.createdOn!,
+                ),
+                style: const TextStyle(fontSize: 10),
+              ),
+              map.sendBy != FirebaseAuth.instance.currentUser!.uid
+                  ? Icon(
+                      Icons.done_all,
+                      color: Colors.grey,
+                    )
+                  : Text(""),
+            ],
           ),
         ],
       ),

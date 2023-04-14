@@ -257,4 +257,6 @@ class AuthMethods {
 
     return user;
   }
+
+  resetPassword() {}
 }

@@ -12,7 +12,8 @@ class MessageProvider extends ChangeNotifier {
       MessageModel messageModel = MessageModel(
           sendBy: userUid,
           message: messageController.text,
-          createdOn: FieldValue.serverTimestamp());
+          createdOn: FieldValue.serverTimestamp(),
+          seen: false);
 
       await FirebaseFirestore.instance
           .collection("chatRoom")
