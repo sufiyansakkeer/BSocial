@@ -6,7 +6,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:bsocial/model/user_model.dart';
 
-import 'package:bsocial/view/screens/login_screen.dart';
 import 'package:bsocial/view/widgets/custom_scackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

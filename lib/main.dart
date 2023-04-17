@@ -45,7 +45,7 @@ void main() async {
     await Firebase.initializeApp();
   }
 
-  runApp(Phoenix(child: MyApp()));
+  runApp(Phoenix(child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -109,7 +109,7 @@ class MyApp extends StatelessWidget {
           title: 'BSocial',
           theme: ThemeData.dark(useMaterial3: true)
               .copyWith(scaffoldBackgroundColor: mobileBackgroundColor),
-          home: Main(),
+          home: const Main(),
         ),
       ),
     );

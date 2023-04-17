@@ -105,7 +105,7 @@ class SearchScreen extends StatelessWidget {
                                     if (uid ==
                                         FirebaseAuth
                                             .instance.currentUser!.uid) {
-                                      log("loop is workig");
+                                      log("loop is working");
                                       Provider.of<ProfileScreenProvider>(
                                               context,
                                               listen: false)
