@@ -26,8 +26,17 @@ import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 import 'view/layout/responsive_layout_building.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 void main() async {
+  // Set `enableInDevMode`to true to see reports while in debug mode
+  // This is only to be used for confirming that reports are being
+  // submitted as expected. It is not intended to be used for  //everyday development.
+
+  // Crashlytics.instance.enableInDevMode = true;
+
+  // // Pass all uncaught errors to Crashlytics.
+  // FlutterError.onError = Crashlytics.instance.recordFlutterError;
   WidgetsFlutterBinding.ensureInitialized();
   //* Initialize fire base
   //* KIsWeb is a constant that is true when its running in web
@@ -44,12 +53,25 @@ void main() async {
   } else {
     await Firebase.initializeApp();
   }
-
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
   runApp(Phoenix(child: const MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // FirebaseCrashlytics.instance.crash();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
