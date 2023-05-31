@@ -36,6 +36,7 @@ dependencies:
   firebase_auth: ^4.2.10
   firebase_core: ^2.7.1
   firebase_crashlytics: ^3.2.0
+  firebase_messaging: ^14.6.1
   firebase_storage: ^11.0.15
   flutter:
     sdk: flutter

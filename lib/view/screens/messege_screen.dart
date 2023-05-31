@@ -92,7 +92,7 @@ class MessageScreen extends StatelessWidget {
                   .orderBy("createdOn", descending: true)
                   .snapshots(),
               builder: (BuildContext context, AsyncSnapshot snapshot) {
-                var _auth = FirebaseAuth.instance.currentUser;
+                var auth = FirebaseAuth.instance.currentUser;
                 if (!snapshot.hasData) {
                   log("snapshot has no data");
                   return Container();
@@ -146,7 +146,7 @@ class MessageScreen extends StatelessWidget {
                         .format(messageList[index].createdOn!);
                     //log("${index} ${map['message']} ${snapshot.data.docs.length - 1}");
                     return previousDate != date
-                        ? dateDivider(messageList[index], _auth!.uid, context)
+                        ? dateDivider(messageList[index], auth!.uid, context)
                         : message(map: messageList[index], context: context);
                   },
                   itemCount: snapshot.data.docs.length,

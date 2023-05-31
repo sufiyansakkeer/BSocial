@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bsocial/provider/chat_search_provider.dart';
 import 'package:bsocial/provider/comment_provider.dart';
 import 'package:bsocial/provider/followers_provider.dart';
@@ -15,6 +17,7 @@ import 'package:bsocial/provider/login_screen_provider.dart';
 import 'package:bsocial/provider/mobile_screen_provider.dart';
 import 'package:bsocial/provider/users_provider.dart';
 import 'package:bsocial/provider/sign_up_provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:bsocial/view/layout/mobile_screen_layout.dart';
 import 'package:bsocial/view/layout/web_screen_layout.dart';
@@ -35,7 +38,7 @@ void main() async {
 
   // Crashlytics.instance.enableInDevMode = true;
 
-  // // Pass all uncaught errors to Crashlytics.
+  // Pass all uncaught errors to Crashlytics.
   // FlutterError.onError = Crashlytics.instance.recordFlutterError;
   WidgetsFlutterBinding.ensureInitialized();
   //* Initialize fire base
@@ -52,6 +55,9 @@ void main() async {
     );
   } else {
     await Firebase.initializeApp();
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+
+    log(fcmToken.toString());
   }
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
   runApp(Phoenix(child: const MyApp()));
@@ -67,7 +73,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     // FirebaseCrashlytics.instance.crash();
   }

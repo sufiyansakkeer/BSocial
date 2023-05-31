@@ -58,14 +58,14 @@ class GoogleSignInButton extends StatelessWidget {
                   Phoenix.rebirth(context);
                   provider.signInFalse();
                 },
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                child: const Padding(
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   child: SizedBox(
                     width: double.infinity,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const <Widget>[
+                      children: <Widget>[
                         Image(
                           image: AssetImage("assets/google_logo.png"),
                           height: 24.0,
