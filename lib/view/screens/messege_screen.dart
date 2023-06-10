@@ -164,6 +164,7 @@ class MessageScreen extends StatelessWidget {
                     child: TextFormField(
                       controller: value.messageController,
                       decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
                         hintText: "  Message",
                       ),
                     ),

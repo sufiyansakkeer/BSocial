@@ -36,7 +36,7 @@ class AuthMethods {
     required String userName,
     required String email,
     required String password,
-    required Uint8List file,
+    required Uint8List? file,
   }) async {
     String res = 'some error occurred';
     try {
@@ -63,7 +63,7 @@ class AuthMethods {
         log(credential.user!.uid);
 
         String photoUrl =
-            await StorageMethods().uploadImages('profilePics', file, false);
+            await StorageMethods().uploadImages('profilePics', file!, false);
         //adding user to database
         UserModel userModel = UserModel(
             email: email,

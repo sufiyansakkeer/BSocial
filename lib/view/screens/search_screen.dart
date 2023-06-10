@@ -24,7 +24,9 @@ class SearchScreen extends StatelessWidget {
             title: Consumer<SearchProvider>(builder: (context, value, child) {
               return TextFormField(
                 controller: value.searchController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
+                  fillColor: Theme.of(context).primaryColorLight,
+                  // filled: true,
                   label: Text(
                     "Search",
                   ),

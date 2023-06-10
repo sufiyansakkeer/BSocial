@@ -47,3 +47,5 @@ app.*.map.json
 #unused files
 
 .vscode
+
+/android/app/key

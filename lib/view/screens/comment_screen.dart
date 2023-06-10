@@ -18,7 +18,7 @@ class CommentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final UserModel userModel = Provider.of<UsersProvider>(context).getUser!;
+    final UserModel? userModel = Provider.of<UsersProvider>(context).getUser;
     return userModel == null
         ? const CircularProgressIndicator()
         : Scaffold(
