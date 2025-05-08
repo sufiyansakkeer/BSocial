@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 
 class CommentCard extends StatelessWidget {
   const CommentCard({super.key, required this.snap});
-  final snap;
+  final Map<String, dynamic> snap;
   @override
   Widget build(BuildContext context) {
     final UserModel? userModel = Provider.of<UsersProvider>(context).getUser;

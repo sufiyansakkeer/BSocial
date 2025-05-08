@@ -7,10 +7,10 @@ class PostModel {
   final String uid;
   final String userName;
   final String photoId;
-  final datePublished;
+  final Timestamp datePublished;
   final String postUrl;
   final String profileImg;
-  final likes;
+  final List<dynamic> likes;
 
   PostModel({
     required this.userName,

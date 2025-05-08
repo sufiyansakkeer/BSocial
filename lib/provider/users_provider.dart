@@ -32,9 +32,14 @@ class UsersProvider extends ChangeNotifier {
     userName = (snap.data() as Map<String, dynamic>)["username"];
   }
 
-  void refreshUi() async {
-    UserModel userModel = await _authMethods.getUserDetails();
-    _user = userModel;
-    notifyListeners();
+  Future<void> refreshUi() async {
+    try {
+      UserModel userModel = await _authMethods.getUserDetails();
+      _user = userModel;
+      notifyListeners();
+    } catch (e) {
+      log("Error refreshing UI: ${e.toString()}");
+      // Don't rethrow to prevent app crashes
+    }
   }
 }

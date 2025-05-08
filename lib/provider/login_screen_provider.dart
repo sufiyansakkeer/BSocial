@@ -17,15 +17,35 @@ class LoginScreenProvider extends ChangeNotifier {
   bool isLoading = false;
   bool isPass = true;
   loginUser(BuildContext context) async {
+    isLoading = true;
+    notifyListeners();
+
     String res = await AuthMethods().loginUser(
       email: emailTextController.text,
       password: passwordTextController.text,
     );
-    isLoading = true;
-    if (context.mounted) {}
+
+    if (!context.mounted) {
+      isLoading = false;
+      notifyListeners();
+      return;
+    }
+
     if (res == "success") {
-      await Provider.of<ProfileScreenProvider>(context, listen: false)
-          .getData(FirebaseAuth.instance.currentUser!.uid);
+      // Store the UID before the async gap
+      final uid = FirebaseAuth.instance.currentUser!.uid;
+
+      // Get the provider before the async gap
+      final profileProvider =
+          Provider.of<ProfileScreenProvider>(context, listen: false);
+
+      await profileProvider.getData(uid);
+
+      if (!context.mounted) {
+        isLoading = false;
+        notifyListeners();
+        return;
+      }
 
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
@@ -36,12 +56,15 @@ class LoginScreenProvider extends ChangeNotifier {
         ),
         (route) => false,
       );
+
       disposeTextfield(context);
       Phoenix.rebirth(context);
     } else {
       showSnackBar(res, context);
     }
+
     isLoading = false;
+    notifyListeners();
     log(res);
   }
 

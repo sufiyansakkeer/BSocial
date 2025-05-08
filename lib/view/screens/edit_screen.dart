@@ -40,7 +40,14 @@ class EditScreen extends StatelessWidget {
                   children: [
                     Consumer<UpdateScreenProvider>(
                         builder: (context, provider, child) {
-                      // provider.getData;
+                      if (provider.image == null) {
+                        // Show loading indicator while image is being loaded
+                        return const CircleAvatar(
+                          backgroundColor: Colors.grey,
+                          radius: 64,
+                          child: CircularProgressIndicator(color: Colors.white),
+                        );
+                      }
                       return CircleAvatar(
                         backgroundImage: MemoryImage(provider.image!),
                         radius: 64,
@@ -79,14 +86,28 @@ class EditScreen extends StatelessWidget {
                 Consumer<UpdateScreenProvider>(builder: (ctx, provider, child) {
                   return InkWell(
                     onTap: () async {
+                      if (provider.image == null) {
+                        showSnackBar('Please select an image', context);
+                        return;
+                      }
+
                       bool result =
                           await InternetConnectionChecker().hasConnection;
                       if (context.mounted) {
                         if (result) {
-                          provider.upDateFunction(
-                              image: provider.image!,
-                              username: provider.userNameController.text);
-                          Navigator.of(context).pop();
+                          try {
+                            await provider.upDateFunction(
+                                image: provider.image!,
+                                username: provider.userNameController.text);
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              showSnackBar(
+                                  'Error updating profile: $e', context);
+                            }
+                          }
                         } else {
                           showSnackBar(
                               'Please check your internet connection', context);

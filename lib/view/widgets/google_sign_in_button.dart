@@ -28,8 +28,8 @@ class GoogleSignInButton extends StatelessWidget {
               )
             : OutlinedButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.white),
-                  shape: MaterialStateProperty.all(
+                  backgroundColor: WidgetStateProperty.all(Colors.white),
+                  shape: WidgetStateProperty.all(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -41,21 +41,30 @@ class GoogleSignInButton extends StatelessWidget {
                   User? user =
                       await AuthMethods().signInWithGoogle(context: context);
                   log('user called');
-                  // if (context.mounted) {}
                   if (user != null) {
-                    await Provider.of<ProfileScreenProvider>(context,
-                            listen: false)
-                        .getData(FirebaseAuth.instance.currentUser!.uid);
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const ResponsiveLayout(
-                          webScreenLayout: WebScreenLayout(),
-                          mobileScreenLayout: MobileScreenLayout(),
+                    // Store the UID before the async gap
+                    final uid = FirebaseAuth.instance.currentUser!.uid;
+
+                    // Get the provider before the async gap
+                    final profileProvider = Provider.of<ProfileScreenProvider>(
+                        context,
+                        listen: false);
+
+                    await profileProvider.getData(uid);
+
+                    if (context.mounted) {
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => const ResponsiveLayout(
+                            webScreenLayout: WebScreenLayout(),
+                            mobileScreenLayout: MobileScreenLayout(),
+                          ),
                         ),
-                      ),
-                    );
+                      );
+
+                      Phoenix.rebirth(context);
+                    }
                   }
-                  Phoenix.rebirth(context);
                   provider.signInFalse();
                 },
                 child: const Padding(

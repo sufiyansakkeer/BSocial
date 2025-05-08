@@ -33,7 +33,7 @@ class FireStoreMethods {
         description: description,
         uid: uid,
         photoId: photoId,
-        datePublished: DateTime.now(),
+        datePublished: Timestamp.now(),
         postUrl: photoUrl,
         profileImg: profileImg,
       );
@@ -93,7 +93,7 @@ class FireStoreMethods {
             "uid": uid,
             "text": text,
             "commentId": commentId,
-            "datePublished": DateTime.now(),
+            "datePublished": Timestamp.now(),
           },
         );
       } else {
