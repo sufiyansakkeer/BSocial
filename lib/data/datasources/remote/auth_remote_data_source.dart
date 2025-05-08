@@ -15,69 +15,67 @@ abstract class AuthRemoteDataSource {
     required String password,
     required Uint8List? file,
   });
-  
+
   Future<UserModel> loginUser({
     required String email,
     required String password,
   });
-  
+
   Future<UserModel> signInWithGoogle();
-  
+
   Future<void> signOutUser();
-  
+
   Future<UserModel> getCurrentUser();
-  
+
   Future<void> resetPassword(String email);
-  
+
   Future<bool> isUserAuthenticated();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final firebase_auth.FirebaseAuth _auth;
-  final FirebaseFirestore _firestore;
-  final GoogleSignIn _googleSignIn;
-  final StorageLocalDataSource _storageDataSource;
-  
   AuthRemoteDataSourceImpl({
     required firebase_auth.FirebaseAuth auth,
     required FirebaseFirestore firestore,
     required GoogleSignIn googleSignIn,
     required StorageLocalDataSource storageDataSource,
-  }) : _auth = auth,
-       _firestore = firestore,
-       _googleSignIn = googleSignIn,
-       _storageDataSource = storageDataSource;
-  
+  })  : _auth = auth,
+        _firestore = firestore,
+        _googleSignIn = googleSignIn,
+        _storageDataSource = storageDataSource;
+  final firebase_auth.FirebaseAuth _auth;
+  final FirebaseFirestore _firestore;
+  final GoogleSignIn _googleSignIn;
+  final StorageLocalDataSource _storageDataSource;
+
   @override
   Future<UserModel> getCurrentUser() async {
     try {
       final currentUser = _auth.currentUser;
-      
+
       if (currentUser == null) {
         throw AuthException(message: 'No user is currently signed in');
       }
-      
+
       final userDoc = await _firestore
           .collection(AppConstants.usersCollection)
           .doc(currentUser.uid)
           .get();
-      
+
       if (!userDoc.exists) {
         throw AuthException(message: 'User data not found');
       }
-      
+
       return UserModel.fromSnapshot(userDoc);
     } catch (e) {
       log('Error getting current user: $e');
-      throw AuthException(message: 'Failed to get current user: ${e.toString()}');
+      throw AuthException(
+          message: 'Failed to get current user: ${e.toString()}');
     }
   }
-  
+
   @override
-  Future<bool> isUserAuthenticated() async {
-    return _auth.currentUser != null;
-  }
-  
+  Future<bool> isUserAuthenticated() async => _auth.currentUser != null;
+
   @override
   Future<UserModel> loginUser({
     required String email,
@@ -87,25 +85,25 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (email.isEmpty) {
         throw AuthException(message: 'Email cannot be empty');
       }
-      
+
       if (password.isEmpty) {
         throw AuthException(message: 'Password cannot be empty');
       }
-      
+
       final userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      
+
       if (userCredential.user == null) {
         throw AuthException(message: 'Login failed');
       }
-      
+
       final userDoc = await _firestore
           .collection(AppConstants.usersCollection)
           .doc(userCredential.user!.uid)
           .get();
-      
+
       return UserModel.fromSnapshot(userDoc);
     } on firebase_auth.FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -122,7 +120,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw AuthException(message: 'Login failed: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<void> resetPassword(String email) async {
     try {
@@ -132,39 +130,39 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw AuthException(message: 'Failed to reset password: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<UserModel> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      
+      final googleUser = await _googleSignIn.signIn();
+
       if (googleUser == null) {
         throw AuthException(message: 'Google sign in cancelled');
       }
-      
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      
+
+      final googleAuth = await googleUser.authentication;
+
       final credential = firebase_auth.GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      
+
       final userCredential = await _auth.signInWithCredential(credential);
-      
+
       if (userCredential.user == null) {
         throw AuthException(message: 'Google sign in failed');
       }
-      
+
       // Check if user exists in Firestore
       final userDoc = await _firestore
           .collection(AppConstants.usersCollection)
           .doc(userCredential.user!.uid)
           .get();
-      
+
       // If new user, create a document in Firestore
       if (!userDoc.exists) {
         final user = userCredential.user!;
-        
+
         final userModel = UserModel(
           email: user.email ?? '',
           uid: user.uid,
@@ -174,22 +172,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           following: [],
           status: 'online',
         );
-        
+
         await _firestore
             .collection(AppConstants.usersCollection)
             .doc(user.uid)
             .set(userModel.toJson());
-            
+
         return userModel;
       }
-      
+
       return UserModel.fromSnapshot(userDoc);
     } catch (e) {
       log('Google sign in error: $e');
       throw AuthException(message: 'Google sign in failed: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<void> signOutUser() async {
     try {
@@ -200,7 +198,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
             .doc(_auth.currentUser!.uid)
             .update({'status': 'offline'});
       }
-      
+
       await _googleSignIn.signOut();
       await _auth.signOut();
     } catch (e) {
@@ -208,7 +206,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw AuthException(message: 'Failed to sign out: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<UserModel> signUpUser({
     required String userName,
@@ -220,36 +218,36 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (userName.isEmpty) {
         throw AuthException(message: 'Username cannot be empty');
       }
-      
+
       if (email.isEmpty) {
         throw AuthException(message: 'Email cannot be empty');
       }
-      
+
       if (password.isEmpty) {
         throw AuthException(message: 'Password cannot be empty');
       }
-      
+
       if (file == null) {
         throw AuthException(message: 'Profile image is required');
       }
-      
+
       // Create user with email and password
       final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      
+
       if (userCredential.user == null) {
         throw AuthException(message: 'Failed to create user');
       }
-      
+
       // Upload profile image
       final photoUrl = await _storageDataSource.uploadImage(
         AppConstants.profilePicsPath,
         file,
         false,
       );
-      
+
       // Create user model
       final userModel = UserModel(
         email: email,
@@ -260,13 +258,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         following: [],
         status: 'online',
       );
-      
+
       // Save user data to Firestore
       await _firestore
           .collection(AppConstants.usersCollection)
           .doc(userCredential.user!.uid)
           .set(userModel.toJson());
-      
+
       return userModel;
     } on firebase_auth.FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {

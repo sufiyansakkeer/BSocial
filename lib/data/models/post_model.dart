@@ -13,6 +13,18 @@ class PostModel extends Post {
     required super.likes,
   });
 
+  // Create model from JSON
+  factory PostModel.fromJson(Map<String, dynamic> json) => PostModel(
+        postId: json['postId'] ?? '',
+        uid: json['uid'] ?? '',
+        username: json['username'] ?? '',
+        description: json['description'] ?? '',
+        postUrl: json['postUrl'] ?? '',
+        profImage: json['profImage'] ?? '',
+        datePublished: (json['datePublished'] as Timestamp).toDate(),
+        likes: _convertToStringList(json['likes'] ?? []),
+      );
+
   // Convert model to JSON
   Map<String, dynamic> toJson() => {
         'postId': postId,
@@ -25,28 +37,13 @@ class PostModel extends Post {
         'likes': likes,
       };
 
-  // Create model from JSON
-  factory PostModel.fromJson(Map<String, dynamic> json) {
-    return PostModel(
-      postId: json['postId'] ?? '',
-      uid: json['uid'] ?? '',
-      username: json['username'] ?? '',
-      description: json['description'] ?? '',
-      postUrl: json['postUrl'] ?? '',
-      profImage: json['profImage'] ?? '',
-      datePublished: (json['datePublished'] as Timestamp).toDate(),
-      likes: _convertToStringList(json['likes'] ?? []),
-    );
-  }
-
   // Create model from Firestore snapshot
   static PostModel fromSnapshot(DocumentSnapshot snapshot) {
     final data = snapshot.data() as Map<String, dynamic>;
     return PostModel.fromJson(data);
   }
-  
+
   // Helper method to convert dynamic list to List<String>
-  static List<String> _convertToStringList(List<dynamic> list) {
-    return list.map((item) => item.toString()).toList();
-  }
+  static List<String> _convertToStringList(List<dynamic> list) =>
+      list.map((item) => item.toString()).toList();
 }

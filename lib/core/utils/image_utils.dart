@@ -5,8 +5,8 @@ import 'package:image_picker/image_picker.dart';
 class ImageUtils {
   // Pick an image from the specified source
   static Future<dynamic> pickImage(ImageSource imageSource) async {
-    final ImagePicker imagePicker = ImagePicker();
-    final XFile? file = await imagePicker.pickImage(source: imageSource);
+    final imagePicker = ImagePicker();
+    final file = await imagePicker.pickImage(source: imageSource);
 
     if (file != null) {
       // Return file as Uint8List to be compatible with web

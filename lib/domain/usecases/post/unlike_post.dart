@@ -2,11 +2,9 @@ import '../../../core/utils/typedefs.dart';
 import '../../repositories/post_repository.dart';
 
 class UnlikePostUseCase {
+  UnlikePostUseCase(this.repository);
   final PostRepository repository;
 
-  UnlikePostUseCase(this.repository);
-
-  ResultVoid call(String postId, String userId) {
-    return repository.unlikePost(postId, userId);
-  }
+  ResultVoid call(String postId, String userId) =>
+      repository.unlikePost(postId, userId);
 }

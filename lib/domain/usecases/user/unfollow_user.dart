@@ -2,11 +2,8 @@ import '../../../core/utils/typedefs.dart';
 import '../../repositories/user_repository.dart';
 
 class UnfollowUserUseCase {
+  UnfollowUserUseCase(this.repository);
   final UserRepository repository;
 
-  UnfollowUserUseCase(this.repository);
-
-  ResultVoid call(String userId) {
-    return repository.unfollowUser(userId);
-  }
+  ResultVoid call(String userId) => repository.unfollowUser(userId);
 }

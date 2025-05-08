@@ -4,9 +4,8 @@ import '../../entities/post.dart';
 import '../../repositories/post_repository.dart';
 
 class CreatePostUseCase {
-  final PostRepository repository;
-
   CreatePostUseCase(this.repository);
+  final PostRepository repository;
 
   ResultFuture<Post> call({
     required String description,
@@ -14,13 +13,12 @@ class CreatePostUseCase {
     required String uid,
     required String username,
     required String profImage,
-  }) {
-    return repository.createPost(
-      description: description,
-      file: file,
-      uid: uid,
-      username: username,
-      profImage: profImage,
-    );
-  }
+  }) =>
+      repository.createPost(
+        description: description,
+        file: file,
+        uid: uid,
+        username: username,
+        profImage: profImage,
+      );
 }

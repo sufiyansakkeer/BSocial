@@ -181,7 +181,7 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
           .where((comment) => comment.postId == postId)
           .toList();
 
-      for (var comment in commentsToDelete) {
+      for (final comment in commentsToDelete) {
         await commentBox.delete(comment.commentId);
       }
     } catch (e) {
@@ -332,7 +332,7 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
           .toList();
 
       // Delete all messages for this room
-      for (var key in keysToDelete) {
+      for (final key in keysToDelete) {
         await messageBox.delete(key);
       }
     } catch (e) {
@@ -372,7 +372,7 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
 
       // Get messages for this room
       final messages = <Message>[];
-      for (var key in roomKeys) {
+      for (final key in roomKeys) {
         final message = messageBox.get(key);
         if (message != null) {
           messages.add(message.toEntity());
@@ -399,7 +399,7 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
           .where((key) => key.toString().endsWith(':$messageId'))
           .toList();
 
-      for (var key in keysToDelete) {
+      for (final key in keysToDelete) {
         await messageBox.delete(key);
       }
     } catch (e) {
@@ -424,7 +424,7 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
 
       // Get messages that need to be updated
       final messagesToUpdate = <String, MessageHiveModel>{};
-      for (var key in roomKeys) {
+      for (final key in roomKeys) {
         final message = messageBox.get(key);
         if (message != null &&
             message.receiverId == userId &&
@@ -434,7 +434,7 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
       }
 
       // Update messages
-      for (var entry in messagesToUpdate.entries) {
+      for (final entry in messagesToUpdate.entries) {
         final message = entry.value;
 
         // Create updated message
@@ -484,7 +484,7 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
           .where((user) => now.difference(user.lastUpdated) > maxAge)
           .toList();
 
-      for (var user in expiredUsers) {
+      for (final user in expiredUsers) {
         await userBox.delete(user.uid);
       }
 
@@ -494,7 +494,7 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
           .where((post) => now.difference(post.lastUpdated) > maxAge)
           .toList();
 
-      for (var post in expiredPosts) {
+      for (final post in expiredPosts) {
         await postBox.delete(post.postId);
       }
 
@@ -504,7 +504,7 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
           .where((comment) => now.difference(comment.lastUpdated) > maxAge)
           .toList();
 
-      for (var comment in expiredComments) {
+      for (final comment in expiredComments) {
         await commentBox.delete(comment.commentId);
       }
 
@@ -515,7 +515,7 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
           .where((room) => now.difference(room.lastUpdated) > maxAge)
           .toList();
 
-      for (var room in expiredChatRooms) {
+      for (final room in expiredChatRooms) {
         await chatRoomBox.delete(room.roomId);
       }
 
@@ -526,7 +526,7 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
       final allKeys = messageBox.keys.toList();
       final messageEntries = <dynamic, MessageHiveModel>{};
 
-      for (var key in allKeys) {
+      for (final key in allKeys) {
         final message = messageBox.get(key);
         if (message != null) {
           messageEntries[key] = message;
@@ -535,14 +535,14 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
 
       // Find expired messages
       final expiredKeys = <dynamic>[];
-      for (var entry in messageEntries.entries) {
+      for (final entry in messageEntries.entries) {
         if (now.difference(entry.value.lastUpdated) > maxAge) {
           expiredKeys.add(entry.key);
         }
       }
 
       // Delete expired messages
-      for (var key in expiredKeys) {
+      for (final key in expiredKeys) {
         await messageBox.delete(key);
       }
     } catch (e) {

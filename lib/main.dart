@@ -1,237 +1,250 @@
 import 'dart:async';
-import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'package:overlay_support/overlay_support.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
-import 'core/errors/error_handler.dart';
-import 'core/services/cache_manager.dart';
+import 'core/config/app_config.dart';
+import 'core/network/network_info.dart';
 import 'core/services/hive_service.dart';
-import 'core/theme/app_theme.dart';
-import 'core/utils/custom_scroll_physics.dart';
-import 'core/utils/snackbar_utils.dart';
-import 'di/injection_container.dart' as di;
-import 'presentation/pages/auth/login_page.dart';
-import 'presentation/pages/home/home_page.dart';
-import 'presentation/providers/auth/auth_provider.dart';
-import 'presentation/providers/chat/chat_provider.dart';
-import 'presentation/providers/navigation/navigation_provider.dart';
-import 'presentation/providers/post/post_provider.dart';
-import 'presentation/providers/profile/profile_provider.dart';
-import 'presentation/providers/user/user_provider.dart';
+import 'core/services/logger_service.dart';
+import 'data/datasources/local/hive_local_data_source.dart';
+import 'data/datasources/local/storage_local_data_source.dart';
+import 'data/datasources/remote/auth_remote_data_source.dart';
+import 'data/datasources/remote/mock_auth_remote_data_source.dart';
+import 'data/datasources/remote/mock_post_remote_data_source.dart';
+import 'data/datasources/remote/post_remote_data_source.dart';
+import 'data/repositories/auth_repository_impl.dart';
+import 'data/repositories/cached_post_repository_impl.dart';
+import 'firebase_options.dart';
+import 'presentation/app.dart';
+import 'presentation/blocs/auth/auth_bloc.dart';
+import 'presentation/blocs/post/post_bloc.dart';
+import 'presentation/blocs/search/search_bloc.dart';
+import 'presentation/routes/app_router.dart';
 
-void main() async {
-  // Ensure Flutter is initialized
-  WidgetsFlutterBinding.ensureInitialized();
+final logger = LoggerService();
 
-  // Initialize Firebase with error handling and timeout
-  try {
-    // Set a timeout for Firebase initialization to prevent app from hanging
-    if (kIsWeb) {
-      await _initializeFirebaseWithTimeout(
+Future<void> main() async {
+  await runZonedGuarded(() async {
+    // Ensure Flutter is initialized
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // Initialize app configuration
+    AppConfig().initialize(
+      environment:
+          kReleaseMode ? Environment.production : Environment.development,
+    );
+
+    // Initialize Firebase with error handling and timeout
+    FirebaseApp? firebaseApp;
+    var isFirebaseInitialized = false;
+
+    try {
+      // Set a timeout for Firebase initialization to prevent app from hanging
+      firebaseApp = await _initializeFirebaseWithTimeout(
         () => Firebase.initializeApp(
-          options: const FirebaseOptions(
-            apiKey: "AIzaSyCNm9bInJPhx4C-QMFDvGUPmGBcTZiqWQ4",
-            appId: "1:788358758157:web:52a33c61c5f95b56f8ba44",
-            messagingSenderId: "788358758157",
-            projectId: "bsocial-9e6c3",
-            storageBucket: "bsocial-9e6c3.appspot.com",
-          ),
+          options: DefaultFirebaseOptions.currentPlatform,
         ),
       );
-    } else {
-      await _initializeFirebaseWithTimeout(() => Firebase.initializeApp());
+
+      isFirebaseInitialized = firebaseApp != null;
+
+      // Set up Crashlytics (only if Firebase initialized successfully)
+      if (isFirebaseInitialized && AppConfig().crashReportingEnabled) {
+        try {
+          // Set up Crashlytics error reporting
+          FlutterError.onError =
+              FirebaseCrashlytics.instance.recordFlutterError;
+
+          // Set up error handling for async errors
+          PlatformDispatcher.instance.onError = (error, stack) {
+            FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+            logger.e('Unhandled error', error, stack);
+            return true;
+          };
+          logger.i('Crashlytics initialized successfully');
+        } on Exception catch (e) {
+          logger.e('Error setting up Crashlytics', e);
+        }
+      }
+
+      // Try to get FCM token but don't block app startup if it fails
+      if (isFirebaseInitialized && !kIsWeb && AppConfig().analyticsEnabled) {
+        await _initializeFirebaseMessaging();
+      }
+    } on Exception catch (e) {
+      logger.e('Error initializing Firebase', e);
+      isFirebaseInitialized = false;
+      // Continue without Firebase if initialization fails
     }
 
-    // Set up Crashlytics (only if Firebase initialized successfully)
+    // Initialize Hive for local storage
     try {
-      // Set up Crashlytics error reporting
-      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
-
-      // Set up error handling for async errors
-      PlatformDispatcher.instance.onError = (error, stack) {
-        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-        // Use our custom error handler to log the error
-        ErrorHandler().handleError(error);
-        return true;
-      };
-    } catch (e) {
-      log("Error setting up Crashlytics: ${e.toString()}");
+      await HiveService.init();
+      logger.i('Hive initialized successfully');
+    } on Exception catch (e) {
+      logger.e('Error initializing local storage', e);
+      // Continue without local storage if initialization fails
     }
 
-    // Try to get FCM token but don't block app startup if it fails
-    if (!kIsWeb) {
-      _initializeFirebaseMessaging();
+    // Create dependencies
+    final connectionChecker = InternetConnectionChecker();
+    final networkInfo = NetworkInfoImpl(connectionChecker: connectionChecker);
+
+    // Initialize local data source first (doesn't depend on Firebase)
+    final localDataSource = HiveLocalDataSourceImpl();
+
+    // Initialize repositories based on Firebase availability
+    late AuthRepositoryImpl authRepository;
+    late CachedPostRepositoryImpl postRepository;
+
+    if (isFirebaseInitialized) {
+      try {
+        // Firebase services
+        final firestore = FirebaseFirestore.instance;
+        final auth = FirebaseAuth.instance;
+        final storage = FirebaseStorage.instance;
+        final googleSignIn = GoogleSignIn();
+
+        // Data sources that depend on Firebase
+        final storageDataSource = StorageLocalDataSourceImpl(storage: storage);
+        final authRemoteDataSource = AuthRemoteDataSourceImpl(
+          auth: auth,
+          firestore: firestore,
+          googleSignIn: googleSignIn,
+          storageDataSource: storageDataSource,
+        );
+        final postRemoteDataSource = PostRemoteDataSourceImpl(
+          firestore: firestore,
+          storageDataSource: storageDataSource,
+        );
+
+        // Create repositories with Firebase-dependent data sources
+        authRepository = AuthRepositoryImpl(
+          remoteDataSource: authRemoteDataSource,
+          networkInfo: networkInfo,
+        );
+
+        postRepository = CachedPostRepositoryImpl(
+          remoteDataSource: postRemoteDataSource,
+          localDataSource: localDataSource,
+          networkInfo: networkInfo,
+        );
+
+        logger.i('Firebase services initialized successfully');
+      } on Exception catch (e) {
+        logger.e('Error initializing Firebase services: $e');
+        // Fall back to offline mode if Firebase services initialization fails
+        isFirebaseInitialized = false;
+
+        // Create repositories with offline-only capabilities
+        authRepository = AuthRepositoryImpl(
+          remoteDataSource: MockAuthRemoteDataSource(),
+          networkInfo: networkInfo,
+        );
+
+        postRepository = CachedPostRepositoryImpl(
+          remoteDataSource: MockPostRemoteDataSource(),
+          localDataSource: localDataSource,
+          networkInfo: networkInfo,
+        );
+      }
+    } else {
+      // Firebase is not initialized, create repositories with offline-only capabilities
+      logger.w('Using offline mode due to Firebase initialization failure');
+
+      // Create repositories with mock data sources for offline mode
+      authRepository = AuthRepositoryImpl(
+        remoteDataSource: MockAuthRemoteDataSource(),
+        networkInfo: networkInfo,
+      );
+
+      postRepository = CachedPostRepositoryImpl(
+        remoteDataSource: MockPostRemoteDataSource(),
+        localDataSource: localDataSource,
+        networkInfo: networkInfo,
+      );
     }
-  } catch (e) {
-    log("Error initializing Firebase: ${e.toString()}");
-    // Continue without Firebase if initialization fails
-  }
 
-  // Initialize Hive for local storage
-  try {
-    await HiveService.init();
-    log('Hive initialized successfully');
+    // Create router
+    final router = createAppRouter();
 
-    // Initialize and schedule cache cleanup
-    final cacheManager = CacheManager();
-    await cacheManager.init();
-    cacheManager.scheduleCacheCleanup(
-      cleanupInterval: const Duration(days: 1),
-      maxAge: const Duration(days: 7),
+    // Run the app
+    runApp(
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<AuthBloc>(
+            create: (context) => AuthBloc(
+              authRepository: authRepository,
+            )..add(CheckAuthStatusEvent()),
+          ),
+          BlocProvider<PostBloc>(
+            create: (context) => PostBloc(
+              postRepository: postRepository,
+            ),
+          ),
+          BlocProvider<SearchBloc>(
+            create: (context) => SearchBloc(),
+          ),
+        ],
+        child: MyApp(router: router),
+      ),
     );
-    log('Cache manager initialized successfully');
-  } catch (e) {
-    log('Error initializing local storage: ${e.toString()}');
-    // Continue without local storage if initialization fails
-  }
+  }, (error, stackTrace) {
+    // Log any errors that occur in the app
+    logger.e('Unhandled error in app', error, stackTrace);
 
-  // Initialize dependency injection
-  await di.init();
-
-  // Run the app regardless of Firebase initialization status
-  runApp(Phoenix(child: const MyApp()));
+    // Report to Crashlytics if enabled
+    if (AppConfig().crashReportingEnabled) {
+      FirebaseCrashlytics.instance.recordError(error, stackTrace, fatal: true);
+    }
+  });
 }
 
 // Initialize Firebase with a timeout to prevent hanging
-Future<void> _initializeFirebaseWithTimeout(
+Future<FirebaseApp?> _initializeFirebaseWithTimeout(
   Future<FirebaseApp> Function() initFunction,
 ) async {
   try {
-    // Set a timeout of 5 seconds for Firebase initialization
-    await initFunction().timeout(const Duration(seconds: 5));
+    // Increase timeout to 15 seconds for Firebase initialization
+    final app = await initFunction().timeout(const Duration(seconds: 15));
+    logger.i('Firebase initialized successfully');
+    return app;
   } on TimeoutException {
-    log("Firebase initialization timed out. Continuing without Firebase.");
-    throw Exception("Firebase initialization timed out");
+    logger.w('Firebase initialization timed out. Continuing without Firebase.');
+    return null;
+  } on Exception catch (e) {
+    logger.e('Error initializing Firebase: $e');
+    return null;
   }
 }
 
 // Separate function to initialize Firebase Messaging
 Future<void> _initializeFirebaseMessaging() async {
   try {
+    // Request permission for notifications
+    final settings = await FirebaseMessaging.instance.requestPermission();
+
+    logger.i('Notification permission: ${settings.authorizationStatus}');
+
     // Set a timeout for FCM token retrieval
     final fcmToken = await FirebaseMessaging.instance.getToken().timeout(
           const Duration(seconds: 3),
         );
-    log("FCM Token: ${fcmToken ?? 'null'}");
+    logger.i("FCM Token: ${fcmToken ?? 'null'}");
   } on TimeoutException {
-    log("FCM token retrieval timed out. Continuing without FCM.");
-  } catch (e) {
-    log("Error getting FCM token: ${e.toString()}");
+    logger.w('FCM token retrieval timed out. Continuing without FCM.');
+  } on Exception catch (e) {
+    logger.e('Error getting FCM token', e);
     // Continue without FCM token
-  }
-}
-
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        // Auth provider
-        ChangeNotifierProvider(create: (_) => di.sl<AuthProvider>()),
-        // Navigation provider
-        ChangeNotifierProvider(create: (_) => NavigationProvider()),
-        // Profile provider
-        ChangeNotifierProvider(create: (_) => di.sl<ProfileProvider>()),
-        // Post provider
-        ChangeNotifierProvider(create: (_) => di.sl<PostProvider>()),
-        // User provider
-        ChangeNotifierProvider(create: (_) => di.sl<UserProvider>()),
-        // Chat provider
-        ChangeNotifierProvider(create: (_) => di.sl<ChatProvider>()),
-      ],
-      child: OverlaySupport.global(
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'BSocial',
-          theme: AppTheme.darkTheme,
-          scaffoldMessengerKey: SnackbarUtils.scaffoldMessengerKey,
-          scrollBehavior: CustomScrollBehavior(),
-          home: const AuthWrapper(),
-        ),
-      ),
-    );
-  }
-}
-
-class AuthWrapper extends StatelessWidget {
-  const AuthWrapper({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    // Initialize the auth provider
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<AuthProvider>(context, listen: false).init();
-    });
-
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, _) {
-        // Show loading indicator while checking auth state
-        if (authProvider.status == AuthStatus.initial ||
-            authProvider.status == AuthStatus.loading) {
-          return Scaffold(
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Animated logo
-                  TweenAnimationBuilder<double>(
-                    tween: Tween<double>(begin: 0.0, end: 1.0),
-                    duration: const Duration(milliseconds: 800),
-                    curve: Curves.easeOutBack,
-                    builder: (context, value, child) {
-                      return Transform.scale(scale: value, child: child);
-                    },
-                    child: Image.asset('assets/BSocial-1.png', height: 120),
-                  ),
-                  const SizedBox(height: 40),
-                  // Pulsating loading indicator
-                  TweenAnimationBuilder<double>(
-                    tween: Tween<double>(begin: 0.0, end: 1.0),
-                    duration: const Duration(milliseconds: 600),
-                    curve: Curves.easeInOut,
-                    builder: (context, value, child) {
-                      return Opacity(opacity: value, child: child);
-                    },
-                    child: const SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        // Show login page if not authenticated
-        if (authProvider.status == AuthStatus.unauthenticated ||
-            authProvider.status == AuthStatus.error) {
-          return const LoginPage();
-        }
-
-        // Show home page if authenticated
-        return const HomePage();
-      },
-    );
   }
 }

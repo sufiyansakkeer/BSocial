@@ -3,6 +3,34 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/ui_constants.dart';
 
 class CustomTextField extends StatefulWidget {
+  const CustomTextField({
+    required this.controller,
+    required this.hintText,
+    super.key,
+    this.labelText,
+    this.keyboardType = TextInputType.text,
+    this.isPassword = false,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.validator,
+    this.enabled = true,
+    this.maxLines = 1,
+    this.maxLength,
+    this.focusNode,
+    this.onChanged,
+    this.onSubmitted,
+    this.textInputAction,
+    this.filled = true,
+    this.fillColor,
+    this.border,
+    this.contentPadding,
+    this.style,
+    this.hintStyle,
+    this.labelStyle,
+    this.showErrorAnimation = true,
+    this.helperText,
+    this.autofocus = false,
+  });
   final TextEditingController controller;
   final String hintText;
   final String? labelText;
@@ -28,35 +56,6 @@ class CustomTextField extends StatefulWidget {
   final bool showErrorAnimation;
   final String? helperText;
   final bool autofocus;
-
-  const CustomTextField({
-    super.key,
-    required this.controller,
-    required this.hintText,
-    this.labelText,
-    this.keyboardType = TextInputType.text,
-    this.isPassword = false,
-    this.prefixIcon,
-    this.suffixIcon,
-    this.validator,
-    this.enabled = true,
-    this.maxLines = 1,
-    this.maxLength,
-    this.focusNode,
-    this.onChanged,
-    this.onSubmitted,
-    this.textInputAction,
-    this.filled = true,
-    this.fillColor,
-    this.border,
-    this.contentPadding,
-    this.style,
-    this.hintStyle,
-    this.labelStyle,
-    this.showErrorAnimation = true,
-    this.helperText,
-    this.autofocus = false,
-  });
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -140,12 +139,10 @@ class _CustomTextFieldState extends State<CustomTextField>
 
     return AnimatedBuilder(
       animation: _errorAnimationController,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: _errorAnimation.value * 10, // Scale the effect
-          child: child,
-        );
-      },
+      builder: (context, child) => Transform.translate(
+        offset: _errorAnimation.value * 10, // Scale the effect
+        child: child,
+      ),
       child: TextFormField(
         controller: widget.controller,
         focusNode: _focusNode,
@@ -177,7 +174,7 @@ class _CustomTextFieldState extends State<CustomTextField>
               ),
           errorBorder: widget.border ??
               OutlineInputBorder(
-                borderSide: BorderSide(color: colorScheme.error, width: 1),
+                borderSide: BorderSide(color: colorScheme.error),
                 borderRadius: defaultBorderRadius,
               ),
           focusedErrorBorder: widget.border ??

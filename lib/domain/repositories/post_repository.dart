@@ -1,7 +1,8 @@
 import 'dart:typed_data';
+
 import '../../core/utils/typedefs.dart';
-import '../entities/post.dart';
 import '../entities/comment.dart';
+import '../entities/post.dart';
 
 // Post repository interface
 abstract class PostRepository {

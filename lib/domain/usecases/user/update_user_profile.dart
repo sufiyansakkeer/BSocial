@@ -3,21 +3,19 @@ import '../../entities/user.dart';
 import '../../repositories/user_repository.dart';
 
 class UpdateUserProfileUseCase {
-  final UserRepository repository;
-
   UpdateUserProfileUseCase(this.repository);
+  final UserRepository repository;
 
   ResultFuture<User> call({
     required String userId,
     String? userName,
     String? photoUrl,
     String? status,
-  }) {
-    return repository.updateUserProfile(
-      userId: userId,
-      userName: userName,
-      photoUrl: photoUrl,
-      status: status,
-    );
-  }
+  }) =>
+      repository.updateUserProfile(
+        userId: userId,
+        userName: userName,
+        photoUrl: photoUrl,
+        status: status,
+      );
 }

@@ -5,9 +5,8 @@ class CustomScrollPhysics extends BouncingScrollPhysics {
   const CustomScrollPhysics({super.parent});
 
   @override
-  CustomScrollPhysics applyTo(ScrollPhysics? ancestor) {
-    return CustomScrollPhysics(parent: buildParent(ancestor));
-  }
+  CustomScrollPhysics applyTo(ScrollPhysics? ancestor) =>
+      CustomScrollPhysics(parent: buildParent(ancestor));
 
   @override
   double frictionFactor(double overscrollFraction) =>
@@ -28,9 +27,8 @@ class CustomScrollPhysics extends BouncingScrollPhysics {
 /// Custom scroll behavior to apply custom scroll physics app-wide
 class CustomScrollBehavior extends ScrollBehavior {
   @override
-  ScrollPhysics getScrollPhysics(BuildContext context) {
-    return const CustomScrollPhysics();
-  }
+  ScrollPhysics getScrollPhysics(BuildContext context) =>
+      const CustomScrollPhysics();
 
   @override
   Widget buildOverscrollIndicator(
@@ -50,6 +48,16 @@ class CustomScrollBehavior extends ScrollBehavior {
 
 /// Scroll to top button widget with animation
 class ScrollToTopButton extends StatefulWidget {
+  const ScrollToTopButton({
+    required this.scrollController,
+    super.key,
+    this.showThreshold = 300.0,
+    this.animationDuration = const Duration(milliseconds: 300),
+    this.backgroundColor,
+    this.iconColor,
+    this.size = 48.0,
+    this.padding = const EdgeInsets.all(16),
+  });
   final ScrollController scrollController;
   final double showThreshold;
   final Duration animationDuration;
@@ -57,17 +65,6 @@ class ScrollToTopButton extends StatefulWidget {
   final Color? iconColor;
   final double size;
   final EdgeInsetsGeometry padding;
-
-  const ScrollToTopButton({
-    super.key,
-    required this.scrollController,
-    this.showThreshold = 300.0,
-    this.animationDuration = const Duration(milliseconds: 300),
-    this.backgroundColor,
-    this.iconColor,
-    this.size = 48.0,
-    this.padding = const EdgeInsets.all(16.0),
-  });
 
   @override
   State<ScrollToTopButton> createState() => _ScrollToTopButtonState();
@@ -88,14 +85,14 @@ class _ScrollToTopButtonState extends State<ScrollToTopButton>
       duration: widget.animationDuration,
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _scaleAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeOutBack,
       ),
     );
 
-    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _opacityAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeIn,
@@ -143,41 +140,39 @@ class _ScrollToTopButtonState extends State<ScrollToTopButton>
 
     return AnimatedBuilder(
       animation: _animationController,
-      builder: (context, child) {
-        return Positioned(
-          right: widget.padding.horizontal / 2,
-          bottom: widget.padding.vertical / 2,
-          child: Opacity(
-            opacity: _opacityAnimation.value,
-            child: Transform.scale(
-              scale: _scaleAnimation.value,
-              child: GestureDetector(
-                onTap: _scrollToTop,
-                child: Container(
-                  width: widget.size,
-                  height: widget.size,
-                  decoration: BoxDecoration(
-                    color: widget.backgroundColor ?? theme.colorScheme.primary,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(51), // 0.2 * 255 = 51
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.keyboard_arrow_up,
-                    color: widget.iconColor ?? Colors.white,
-                    size: widget.size * 0.6,
-                  ),
+      builder: (context, child) => Positioned(
+        right: widget.padding.horizontal / 2,
+        bottom: widget.padding.vertical / 2,
+        child: Opacity(
+          opacity: _opacityAnimation.value,
+          child: Transform.scale(
+            scale: _scaleAnimation.value,
+            child: GestureDetector(
+              onTap: _scrollToTop,
+              child: Container(
+                width: widget.size,
+                height: widget.size,
+                decoration: BoxDecoration(
+                  color: widget.backgroundColor ?? theme.colorScheme.primary,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(51), // 0.2 * 255 = 51
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.keyboard_arrow_up,
+                  color: widget.iconColor ?? Colors.white,
+                  size: widget.size * 0.6,
                 ),
               ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

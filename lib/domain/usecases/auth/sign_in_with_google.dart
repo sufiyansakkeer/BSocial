@@ -3,11 +3,8 @@ import '../../entities/user.dart';
 import '../../repositories/auth_repository.dart';
 
 class SignInWithGoogleUseCase {
+  SignInWithGoogleUseCase(this.repository);
   final AuthRepository repository;
 
-  SignInWithGoogleUseCase(this.repository);
-
-  ResultFuture<User> call() {
-    return repository.signInWithGoogle();
-  }
+  ResultFuture<User> call() => repository.signInWithGoogle();
 }

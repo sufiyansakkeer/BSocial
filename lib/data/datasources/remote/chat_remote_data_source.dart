@@ -41,11 +41,10 @@ abstract class ChatRemoteDataSource {
 }
 
 class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
-  final FirebaseFirestore _firestore;
-
   ChatRemoteDataSourceImpl({
     required FirebaseFirestore firestore,
   }) : _firestore = firestore;
+  final FirebaseFirestore _firestore;
 
   @override
   Future<ChatRoomModel> createChatRoom(List<String> participants) async {
@@ -94,7 +93,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           .get();
 
       final batch = _firestore.batch();
-      for (var doc in messagesSnapshot.docs) {
+      for (final doc in messagesSnapshot.docs) {
         batch.delete(doc.reference);
       }
 
@@ -161,13 +160,12 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           .get();
 
       // Filter to find a room with exactly these participants
-      for (var doc in querySnapshot.docs) {
+      for (final doc in querySnapshot.docs) {
         final room = ChatRoomModel.fromSnapshot(doc);
         final roomParticipants = [...room.participants]..sort();
 
         if (roomParticipants.length == sortedParticipants.length &&
-            roomParticipants
-                .every((element) => sortedParticipants.contains(element))) {
+            roomParticipants.every(sortedParticipants.contains)) {
           return room;
         }
       }
@@ -191,9 +189,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             .orderBy('lastMessageTime', descending: true)
             .get();
 
-        return querySnapshot.docs
-            .map((doc) => ChatRoomModel.fromSnapshot(doc))
-            .toList();
+        return querySnapshot.docs.map(ChatRoomModel.fromSnapshot).toList();
       } catch (indexError) {
         // If index error occurs, use a fallback approach
         log('Index error, using fallback approach: $indexError');
@@ -205,9 +201,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             .get();
 
         // Convert to models and sort in memory
-        final chatRooms = querySnapshot.docs
-            .map((doc) => ChatRoomModel.fromSnapshot(doc))
-            .toList();
+        final chatRooms =
+            querySnapshot.docs.map(ChatRoomModel.fromSnapshot).toList();
 
         // Sort by lastMessageTime in descending order
         chatRooms
@@ -232,9 +227,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           .orderBy('timestamp', descending: true)
           .get();
 
-      return querySnapshot.docs
-          .map((doc) => MessageModel.fromSnapshot(doc))
-          .toList();
+      return querySnapshot.docs.map(MessageModel.fromSnapshot).toList();
     } catch (e) {
       log('Error getting messages: $e');
       throw ServerException(message: 'Failed to get messages: ${e.toString()}');
@@ -253,7 +246,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           .get();
 
       final batch = _firestore.batch();
-      for (var doc in querySnapshot.docs) {
+      for (final doc in querySnapshot.docs) {
         batch.update(doc.reference, {'isRead': true});
       }
 

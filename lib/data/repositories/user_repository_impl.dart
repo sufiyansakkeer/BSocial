@@ -8,13 +8,12 @@ import '../../domain/repositories/user_repository.dart';
 import '../datasources/remote/user_remote_data_source.dart';
 
 class UserRepositoryImpl implements UserRepository {
-  final UserRemoteDataSource remoteDataSource;
-  final NetworkInfo networkInfo;
-
   UserRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
+  final UserRemoteDataSource remoteDataSource;
+  final NetworkInfo networkInfo;
 
   @override
   ResultFuture<List<User>> getAllUsers() async {

@@ -1,8 +1,7 @@
 // Base failure class
 abstract class Failure {
-  final String message;
-
   const Failure({required this.message});
+  final String message;
 }
 
 // Server failures

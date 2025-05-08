@@ -3,11 +3,9 @@ import '../../entities/chat_room.dart';
 import '../../repositories/chat_repository.dart';
 
 class CreateChatRoomUseCase {
+  CreateChatRoomUseCase(this.repository);
   final ChatRepository repository;
 
-  CreateChatRoomUseCase(this.repository);
-
-  ResultFuture<ChatRoom> call(List<String> participants) {
-    return repository.createChatRoom(participants);
-  }
+  ResultFuture<ChatRoom> call(List<String> participants) =>
+      repository.createChatRoom(participants);
 }

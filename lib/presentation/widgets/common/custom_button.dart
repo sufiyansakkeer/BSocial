@@ -2,6 +2,21 @@ import 'package:flutter/material.dart';
 import '../../../core/utils/ui_constants.dart';
 
 class CustomButton extends StatefulWidget {
+  const CustomButton({
+    required this.text,
+    required this.onPressed,
+    super.key,
+    this.isLoading = false,
+    this.backgroundColor,
+    this.textColor,
+    this.width,
+    this.height,
+    this.padding,
+    this.borderRadius,
+    this.icon,
+    this.variant = ButtonVariant.filled,
+    this.animateOnTap = true,
+  });
   final String text;
   final VoidCallback onPressed;
   final bool isLoading;
@@ -14,22 +29,6 @@ class CustomButton extends StatefulWidget {
   final IconData? icon;
   final ButtonVariant variant;
   final bool animateOnTap;
-
-  const CustomButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
-    this.isLoading = false,
-    this.backgroundColor,
-    this.textColor,
-    this.width,
-    this.height,
-    this.padding,
-    this.borderRadius,
-    this.icon,
-    this.variant = ButtonVariant.filled,
-    this.animateOnTap = true,
-  });
 
   @override
   State<CustomButton> createState() => _CustomButtonState();
@@ -50,7 +49,7 @@ class _CustomButtonState extends State<CustomButton>
     );
 
     _scaleAnimation = Tween<double>(
-      begin: 1.0,
+      begin: 1,
       end: 0.95,
     ).animate(
       CurvedAnimation(
@@ -147,12 +146,10 @@ class _CustomButtonState extends State<CustomButton>
     if (widget.animateOnTap) {
       buttonContent = AnimatedBuilder(
         animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: child,
-          );
-        },
+        builder: (context, child) => Transform.scale(
+          scale: _scaleAnimation.value,
+          child: child,
+        ),
         child: buttonContent,
       );
     }

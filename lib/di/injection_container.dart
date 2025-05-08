@@ -25,6 +25,12 @@ import '../domain/usecases/auth/login_user.dart';
 import '../domain/usecases/auth/sign_in_with_google.dart';
 import '../domain/usecases/auth/sign_out_user.dart';
 import '../domain/usecases/auth/sign_up_user.dart';
+import '../domain/usecases/chat/create_chat_room.dart';
+import '../domain/usecases/chat/get_chat_room_by_participants.dart';
+import '../domain/usecases/chat/get_chat_rooms.dart';
+import '../domain/usecases/chat/get_messages.dart';
+import '../domain/usecases/chat/mark_messages_as_read.dart';
+import '../domain/usecases/chat/send_message.dart';
 import '../domain/usecases/post/create_post.dart';
 import '../domain/usecases/post/delete_comment.dart';
 import '../domain/usecases/post/delete_post.dart';
@@ -42,71 +48,10 @@ import '../domain/usecases/user/get_user_by_id.dart';
 import '../domain/usecases/user/search_users.dart';
 import '../domain/usecases/user/unfollow_user.dart';
 import '../domain/usecases/user/update_user_profile.dart';
-import '../domain/usecases/chat/create_chat_room.dart';
-import '../domain/usecases/chat/get_chat_room_by_participants.dart';
-import '../domain/usecases/chat/get_chat_rooms.dart';
-import '../domain/usecases/chat/get_messages.dart';
-import '../domain/usecases/chat/mark_messages_as_read.dart';
-import '../domain/usecases/chat/send_message.dart';
-import '../presentation/providers/auth/auth_provider.dart';
-import '../presentation/providers/chat/chat_provider.dart';
-import '../presentation/providers/post/post_provider.dart';
-import '../presentation/providers/profile/profile_provider.dart';
-import '../presentation/providers/user/user_provider.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
-  // Providers
-  sl.registerFactory<AuthProvider>(() => AuthProvider(
-        signUpUserUseCase: sl(),
-        loginUserUseCase: sl(),
-        signInWithGoogleUseCase: sl(),
-        signOutUserUseCase: sl(),
-        getCurrentUserUseCase: sl(),
-      ));
-
-  sl.registerFactory<ProfileProvider>(() => ProfileProvider(
-        getUserByIdUseCase: sl(),
-        getPostsByUserIdUseCase: sl(),
-        updateUserProfileUseCase: sl(),
-        getFollowersUseCase: sl(),
-        getFollowingUseCase: sl(),
-      ));
-
-  sl.registerFactory<PostProvider>(() => PostProvider(
-        createPostUseCase: sl(),
-        getAllPostsUseCase: sl(),
-        getPostsByUserIdUseCase: sl(),
-        deletePostUseCase: sl(),
-        likePostUseCase: sl(),
-        unlikePostUseCase: sl(),
-        postCommentUseCase: sl(),
-        getCommentsUseCase: sl(),
-        deleteCommentUseCase: sl(),
-      ));
-
-  sl.registerFactory<UserProvider>(() => UserProvider(
-        getUserByIdUseCase: sl(),
-        getAllUsersUseCase: sl(),
-        searchUsersUseCase: sl(),
-        followUserUseCase: sl(),
-        unfollowUserUseCase: sl(),
-        getFollowersUseCase: sl(),
-        getFollowingUseCase: sl(),
-        updateUserProfileUseCase: sl(),
-      ));
-
-  sl.registerFactory<ChatProvider>(() => ChatProvider(
-        createChatRoomUseCase: sl(),
-        getChatRoomsUseCase: sl(),
-        getMessagesUseCase: sl(),
-        sendMessageUseCase: sl(),
-        markMessagesAsReadUseCase: sl(),
-        getChatRoomByParticipantsUseCase: sl(),
-        getUserByIdUseCase: sl(),
-      ));
-
   // Auth Use Cases
   sl.registerLazySingleton(() => SignUpUserUseCase(sl()));
   sl.registerLazySingleton(() => LoginUserUseCase(sl()));
@@ -163,7 +108,6 @@ Future<void> init() async {
       remoteDataSource: sl(),
       localDataSource: sl(),
       networkInfo: sl(),
-      cacheMaxAge: const Duration(hours: 24),
     ),
   );
 
@@ -172,7 +116,6 @@ Future<void> init() async {
       remoteDataSource: sl(),
       localDataSource: sl(),
       networkInfo: sl(),
-      cacheMaxAge: const Duration(hours: 24),
     ),
   );
 
@@ -207,7 +150,7 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton<HiveLocalDataSource>(
-    () => HiveLocalDataSourceImpl(),
+    HiveLocalDataSourceImpl.new,
   );
 
   sl.registerLazySingleton<ChatRemoteDataSource>(
@@ -227,6 +170,6 @@ Future<void> init() async {
   sl.registerLazySingleton(() => firebase_auth.FirebaseAuth.instance);
   sl.registerLazySingleton(() => FirebaseFirestore.instance);
   sl.registerLazySingleton(() => FirebaseStorage.instance);
-  sl.registerLazySingleton(() => GoogleSignIn());
-  sl.registerLazySingleton(() => InternetConnectionChecker());
+  sl.registerLazySingleton(GoogleSignIn.new);
+  sl.registerLazySingleton(InternetConnectionChecker.new);
 }

@@ -2,11 +2,8 @@ import '../../../core/utils/typedefs.dart';
 import '../../repositories/post_repository.dart';
 
 class DeletePostUseCase {
+  DeletePostUseCase(this.repository);
   final PostRepository repository;
 
-  DeletePostUseCase(this.repository);
-
-  ResultVoid call(String postId) {
-    return repository.deletePost(postId);
-  }
+  ResultVoid call(String postId) => repository.deletePost(postId);
 }

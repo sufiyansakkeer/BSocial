@@ -5,6 +5,28 @@ part 'user_hive_model.g.dart';
 
 @HiveType(typeId: 1)
 class UserHiveModel extends HiveObject {
+  UserHiveModel({
+    required this.email,
+    required this.uid,
+    required this.photoUrl,
+    required this.userName,
+    required this.followers,
+    required this.following,
+    required this.lastUpdated,
+    this.status = 'offline',
+  });
+
+  // Convert from domain entity to Hive model
+  factory UserHiveModel.fromEntity(User user) => UserHiveModel(
+        email: user.email,
+        uid: user.uid,
+        photoUrl: user.photoUrl,
+        userName: user.userName,
+        followers: user.followers,
+        following: user.following,
+        status: user.status,
+        lastUpdated: DateTime.now(),
+      );
   @HiveField(0)
   final String email;
 
@@ -29,41 +51,14 @@ class UserHiveModel extends HiveObject {
   @HiveField(7)
   final DateTime lastUpdated;
 
-  UserHiveModel({
-    required this.email,
-    required this.uid,
-    required this.photoUrl,
-    required this.userName,
-    required this.followers,
-    required this.following,
-    this.status = "offline",
-    required this.lastUpdated,
-  });
-
-  // Convert from domain entity to Hive model
-  factory UserHiveModel.fromEntity(User user) {
-    return UserHiveModel(
-      email: user.email,
-      uid: user.uid,
-      photoUrl: user.photoUrl,
-      userName: user.userName,
-      followers: user.followers,
-      following: user.following,
-      status: user.status,
-      lastUpdated: DateTime.now(),
-    );
-  }
-
   // Convert to domain entity
-  User toEntity() {
-    return User(
-      email: email,
-      uid: uid,
-      photoUrl: photoUrl,
-      userName: userName,
-      followers: followers,
-      following: following,
-      status: status,
-    );
-  }
+  User toEntity() => User(
+        email: email,
+        uid: uid,
+        photoUrl: photoUrl,
+        userName: userName,
+        followers: followers,
+        following: following,
+        status: status,
+      );
 }

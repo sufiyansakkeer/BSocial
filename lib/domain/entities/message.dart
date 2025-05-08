@@ -1,12 +1,6 @@
 // Message entity class
 class Message {
-  final String messageId;
-  final String senderId;
-  final String receiverId;
-  final String content;
-  final DateTime timestamp;
-  final bool isRead;
-  final String roomId; // Added for Hive implementation
+  // Added for Hive implementation
 
   const Message({
     required this.messageId,
@@ -17,4 +11,11 @@ class Message {
     required this.isRead,
     this.roomId = '', // Default empty string for backward compatibility
   });
+  final String messageId;
+  final String senderId;
+  final String receiverId;
+  final String content;
+  final DateTime timestamp;
+  final bool isRead;
+  final String roomId;
 }

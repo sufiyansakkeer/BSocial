@@ -3,11 +3,8 @@ import '../../entities/user.dart';
 import '../../repositories/auth_repository.dart';
 
 class GetCurrentUserUseCase {
+  GetCurrentUserUseCase(this.repository);
   final AuthRepository repository;
 
-  GetCurrentUserUseCase(this.repository);
-
-  ResultFuture<User> call() {
-    return repository.getCurrentUser();
-  }
+  ResultFuture<User> call() => repository.getCurrentUser();
 }

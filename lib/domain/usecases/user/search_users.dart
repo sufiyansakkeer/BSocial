@@ -3,11 +3,8 @@ import '../../entities/user.dart';
 import '../../repositories/user_repository.dart';
 
 class SearchUsersUseCase {
+  SearchUsersUseCase(this.repository);
   final UserRepository repository;
 
-  SearchUsersUseCase(this.repository);
-
-  ResultFuture<List<User>> call(String query) {
-    return repository.searchUsers(query);
-  }
+  ResultFuture<List<User>> call(String query) => repository.searchUsers(query);
 }

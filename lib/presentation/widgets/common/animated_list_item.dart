@@ -21,6 +21,21 @@ enum SlideDirection {
 
 /// Animated list item widget
 class AnimatedListItem extends StatefulWidget {
+  const AnimatedListItem({
+    required this.child,
+    required this.index,
+    required this.itemCount,
+    super.key,
+    this.delay = Duration.zero,
+    this.duration = const Duration(milliseconds: 400),
+    this.curve = Curves.easeOutQuad,
+    this.animationType = AnimationItemType.fadeSlideIn,
+    this.slideDirection = SlideDirection.fromBottom,
+    this.slideDistance = 50.0,
+    this.initialScale = 0.8,
+    this.initialOpacity = 0.0,
+    this.animate = true,
+  });
   final Widget child;
   final int index;
   final int itemCount;
@@ -33,22 +48,6 @@ class AnimatedListItem extends StatefulWidget {
   final double initialScale;
   final double initialOpacity;
   final bool animate;
-
-  const AnimatedListItem({
-    super.key,
-    required this.child,
-    required this.index,
-    required this.itemCount,
-    this.delay = Duration.zero,
-    this.duration = const Duration(milliseconds: 400),
-    this.curve = Curves.easeOutQuad,
-    this.animationType = AnimationItemType.fadeSlideIn,
-    this.slideDirection = SlideDirection.fromBottom,
-    this.slideDistance = 50.0,
-    this.initialScale = 0.8,
-    this.initialOpacity = 0.0,
-    this.animate = true,
-  });
 
   @override
   State<AnimatedListItem> createState() => _AnimatedListItemState();
@@ -93,7 +92,7 @@ class _AnimatedListItemState extends State<AnimatedListItem>
     // Opacity animation
     _opacityAnimation = Tween<double>(
       begin: _needsOpacityAnimation() ? widget.initialOpacity : 1.0,
-      end: 1.0,
+      end: 1,
     ).animate(
       CurvedAnimation(
         parent: _controller,
@@ -104,7 +103,7 @@ class _AnimatedListItemState extends State<AnimatedListItem>
     // Scale animation
     _scaleAnimation = Tween<double>(
       begin: _needsScaleAnimation() ? widget.initialScale : 1.0,
-      end: 1.0,
+      end: 1,
     ).animate(
       CurvedAnimation(
         parent: _controller,
@@ -124,26 +123,23 @@ class _AnimatedListItemState extends State<AnimatedListItem>
     );
   }
 
-  bool _needsOpacityAnimation() {
-    return widget.animationType == AnimationItemType.fadeIn ||
-        widget.animationType == AnimationItemType.fadeSlideIn ||
-        widget.animationType == AnimationItemType.fadeScaleIn ||
-        widget.animationType == AnimationItemType.fadeSlideScaleIn;
-  }
+  bool _needsOpacityAnimation() =>
+      widget.animationType == AnimationItemType.fadeIn ||
+      widget.animationType == AnimationItemType.fadeSlideIn ||
+      widget.animationType == AnimationItemType.fadeScaleIn ||
+      widget.animationType == AnimationItemType.fadeSlideScaleIn;
 
-  bool _needsScaleAnimation() {
-    return widget.animationType == AnimationItemType.scaleIn ||
-        widget.animationType == AnimationItemType.fadeScaleIn ||
-        widget.animationType == AnimationItemType.slideScaleIn ||
-        widget.animationType == AnimationItemType.fadeSlideScaleIn;
-  }
+  bool _needsScaleAnimation() =>
+      widget.animationType == AnimationItemType.scaleIn ||
+      widget.animationType == AnimationItemType.fadeScaleIn ||
+      widget.animationType == AnimationItemType.slideScaleIn ||
+      widget.animationType == AnimationItemType.fadeSlideScaleIn;
 
-  bool _needsSlideAnimation() {
-    return widget.animationType == AnimationItemType.slideIn ||
-        widget.animationType == AnimationItemType.fadeSlideIn ||
-        widget.animationType == AnimationItemType.slideScaleIn ||
-        widget.animationType == AnimationItemType.fadeSlideScaleIn;
-  }
+  bool _needsSlideAnimation() =>
+      widget.animationType == AnimationItemType.slideIn ||
+      widget.animationType == AnimationItemType.fadeSlideIn ||
+      widget.animationType == AnimationItemType.slideScaleIn ||
+      widget.animationType == AnimationItemType.fadeSlideScaleIn;
 
   Offset _getInitialSlideOffset() {
     switch (widget.slideDirection) {
@@ -166,11 +162,9 @@ class _AnimatedListItemState extends State<AnimatedListItem>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Opacity(
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) => Opacity(
           opacity: _opacityAnimation.value,
           child: Transform.translate(
             offset: Offset(
@@ -182,15 +176,28 @@ class _AnimatedListItemState extends State<AnimatedListItem>
               child: child,
             ),
           ),
-        );
-      },
-      child: widget.child,
-    );
-  }
+        ),
+        child: widget.child,
+      );
 }
 
 /// Animated list widget that applies animations to all children
 class AnimatedListView extends StatelessWidget {
+  const AnimatedListView({
+    required this.children,
+    super.key,
+    this.controller,
+    this.shrinkWrap = false,
+    this.physics,
+    this.padding,
+    this.primary,
+    this.animationType = AnimationItemType.fadeSlideIn,
+    this.slideDirection = SlideDirection.fromBottom,
+    this.itemDuration = const Duration(milliseconds: 400),
+    this.initialDelay = const Duration(milliseconds: 100),
+    this.curve = Curves.easeOutQuad,
+    this.animate = true,
+  });
   final List<Widget> children;
   final ScrollController? controller;
   final bool shrinkWrap;
@@ -204,33 +211,15 @@ class AnimatedListView extends StatelessWidget {
   final Curve curve;
   final bool animate;
 
-  const AnimatedListView({
-    super.key,
-    required this.children,
-    this.controller,
-    this.shrinkWrap = false,
-    this.physics,
-    this.padding,
-    this.primary,
-    this.animationType = AnimationItemType.fadeSlideIn,
-    this.slideDirection = SlideDirection.fromBottom,
-    this.itemDuration = const Duration(milliseconds: 400),
-    this.initialDelay = const Duration(milliseconds: 100),
-    this.curve = Curves.easeOutQuad,
-    this.animate = true,
-  });
-
   @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      controller: controller,
-      shrinkWrap: shrinkWrap,
-      physics: physics,
-      padding: padding,
-      primary: primary,
-      itemCount: children.length,
-      itemBuilder: (context, index) {
-        return AnimatedListItem(
+  Widget build(BuildContext context) => ListView.builder(
+        controller: controller,
+        shrinkWrap: shrinkWrap,
+        physics: physics,
+        padding: padding,
+        primary: primary,
+        itemCount: children.length,
+        itemBuilder: (context, index) => AnimatedListItem(
           index: index,
           itemCount: children.length,
           animationType: animationType,
@@ -240,14 +229,28 @@ class AnimatedListView extends StatelessWidget {
           curve: curve,
           animate: animate,
           child: children[index],
-        );
-      },
-    );
-  }
+        ),
+      );
 }
 
 /// Animated grid widget that applies animations to all children
 class AnimatedGridView extends StatelessWidget {
+  const AnimatedGridView({
+    required this.children,
+    required this.gridDelegate,
+    super.key,
+    this.controller,
+    this.shrinkWrap = false,
+    this.physics,
+    this.padding,
+    this.primary,
+    this.animationType = AnimationItemType.fadeScaleIn,
+    this.slideDirection = SlideDirection.fromBottom,
+    this.itemDuration = const Duration(milliseconds: 400),
+    this.initialDelay = const Duration(milliseconds: 100),
+    this.curve = Curves.easeOutQuad,
+    this.animate = true,
+  });
   final List<Widget> children;
   final ScrollController? controller;
   final bool shrinkWrap;
@@ -262,35 +265,16 @@ class AnimatedGridView extends StatelessWidget {
   final Curve curve;
   final bool animate;
 
-  const AnimatedGridView({
-    super.key,
-    required this.children,
-    required this.gridDelegate,
-    this.controller,
-    this.shrinkWrap = false,
-    this.physics,
-    this.padding,
-    this.primary,
-    this.animationType = AnimationItemType.fadeScaleIn,
-    this.slideDirection = SlideDirection.fromBottom,
-    this.itemDuration = const Duration(milliseconds: 400),
-    this.initialDelay = const Duration(milliseconds: 100),
-    this.curve = Curves.easeOutQuad,
-    this.animate = true,
-  });
-
   @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      controller: controller,
-      shrinkWrap: shrinkWrap,
-      physics: physics,
-      padding: padding,
-      primary: primary,
-      gridDelegate: gridDelegate,
-      itemCount: children.length,
-      itemBuilder: (context, index) {
-        return AnimatedListItem(
+  Widget build(BuildContext context) => GridView.builder(
+        controller: controller,
+        shrinkWrap: shrinkWrap,
+        physics: physics,
+        padding: padding,
+        primary: primary,
+        gridDelegate: gridDelegate,
+        itemCount: children.length,
+        itemBuilder: (context, index) => AnimatedListItem(
           index: index,
           itemCount: children.length,
           animationType: animationType,
@@ -300,8 +284,6 @@ class AnimatedGridView extends StatelessWidget {
           curve: curve,
           animate: animate,
           child: children[index],
-        );
-      },
-    );
-  }
+        ),
+      );
 }

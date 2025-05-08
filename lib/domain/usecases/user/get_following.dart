@@ -3,11 +3,9 @@ import '../../entities/user.dart';
 import '../../repositories/user_repository.dart';
 
 class GetFollowingUseCase {
+  GetFollowingUseCase(this.repository);
   final UserRepository repository;
 
-  GetFollowingUseCase(this.repository);
-
-  ResultFuture<List<User>> call(String userId) {
-    return repository.getFollowing(userId);
-  }
+  ResultFuture<List<User>> call(String userId) =>
+      repository.getFollowing(userId);
 }

@@ -122,12 +122,12 @@ class SnackbarUtils {
     // Create a custom animation that bounces slightly
     return TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.0, end: 1.05)
+        tween: Tween<double>(begin: 0, end: 1.05)
             .chain(CurveTween(curve: Curves.easeOut)),
         weight: 75,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 1.05, end: 1.0)
+        tween: Tween<double>(begin: 1.05, end: 1)
             .chain(CurveTween(curve: Curves.easeIn)),
         weight: 25,
       ),

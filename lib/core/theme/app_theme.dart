@@ -4,76 +4,74 @@ import 'app_colors.dart';
 // Modern app theme configuration with Material 3
 class AppTheme {
   // Common theme settings
-  static ThemeData _baseTheme(ThemeData base) {
-    return base.copyWith(
-      // Use Material 3 typography
-      textTheme: base.textTheme.apply(
-        fontFamily: 'Poppins',
-      ),
+  static ThemeData _baseTheme(ThemeData base) => base.copyWith(
+        // Use Material 3 typography
+        textTheme: base.textTheme.apply(
+          fontFamily: 'Poppins',
+        ),
 
-      // Button styles
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+        // Button styles
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         ),
-      ),
 
-      // Input decoration theme
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        contentPadding: const EdgeInsets.all(16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+        // Input decoration theme
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          contentPadding: const EdgeInsets.all(16),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
         ),
-      ),
 
-      // Card theme
-      cardTheme: CardTheme(
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+        // Card theme
+        cardTheme: CardTheme(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          clipBehavior: Clip.antiAlias,
         ),
-        clipBehavior: Clip.antiAlias,
-      ),
 
-      // App bar theme
-      appBarTheme: const AppBarTheme(
-        centerTitle: true,
-        elevation: 0,
-      ),
-
-      // Bottom navigation bar theme
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        elevation: 8,
-        selectedItemColor: AppColors.primaryColor,
-        unselectedItemColor: AppColors.textMuted,
-        type: BottomNavigationBarType.fixed,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        landscapeLayout: BottomNavigationBarLandscapeLayout.centered,
-      ),
-
-      // Snackbar theme
-      snackBarTheme: SnackBarThemeData(
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+        // App bar theme
+        appBarTheme: const AppBarTheme(
+          centerTitle: true,
+          elevation: 0,
         ),
-      ),
 
-      // Dialog theme
-      dialogTheme: DialogTheme(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+        // Bottom navigation bar theme
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          elevation: 8,
+          selectedItemColor: AppColors.primaryColor,
+          unselectedItemColor: AppColors.textMuted,
+          type: BottomNavigationBarType.fixed,
+          showSelectedLabels: true,
+          showUnselectedLabels: true,
+          landscapeLayout: BottomNavigationBarLandscapeLayout.centered,
         ),
-      ),
-    );
-  }
+
+        // Snackbar theme
+        snackBarTheme: SnackBarThemeData(
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+
+        // Dialog theme
+        dialogTheme: DialogTheme(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      );
 
   // Light theme
   static ThemeData get lightTheme {
@@ -82,10 +80,8 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.backgroundLight,
       colorScheme: ColorScheme.light(
         primary: AppColors.primaryColor,
-        onPrimary: Colors.white,
         secondary: AppColors.secondaryColor,
         onSecondary: Colors.white,
-        surface: AppColors.surfaceLight,
         error: Colors.red.shade700,
       ),
       appBarTheme: const AppBarTheme(

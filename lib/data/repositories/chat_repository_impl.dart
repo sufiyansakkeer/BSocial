@@ -9,13 +9,12 @@ import '../../domain/repositories/chat_repository.dart';
 import '../datasources/remote/chat_remote_data_source.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
-  final ChatRemoteDataSource remoteDataSource;
-  final NetworkInfo networkInfo;
-
   ChatRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
+  final ChatRemoteDataSource remoteDataSource;
+  final NetworkInfo networkInfo;
 
   @override
   ResultFuture<ChatRoom> createChatRoom(List<String> participants) async {
@@ -82,10 +81,12 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  ResultFuture<ChatRoom?> getChatRoomByParticipants(List<String> participants) async {
+  ResultFuture<ChatRoom?> getChatRoomByParticipants(
+      List<String> participants) async {
     if (await networkInfo.isConnected) {
       try {
-        final chatRoom = await remoteDataSource.getChatRoomByParticipants(participants);
+        final chatRoom =
+            await remoteDataSource.getChatRoomByParticipants(participants);
         return Right(chatRoom);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));

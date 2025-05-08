@@ -4,9 +4,9 @@ import '../../data/datasources/local/hive_local_data_source.dart';
 import '../../di/injection_container.dart' as di;
 
 class CacheManager {
-  static final CacheManager _instance = CacheManager._internal();
   factory CacheManager() => _instance;
   CacheManager._internal();
+  static final CacheManager _instance = CacheManager._internal();
 
   late HiveLocalDataSource _localDataSource;
   bool _isInitialized = false;
@@ -14,7 +14,7 @@ class CacheManager {
   /// Initialize the cache manager
   Future<void> init() async {
     if (_isInitialized) return;
-    
+
     try {
       _localDataSource = di.sl<HiveLocalDataSource>();
       _isInitialized = true;

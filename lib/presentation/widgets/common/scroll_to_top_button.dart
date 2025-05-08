@@ -3,22 +3,21 @@ import 'package:flutter/services.dart';
 
 /// A button that appears when the user scrolls down and allows them to scroll back to the top
 class ScrollToTopButton extends StatefulWidget {
-  final ScrollController scrollController;
-  final double showThreshold;
-  final Color? backgroundColor;
-  final Color? iconColor;
-  final double size;
-  final double iconSize;
-
   const ScrollToTopButton({
-    super.key,
     required this.scrollController,
+    super.key,
     this.showThreshold = 300.0,
     this.backgroundColor,
     this.iconColor,
     this.size = 44.0,
     this.iconSize = 24.0,
   });
+  final ScrollController scrollController;
+  final double showThreshold;
+  final Color? backgroundColor;
+  final Color? iconColor;
+  final double size;
+  final double iconSize;
 
   @override
   State<ScrollToTopButton> createState() => _ScrollToTopButtonState();
@@ -41,7 +40,7 @@ class _ScrollToTopButtonState extends State<ScrollToTopButton>
     );
 
     // Create fade animation
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeInOut,

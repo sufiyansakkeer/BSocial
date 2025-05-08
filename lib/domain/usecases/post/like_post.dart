@@ -2,11 +2,9 @@ import '../../../core/utils/typedefs.dart';
 import '../../repositories/post_repository.dart';
 
 class LikePostUseCase {
+  LikePostUseCase(this.repository);
   final PostRepository repository;
 
-  LikePostUseCase(this.repository);
-
-  ResultVoid call(String postId, String userId) {
-    return repository.likePost(postId, userId);
-  }
+  ResultVoid call(String postId, String userId) =>
+      repository.likePost(postId, userId);
 }

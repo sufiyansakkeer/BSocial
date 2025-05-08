@@ -3,11 +3,8 @@ import '../../entities/user.dart';
 import '../../repositories/user_repository.dart';
 
 class GetUserByIdUseCase {
+  GetUserByIdUseCase(this.repository);
   final UserRepository repository;
 
-  GetUserByIdUseCase(this.repository);
-
-  ResultFuture<User> call(String userId) {
-    return repository.getUserById(userId);
-  }
+  ResultFuture<User> call(String userId) => repository.getUserById(userId);
 }

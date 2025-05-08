@@ -3,11 +3,9 @@ import '../../entities/message.dart';
 import '../../repositories/chat_repository.dart';
 
 class GetMessagesUseCase {
+  GetMessagesUseCase(this.repository);
   final ChatRepository repository;
 
-  GetMessagesUseCase(this.repository);
-
-  ResultFuture<List<Message>> call(String roomId) {
-    return repository.getMessages(roomId);
-  }
+  ResultFuture<List<Message>> call(String roomId) =>
+      repository.getMessages(roomId);
 }

@@ -10,14 +10,13 @@ import '../../domain/repositories/post_repository.dart';
 import '../datasources/remote/post_remote_data_source.dart';
 
 class PostRepositoryImpl implements PostRepository {
-  final PostRemoteDataSource remoteDataSource;
-  final NetworkInfo networkInfo;
-  
   PostRepositoryImpl({
     required this.remoteDataSource,
     required this.networkInfo,
   });
-  
+  final PostRemoteDataSource remoteDataSource;
+  final NetworkInfo networkInfo;
+
   @override
   ResultFuture<Post> createPost({
     required String description,
@@ -45,7 +44,7 @@ class PostRepositoryImpl implements PostRepository {
       return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
-  
+
   @override
   ResultVoid deleteComment(String commentId, String postId) async {
     if (await networkInfo.isConnected) {
@@ -61,7 +60,7 @@ class PostRepositoryImpl implements PostRepository {
       return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
-  
+
   @override
   ResultVoid deletePost(String postId) async {
     if (await networkInfo.isConnected) {
@@ -77,7 +76,7 @@ class PostRepositoryImpl implements PostRepository {
       return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
-  
+
   @override
   ResultFuture<List<Post>> getAllPosts() async {
     if (await networkInfo.isConnected) {
@@ -93,7 +92,7 @@ class PostRepositoryImpl implements PostRepository {
       return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
-  
+
   @override
   ResultFuture<List<Comment>> getComments(String postId) async {
     if (await networkInfo.isConnected) {
@@ -109,7 +108,7 @@ class PostRepositoryImpl implements PostRepository {
       return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
-  
+
   @override
   ResultFuture<List<Post>> getPostsByUserId(String userId) async {
     if (await networkInfo.isConnected) {
@@ -125,7 +124,7 @@ class PostRepositoryImpl implements PostRepository {
       return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
-  
+
   @override
   ResultVoid likePost(String postId, String userId) async {
     if (await networkInfo.isConnected) {
@@ -141,7 +140,7 @@ class PostRepositoryImpl implements PostRepository {
       return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
-  
+
   @override
   ResultFuture<Comment> postComment({
     required String postId,
@@ -169,7 +168,7 @@ class PostRepositoryImpl implements PostRepository {
       return const Left(NetworkFailure(message: 'No internet connection'));
     }
   }
-  
+
   @override
   ResultVoid unlikePost(String postId, String userId) async {
     if (await networkInfo.isConnected) {

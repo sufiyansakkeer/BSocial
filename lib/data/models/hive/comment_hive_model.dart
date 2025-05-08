@@ -5,6 +5,28 @@ part 'comment_hive_model.g.dart';
 
 @HiveType(typeId: 5)
 class CommentHiveModel extends HiveObject {
+  CommentHiveModel({
+    required this.commentId,
+    required this.postId,
+    required this.uid,
+    required this.username,
+    required this.text,
+    required this.profilePic,
+    required this.datePublished,
+    required this.lastUpdated,
+  });
+
+  // Convert from domain entity to Hive model
+  factory CommentHiveModel.fromEntity(Comment comment) => CommentHiveModel(
+        commentId: comment.commentId,
+        postId: comment.postId,
+        uid: comment.uid,
+        username: comment.username,
+        text: comment.text,
+        profilePic: comment.profilePic,
+        datePublished: comment.datePublished,
+        lastUpdated: DateTime.now(),
+      );
   @HiveField(0)
   final String commentId;
 
@@ -29,41 +51,14 @@ class CommentHiveModel extends HiveObject {
   @HiveField(7)
   final DateTime lastUpdated;
 
-  CommentHiveModel({
-    required this.commentId,
-    required this.postId,
-    required this.uid,
-    required this.username,
-    required this.text,
-    required this.profilePic,
-    required this.datePublished,
-    required this.lastUpdated,
-  });
-
-  // Convert from domain entity to Hive model
-  factory CommentHiveModel.fromEntity(Comment comment) {
-    return CommentHiveModel(
-      commentId: comment.commentId,
-      postId: comment.postId,
-      uid: comment.uid,
-      username: comment.username,
-      text: comment.text,
-      profilePic: comment.profilePic,
-      datePublished: comment.datePublished,
-      lastUpdated: DateTime.now(),
-    );
-  }
-
   // Convert to domain entity
-  Comment toEntity() {
-    return Comment(
-      commentId: commentId,
-      postId: postId,
-      uid: uid,
-      username: username,
-      text: text,
-      profilePic: profilePic,
-      datePublished: datePublished,
-    );
-  }
+  Comment toEntity() => Comment(
+        commentId: commentId,
+        postId: postId,
+        uid: uid,
+        username: username,
+        text: text,
+        profilePic: profilePic,
+        datePublished: datePublished,
+      );
 }

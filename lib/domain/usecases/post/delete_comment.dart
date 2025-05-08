@@ -2,11 +2,9 @@ import '../../../core/utils/typedefs.dart';
 import '../../repositories/post_repository.dart';
 
 class DeleteCommentUseCase {
+  DeleteCommentUseCase(this.repository);
   final PostRepository repository;
 
-  DeleteCommentUseCase(this.repository);
-
-  ResultVoid call(String commentId, String postId) {
-    return repository.deleteComment(commentId, postId);
-  }
+  ResultVoid call(String commentId, String postId) =>
+      repository.deleteComment(commentId, postId);
 }

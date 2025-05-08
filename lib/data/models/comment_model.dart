@@ -12,6 +12,17 @@ class CommentModel extends Comment {
     required super.datePublished,
   });
 
+  // Create model from JSON
+  factory CommentModel.fromJson(Map<String, dynamic> json) => CommentModel(
+        commentId: json['commentId'] ?? '',
+        postId: json['postId'] ?? '',
+        uid: json['uid'] ?? '',
+        username: json['username'] ?? '',
+        text: json['text'] ?? '',
+        profilePic: json['profilePic'] ?? '',
+        datePublished: (json['datePublished'] as Timestamp).toDate(),
+      );
+
   // Convert model to JSON
   Map<String, dynamic> toJson() => {
         'commentId': commentId,
@@ -22,19 +33,6 @@ class CommentModel extends Comment {
         'profilePic': profilePic,
         'datePublished': datePublished,
       };
-
-  // Create model from JSON
-  factory CommentModel.fromJson(Map<String, dynamic> json) {
-    return CommentModel(
-      commentId: json['commentId'] ?? '',
-      postId: json['postId'] ?? '',
-      uid: json['uid'] ?? '',
-      username: json['username'] ?? '',
-      text: json['text'] ?? '',
-      profilePic: json['profilePic'] ?? '',
-      datePublished: (json['datePublished'] as Timestamp).toDate(),
-    );
-  }
 
   // Create model from Firestore snapshot
   static CommentModel fromSnapshot(DocumentSnapshot snapshot) {

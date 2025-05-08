@@ -1,11 +1,5 @@
 // ChatRoom entity class
 class ChatRoom {
-  final String roomId;
-  final List<String> participants;
-  final DateTime lastMessageTime;
-  final String lastMessage;
-  final String lastMessageSenderId;
-  
   const ChatRoom({
     required this.roomId,
     required this.participants,
@@ -13,4 +7,9 @@ class ChatRoom {
     required this.lastMessage,
     required this.lastMessageSenderId,
   });
+  final String roomId;
+  final List<String> participants;
+  final DateTime lastMessageTime;
+  final String lastMessage;
+  final String lastMessageSenderId;
 }

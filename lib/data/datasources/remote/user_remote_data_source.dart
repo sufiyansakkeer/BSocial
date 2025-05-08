@@ -22,25 +22,21 @@ abstract class UserRemoteDataSource {
 }
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {
-  final FirebaseFirestore _firestore;
-  final firebase_auth.FirebaseAuth _auth;
-
   UserRemoteDataSourceImpl({
     required FirebaseFirestore firestore,
     required firebase_auth.FirebaseAuth auth,
   })  : _firestore = firestore,
         _auth = auth;
+  final FirebaseFirestore _firestore;
+  final firebase_auth.FirebaseAuth _auth;
 
   @override
   Future<List<UserModel>> getAllUsers() async {
     try {
-      final querySnapshot = await _firestore
-          .collection(AppConstants.usersCollection)
-          .get();
+      final querySnapshot =
+          await _firestore.collection(AppConstants.usersCollection).get();
 
-      return querySnapshot.docs
-          .map((doc) => UserModel.fromSnapshot(doc))
-          .toList();
+      return querySnapshot.docs.map(UserModel.fromSnapshot).toList();
     } catch (e) {
       log('Error getting all users: $e');
       throw ServerException(message: 'Failed to get users: ${e.toString()}');
@@ -163,13 +159,10 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
           .where('username', isLessThanOrEqualTo: '$query\uf8ff')
           .get();
 
-      return querySnapshot.docs
-          .map((doc) => UserModel.fromSnapshot(doc))
-          .toList();
+      return querySnapshot.docs.map(UserModel.fromSnapshot).toList();
     } catch (e) {
       log('Error searching users: $e');
-      throw ServerException(
-          message: 'Failed to search users: ${e.toString()}');
+      throw ServerException(message: 'Failed to search users: ${e.toString()}');
     }
   }
 
@@ -181,9 +174,8 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     String? status,
   }) async {
     try {
-      final userRef = _firestore
-          .collection(AppConstants.usersCollection)
-          .doc(userId);
+      final userRef =
+          _firestore.collection(AppConstants.usersCollection).doc(userId);
 
       final updates = <String, dynamic>{};
       if (userName != null) updates['username'] = userName;

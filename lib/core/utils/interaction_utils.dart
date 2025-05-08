@@ -13,24 +13,23 @@ class InteractionUtils {
     Color? highlightColor,
     bool enableFeedback = true,
     bool enableHaptics = true,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          if (enableHaptics) {
-            HapticFeedback.lightImpact();
-          }
-          onTap();
-        },
-        borderRadius: borderRadius,
-        splashColor: splashColor,
-        highlightColor: highlightColor,
-        enableFeedback: enableFeedback,
-        child: child,
-      ),
-    );
-  }
+  }) =>
+      Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            if (enableHaptics) {
+              HapticFeedback.lightImpact();
+            }
+            onTap();
+          },
+          borderRadius: borderRadius,
+          splashColor: splashColor,
+          highlightColor: highlightColor,
+          enableFeedback: enableFeedback,
+          child: child,
+        ),
+      );
 
   /// Add a bounce effect to any widget
   static Widget addBounce({
@@ -39,15 +38,14 @@ class InteractionUtils {
     Duration duration = const Duration(milliseconds: 150),
     double scale = 0.95,
     bool enableHaptics = true,
-  }) {
-    return BounceInteraction(
-      onTap: onTap,
-      duration: duration,
-      scale: scale,
-      enableHaptics: enableHaptics,
-      child: child,
-    );
-  }
+  }) =>
+      BounceInteraction(
+        onTap: onTap,
+        duration: duration,
+        scale: scale,
+        enableHaptics: enableHaptics,
+        child: child,
+      );
 
   /// Add a pulse effect to any widget
   static Widget addPulse({
@@ -55,14 +53,13 @@ class InteractionUtils {
     Duration duration = const Duration(milliseconds: 1500),
     double minScale = 0.97,
     double maxScale = 1.03,
-  }) {
-    return PulseInteraction(
-      duration: duration,
-      minScale: minScale,
-      maxScale: maxScale,
-      child: child,
-    );
-  }
+  }) =>
+      PulseInteraction(
+        duration: duration,
+        minScale: minScale,
+        maxScale: maxScale,
+        child: child,
+      );
 
   /// Show a custom toast message
   static void showToast(
@@ -90,9 +87,7 @@ class InteractionUtils {
     overlayState.insert(_overlayEntry!);
 
     // Remove after duration
-    Future.delayed(duration, () {
-      _removeToast();
-    });
+    Future.delayed(duration, _removeToast);
   }
 
   /// Remove the current toast
@@ -115,24 +110,24 @@ enum ToastType {
 
 /// Toast overlay widget
 class ToastOverlay extends StatefulWidget {
+  const ToastOverlay({
+    required this.message,
+    required this.duration,
+    required this.type,
+    super.key,
+    this.icon,
+  });
   final String message;
   final IconData? icon;
   final Duration duration;
   final ToastType type;
 
-  const ToastOverlay({
-    super.key,
-    required this.message,
-    this.icon,
-    required this.duration,
-    required this.type,
-  });
-
   @override
   State<ToastOverlay> createState() => _ToastOverlayState();
 }
 
-class _ToastOverlayState extends State<ToastOverlay> with SingleTickerProviderStateMixin {
+class _ToastOverlayState extends State<ToastOverlay>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _opacityAnimation;
   late Animation<Offset> _slideAnimation;
@@ -145,11 +140,12 @@ class _ToastOverlayState extends State<ToastOverlay> with SingleTickerProviderSt
       duration: const Duration(milliseconds: 300),
     );
 
-    _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _opacityAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
-    _slideAnimation = Tween<Offset>(begin: const Offset(0.0, -0.5), end: Offset.zero).animate(
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, -0.5), end: Offset.zero).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
 
@@ -204,17 +200,19 @@ class _ToastOverlayState extends State<ToastOverlay> with SingleTickerProviderSt
       child: Align(
         alignment: Alignment.topCenter,
         child: Padding(
-          padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+          padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
           child: SlideTransition(
             position: _slideAnimation,
             child: FadeTransition(
               opacity: _opacityAnimation,
               child: Material(
-                elevation: 6.0,
-                borderRadius: BorderRadius.circular(UiConstants.borderRadiusMedium),
+                elevation: 6,
+                borderRadius:
+                    BorderRadius.circular(UiConstants.borderRadiusMedium),
                 color: backgroundColor,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -222,7 +220,7 @@ class _ToastOverlayState extends State<ToastOverlay> with SingleTickerProviderSt
                         iconData,
                         color: iconColor,
                       ),
-                      const SizedBox(width: 12.0),
+                      const SizedBox(width: 12),
                       Flexible(
                         child: Text(
                           widget.message,
@@ -246,26 +244,26 @@ class _ToastOverlayState extends State<ToastOverlay> with SingleTickerProviderSt
 
 /// Bounce interaction widget
 class BounceInteraction extends StatefulWidget {
+  const BounceInteraction({
+    required this.child,
+    required this.onTap,
+    super.key,
+    this.duration = const Duration(milliseconds: 150),
+    this.scale = 0.95,
+    this.enableHaptics = true,
+  });
   final Widget child;
   final VoidCallback onTap;
   final Duration duration;
   final double scale;
   final bool enableHaptics;
 
-  const BounceInteraction({
-    super.key,
-    required this.child,
-    required this.onTap,
-    this.duration = const Duration(milliseconds: 150),
-    this.scale = 0.95,
-    this.enableHaptics = true,
-  });
-
   @override
   State<BounceInteraction> createState() => _BounceInteractionState();
 }
 
-class _BounceInteractionState extends State<BounceInteraction> with SingleTickerProviderStateMixin {
+class _BounceInteractionState extends State<BounceInteraction>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   bool _isPressed = false;
@@ -279,7 +277,7 @@ class _BounceInteractionState extends State<BounceInteraction> with SingleTicker
     );
 
     _scaleAnimation = Tween<double>(
-      begin: 1.0,
+      begin: 1,
       end: widget.scale,
     ).animate(
       CurvedAnimation(
@@ -322,45 +320,41 @@ class _BounceInteractionState extends State<BounceInteraction> with SingleTicker
   }
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTapCancel: _handleTapCancel,
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(
+  Widget build(BuildContext context) => GestureDetector(
+        onTapDown: _handleTapDown,
+        onTapUp: _handleTapUp,
+        onTapCancel: _handleTapCancel,
+        child: AnimatedBuilder(
+          animation: _scaleAnimation,
+          builder: (context, child) => Transform.scale(
             scale: _scaleAnimation.value,
             child: child,
-          );
-        },
-        child: widget.child,
-      ),
-    );
-  }
+          ),
+          child: widget.child,
+        ),
+      );
 }
 
 /// Pulse interaction widget
 class PulseInteraction extends StatefulWidget {
+  const PulseInteraction({
+    required this.child,
+    super.key,
+    this.duration = const Duration(milliseconds: 1500),
+    this.minScale = 0.97,
+    this.maxScale = 1.03,
+  });
   final Widget child;
   final Duration duration;
   final double minScale;
   final double maxScale;
 
-  const PulseInteraction({
-    super.key,
-    required this.child,
-    this.duration = const Duration(milliseconds: 1500),
-    this.minScale = 0.97,
-    this.maxScale = 1.03,
-  });
-
   @override
   State<PulseInteraction> createState() => _PulseInteractionState();
 }
 
-class _PulseInteractionState extends State<PulseInteraction> with SingleTickerProviderStateMixin {
+class _PulseInteractionState extends State<PulseInteraction>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -390,16 +384,12 @@ class _PulseInteractionState extends State<PulseInteraction> with SingleTickerPr
   }
 
   @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _scaleAnimation,
-      builder: (context, child) {
-        return Transform.scale(
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) => Transform.scale(
           scale: _scaleAnimation.value,
           child: child,
-        );
-      },
-      child: widget.child,
-    );
-  }
+        ),
+        child: widget.child,
+      );
 }

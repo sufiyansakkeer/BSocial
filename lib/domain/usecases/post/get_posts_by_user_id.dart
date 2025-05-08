@@ -3,11 +3,9 @@ import '../../entities/post.dart';
 import '../../repositories/post_repository.dart';
 
 class GetPostsByUserIdUseCase {
+  GetPostsByUserIdUseCase(this.repository);
   final PostRepository repository;
 
-  GetPostsByUserIdUseCase(this.repository);
-
-  ResultFuture<List<Post>> call(String userId) {
-    return repository.getPostsByUserId(userId);
-  }
+  ResultFuture<List<Post>> call(String userId) =>
+      repository.getPostsByUserId(userId);
 }

@@ -41,14 +41,13 @@ abstract class PostRemoteDataSource {
 }
 
 class PostRemoteDataSourceImpl implements PostRemoteDataSource {
-  final FirebaseFirestore _firestore;
-  final StorageLocalDataSource _storageDataSource;
-
   PostRemoteDataSourceImpl({
     required FirebaseFirestore firestore,
     required StorageLocalDataSource storageDataSource,
   })  : _firestore = firestore,
         _storageDataSource = storageDataSource;
+  final FirebaseFirestore _firestore;
+  final StorageLocalDataSource _storageDataSource;
 
   @override
   Future<PostModel> createPost({
@@ -159,9 +158,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
           .orderBy('datePublished', descending: true)
           .get();
 
-      return querySnapshot.docs
-          .map((doc) => PostModel.fromSnapshot(doc))
-          .toList();
+      return querySnapshot.docs.map(PostModel.fromSnapshot).toList();
     } catch (e) {
       log('Error getting all posts: $e');
       throw ServerException(message: 'Failed to get posts: ${e.toString()}');
@@ -178,9 +175,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
           .orderBy('datePublished', descending: true)
           .get();
 
-      return querySnapshot.docs
-          .map((doc) => CommentModel.fromSnapshot(doc))
-          .toList();
+      return querySnapshot.docs.map(CommentModel.fromSnapshot).toList();
     } catch (e) {
       log('Error getting comments: $e');
       throw ServerException(message: 'Failed to get comments: ${e.toString()}');
@@ -196,9 +191,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
           .orderBy('datePublished', descending: true)
           .get();
 
-      return querySnapshot.docs
-          .map((doc) => PostModel.fromSnapshot(doc))
-          .toList();
+      return querySnapshot.docs.map(PostModel.fromSnapshot).toList();
     } catch (e) {
       log('Error getting posts by user ID: $e');
       throw ServerException(

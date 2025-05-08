@@ -10,6 +10,15 @@ class ChatRoomModel extends ChatRoom {
     required super.lastMessageSenderId,
   });
 
+  // Create model from JSON
+  factory ChatRoomModel.fromJson(Map<String, dynamic> json) => ChatRoomModel(
+        roomId: json['roomId'] ?? '',
+        participants: _convertToStringList(json['participants'] ?? []),
+        lastMessageTime: (json['lastMessageTime'] as Timestamp).toDate(),
+        lastMessage: json['lastMessage'] ?? '',
+        lastMessageSenderId: json['lastMessageSenderId'] ?? '',
+      );
+
   // Convert model to JSON
   Map<String, dynamic> toJson() => {
         'roomId': roomId,
@@ -19,25 +28,13 @@ class ChatRoomModel extends ChatRoom {
         'lastMessageSenderId': lastMessageSenderId,
       };
 
-  // Create model from JSON
-  factory ChatRoomModel.fromJson(Map<String, dynamic> json) {
-    return ChatRoomModel(
-      roomId: json['roomId'] ?? '',
-      participants: _convertToStringList(json['participants'] ?? []),
-      lastMessageTime: (json['lastMessageTime'] as Timestamp).toDate(),
-      lastMessage: json['lastMessage'] ?? '',
-      lastMessageSenderId: json['lastMessageSenderId'] ?? '',
-    );
-  }
-
   // Create model from Firestore snapshot
   static ChatRoomModel fromSnapshot(DocumentSnapshot snapshot) {
     final data = snapshot.data() as Map<String, dynamic>;
     return ChatRoomModel.fromJson(data);
   }
-  
+
   // Helper method to convert dynamic list to List<String>
-  static List<String> _convertToStringList(List<dynamic> list) {
-    return list.map((item) => item.toString()).toList();
-  }
+  static List<String> _convertToStringList(List<dynamic> list) =>
+      list.map((item) => item.toString()).toList();
 }

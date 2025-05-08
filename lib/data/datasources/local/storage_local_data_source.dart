@@ -10,12 +10,11 @@ abstract class StorageLocalDataSource {
 }
 
 class StorageLocalDataSourceImpl implements StorageLocalDataSource {
-  final FirebaseStorage _storage;
-  
   StorageLocalDataSourceImpl({
     required FirebaseStorage storage,
   }) : _storage = storage;
-  
+  final FirebaseStorage _storage;
+
   @override
   Future<void> deleteImage(String url) async {
     try {
@@ -25,25 +24,25 @@ class StorageLocalDataSourceImpl implements StorageLocalDataSource {
       throw ServerException(message: 'Failed to delete image: ${e.toString()}');
     }
   }
-  
+
   @override
   Future<String> uploadImage(String path, Uint8List file, bool isPost) async {
     try {
       // Create a unique file name
-      String fileName = isPost ? 'post_${const Uuid().v1()}' : const Uuid().v1();
-      
+      final fileName = isPost ? 'post_${const Uuid().v1()}' : const Uuid().v1();
+
       // Create a reference to the file location
-      Reference ref = _storage.ref().child(path).child(fileName);
-      
+      final ref = _storage.ref().child(path).child(fileName);
+
       // Upload the file
-      UploadTask uploadTask = ref.putData(file);
-      
+      final uploadTask = ref.putData(file);
+
       // Wait for the upload to complete
-      TaskSnapshot snapshot = await uploadTask;
-      
+      final snapshot = await uploadTask;
+
       // Get the download URL
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-      
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+
       return downloadUrl;
     } catch (e) {
       log('Error uploading image: $e');

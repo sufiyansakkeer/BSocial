@@ -3,11 +3,8 @@ import '../../entities/post.dart';
 import '../../repositories/post_repository.dart';
 
 class GetAllPostsUseCase {
+  GetAllPostsUseCase(this.repository);
   final PostRepository repository;
 
-  GetAllPostsUseCase(this.repository);
-
-  ResultFuture<List<Post>> call() {
-    return repository.getAllPosts();
-  }
+  ResultFuture<List<Post>> call() => repository.getAllPosts();
 }

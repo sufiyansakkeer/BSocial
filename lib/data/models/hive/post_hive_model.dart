@@ -5,6 +5,30 @@ part 'post_hive_model.g.dart';
 
 @HiveType(typeId: 2)
 class PostHiveModel extends HiveObject {
+  PostHiveModel({
+    required this.postId,
+    required this.uid,
+    required this.username,
+    required this.description,
+    required this.postUrl,
+    required this.profImage,
+    required this.datePublished,
+    required this.likes,
+    required this.lastUpdated,
+  });
+
+  // Convert from domain entity to Hive model
+  factory PostHiveModel.fromEntity(Post post) => PostHiveModel(
+        postId: post.postId,
+        uid: post.uid,
+        username: post.username,
+        description: post.description,
+        postUrl: post.postUrl,
+        profImage: post.profImage,
+        datePublished: post.datePublished,
+        likes: post.likes,
+        lastUpdated: DateTime.now(),
+      );
   @HiveField(0)
   final String postId;
 
@@ -32,44 +56,15 @@ class PostHiveModel extends HiveObject {
   @HiveField(8)
   final DateTime lastUpdated;
 
-  PostHiveModel({
-    required this.postId,
-    required this.uid,
-    required this.username,
-    required this.description,
-    required this.postUrl,
-    required this.profImage,
-    required this.datePublished,
-    required this.likes,
-    required this.lastUpdated,
-  });
-
-  // Convert from domain entity to Hive model
-  factory PostHiveModel.fromEntity(Post post) {
-    return PostHiveModel(
-      postId: post.postId,
-      uid: post.uid,
-      username: post.username,
-      description: post.description,
-      postUrl: post.postUrl,
-      profImage: post.profImage,
-      datePublished: post.datePublished,
-      likes: post.likes,
-      lastUpdated: DateTime.now(),
-    );
-  }
-
   // Convert to domain entity
-  Post toEntity() {
-    return Post(
-      postId: postId,
-      uid: uid,
-      username: username,
-      description: description,
-      postUrl: postUrl,
-      profImage: profImage,
-      datePublished: datePublished,
-      likes: likes,
-    );
-  }
+  Post toEntity() => Post(
+        postId: postId,
+        uid: uid,
+        username: username,
+        description: description,
+        postUrl: postUrl,
+        profImage: profImage,
+        datePublished: datePublished,
+        likes: likes,
+      );
 }

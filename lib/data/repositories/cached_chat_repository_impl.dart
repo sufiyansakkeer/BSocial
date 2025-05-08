@@ -13,24 +13,24 @@ import '../datasources/remote/chat_remote_data_source.dart';
 /// Implementation of [ChatRepository] that uses both remote and local data sources
 /// with offline caching support
 class CachedChatRepositoryImpl implements ChatRepository {
-  final ChatRemoteDataSource remoteDataSource;
-  final HiveLocalDataSource localDataSource;
-  final NetworkInfo networkInfo;
-  final Duration cacheMaxAge;
-
   CachedChatRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
     required this.networkInfo,
-    this.cacheMaxAge = const Duration(hours: 24), // Default cache age is 24 hours
+    this.cacheMaxAge =
+        const Duration(hours: 24), // Default cache age is 24 hours
   });
+  final ChatRemoteDataSource remoteDataSource;
+  final HiveLocalDataSource localDataSource;
+  final NetworkInfo networkInfo;
+  final Duration cacheMaxAge;
 
   @override
   ResultFuture<ChatRoom> createChatRoom(List<String> participants) async {
     if (await networkInfo.isConnected) {
       try {
         final chatRoom = await remoteDataSource.createChatRoom(participants);
-        
+
         // Cache the chat room locally
         try {
           await localDataSource.cacheChatRoom(chatRoom);
@@ -38,7 +38,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
           log('Error caching chat room: $e');
           // Continue even if caching fails
         }
-        
+
         return Right(chatRoom);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
@@ -55,7 +55,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
     if (await networkInfo.isConnected) {
       try {
         await remoteDataSource.deleteChatRoom(roomId);
-        
+
         // Delete from local cache
         try {
           await localDataSource.deleteChatRoom(roomId);
@@ -63,7 +63,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
           log('Error deleting chat room from cache: $e');
           // Continue even if cache deletion fails
         }
-        
+
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
@@ -80,7 +80,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
     if (await networkInfo.isConnected) {
       try {
         await remoteDataSource.deleteMessage(messageId, roomId);
-        
+
         // Delete from local cache
         try {
           await localDataSource.deleteMessage(messageId);
@@ -88,7 +88,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
           log('Error deleting message from cache: $e');
           // Continue even if cache deletion fails
         }
-        
+
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
@@ -106,7 +106,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
       try {
         // Get chat room from remote
         final remoteChatRoom = await remoteDataSource.getChatRoomById(roomId);
-        
+
         // Cache chat room locally
         try {
           await localDataSource.cacheChatRoom(remoteChatRoom);
@@ -114,7 +114,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
           log('Error caching chat room: $e');
           // Continue even if caching fails
         }
-        
+
         return Right(remoteChatRoom);
       } on ServerException catch (e) {
         // Try to get chat room from local cache if remote fails
@@ -127,7 +127,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
         } catch (cacheE) {
           log('Error getting chat room from cache: $cacheE');
         }
-        
+
         return Left(ServerFailure(message: e.message));
       } catch (e) {
         // Try to get chat room from local cache if remote fails
@@ -140,7 +140,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
         } catch (cacheE) {
           log('Error getting chat room from cache: $cacheE');
         }
-        
+
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -151,7 +151,8 @@ class CachedChatRepositoryImpl implements ChatRepository {
           log('Returning chat room from cache due to no internet');
           return Right(localChatRoom);
         } else {
-          return const Left(CacheFailure(message: 'No cached chat room available'));
+          return const Left(
+              CacheFailure(message: 'No cached chat room available'));
         }
       } on CacheException catch (e) {
         return Left(CacheFailure(message: e.message));
@@ -162,12 +163,14 @@ class CachedChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  ResultFuture<ChatRoom?> getChatRoomByParticipants(List<String> participants) async {
+  ResultFuture<ChatRoom?> getChatRoomByParticipants(
+      List<String> participants) async {
     if (await networkInfo.isConnected) {
       try {
         // Get chat room from remote
-        final remoteChatRoom = await remoteDataSource.getChatRoomByParticipants(participants);
-        
+        final remoteChatRoom =
+            await remoteDataSource.getChatRoomByParticipants(participants);
+
         if (remoteChatRoom != null) {
           // Cache chat room locally
           try {
@@ -177,16 +180,18 @@ class CachedChatRepositoryImpl implements ChatRepository {
             // Continue even if caching fails
           }
         }
-        
+
         return Right(remoteChatRoom);
       } on ServerException catch (e) {
         // Try to get chat rooms from local cache and filter by participants
         try {
-          final userId = participants.first; // Use first participant as reference
-          final localChatRooms = await localDataSource.getChatRoomsByUserId(userId);
-          
+          final userId =
+              participants.first; // Use first participant as reference
+          final localChatRooms =
+              await localDataSource.getChatRoomsByUserId(userId);
+
           // Find a chat room with exactly these participants
-          for (var room in localChatRooms) {
+          for (final room in localChatRooms) {
             if (room.participants.length == participants.length &&
                 room.participants.every((p) => participants.contains(p))) {
               log('Returning chat room from cache after remote failure');
@@ -196,7 +201,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
         } catch (cacheE) {
           log('Error getting chat rooms from cache: $cacheE');
         }
-        
+
         return Left(ServerFailure(message: e.message));
       } catch (e) {
         return Left(ServerFailure(message: e.toString()));
@@ -205,17 +210,18 @@ class CachedChatRepositoryImpl implements ChatRepository {
       // No internet connection, try to get chat rooms from local cache
       try {
         final userId = participants.first; // Use first participant as reference
-        final localChatRooms = await localDataSource.getChatRoomsByUserId(userId);
-        
+        final localChatRooms =
+            await localDataSource.getChatRoomsByUserId(userId);
+
         // Find a chat room with exactly these participants
-        for (var room in localChatRooms) {
+        for (final room in localChatRooms) {
           if (room.participants.length == participants.length &&
               room.participants.every((p) => participants.contains(p))) {
             log('Returning chat room from cache due to no internet');
             return Right(room);
           }
         }
-        
+
         return const Right(null); // No matching chat room found
       } on CacheException catch (e) {
         return Left(CacheFailure(message: e.message));
@@ -231,22 +237,23 @@ class CachedChatRepositoryImpl implements ChatRepository {
       try {
         // Get chat rooms from remote
         final remoteChatRooms = await remoteDataSource.getChatRooms(userId);
-        
+
         // Cache chat rooms locally
         try {
-          for (var chatRoom in remoteChatRooms) {
+          for (final chatRoom in remoteChatRooms) {
             await localDataSource.cacheChatRoom(chatRoom);
           }
         } catch (e) {
           log('Error caching chat rooms: $e');
           // Continue even if caching fails
         }
-        
+
         return Right(remoteChatRooms);
       } on ServerException catch (e) {
         // Try to get chat rooms from local cache if remote fails
         try {
-          final localChatRooms = await localDataSource.getChatRoomsByUserId(userId);
+          final localChatRooms =
+              await localDataSource.getChatRoomsByUserId(userId);
           if (localChatRooms.isNotEmpty) {
             log('Returning chat rooms from cache after remote failure');
             return Right(localChatRooms);
@@ -254,12 +261,13 @@ class CachedChatRepositoryImpl implements ChatRepository {
         } catch (cacheE) {
           log('Error getting chat rooms from cache: $cacheE');
         }
-        
+
         return Left(ServerFailure(message: e.message));
       } catch (e) {
         // Try to get chat rooms from local cache if remote fails
         try {
-          final localChatRooms = await localDataSource.getChatRoomsByUserId(userId);
+          final localChatRooms =
+              await localDataSource.getChatRoomsByUserId(userId);
           if (localChatRooms.isNotEmpty) {
             log('Returning chat rooms from cache after remote failure');
             return Right(localChatRooms);
@@ -267,18 +275,20 @@ class CachedChatRepositoryImpl implements ChatRepository {
         } catch (cacheE) {
           log('Error getting chat rooms from cache: $cacheE');
         }
-        
+
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
       // No internet connection, try to get chat rooms from local cache
       try {
-        final localChatRooms = await localDataSource.getChatRoomsByUserId(userId);
+        final localChatRooms =
+            await localDataSource.getChatRoomsByUserId(userId);
         if (localChatRooms.isNotEmpty) {
           log('Returning chat rooms from cache due to no internet');
           return Right(localChatRooms);
         } else {
-          return const Left(CacheFailure(message: 'No cached chat rooms available'));
+          return const Left(
+              CacheFailure(message: 'No cached chat rooms available'));
         }
       } on CacheException catch (e) {
         return Left(CacheFailure(message: e.message));
@@ -294,10 +304,10 @@ class CachedChatRepositoryImpl implements ChatRepository {
       try {
         // Get messages from remote
         final remoteMessages = await remoteDataSource.getMessages(roomId);
-        
+
         // Cache messages locally
         try {
-          for (var message in remoteMessages) {
+          for (final message in remoteMessages) {
             // Create a message with roomId
             final messageWithRoomId = Message(
               messageId: message.messageId,
@@ -314,12 +324,13 @@ class CachedChatRepositoryImpl implements ChatRepository {
           log('Error caching messages: $e');
           // Continue even if caching fails
         }
-        
+
         return Right(remoteMessages);
       } on ServerException catch (e) {
         // Try to get messages from local cache if remote fails
         try {
-          final localMessages = await localDataSource.getMessagesByChatRoomId(roomId);
+          final localMessages =
+              await localDataSource.getMessagesByChatRoomId(roomId);
           if (localMessages.isNotEmpty) {
             log('Returning messages from cache after remote failure');
             return Right(localMessages);
@@ -327,12 +338,13 @@ class CachedChatRepositoryImpl implements ChatRepository {
         } catch (cacheE) {
           log('Error getting messages from cache: $cacheE');
         }
-        
+
         return Left(ServerFailure(message: e.message));
       } catch (e) {
         // Try to get messages from local cache if remote fails
         try {
-          final localMessages = await localDataSource.getMessagesByChatRoomId(roomId);
+          final localMessages =
+              await localDataSource.getMessagesByChatRoomId(roomId);
           if (localMessages.isNotEmpty) {
             log('Returning messages from cache after remote failure');
             return Right(localMessages);
@@ -340,18 +352,20 @@ class CachedChatRepositoryImpl implements ChatRepository {
         } catch (cacheE) {
           log('Error getting messages from cache: $cacheE');
         }
-        
+
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
       // No internet connection, try to get messages from local cache
       try {
-        final localMessages = await localDataSource.getMessagesByChatRoomId(roomId);
+        final localMessages =
+            await localDataSource.getMessagesByChatRoomId(roomId);
         if (localMessages.isNotEmpty) {
           log('Returning messages from cache due to no internet');
           return Right(localMessages);
         } else {
-          return const Left(CacheFailure(message: 'No cached messages available for this chat room'));
+          return const Left(CacheFailure(
+              message: 'No cached messages available for this chat room'));
         }
       } on CacheException catch (e) {
         return Left(CacheFailure(message: e.message));
@@ -366,7 +380,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
     if (await networkInfo.isConnected) {
       try {
         await remoteDataSource.markMessagesAsRead(roomId, userId);
-        
+
         // Mark messages as read in local cache
         try {
           await localDataSource.markMessagesAsRead(roomId, userId);
@@ -374,7 +388,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
           log('Error marking messages as read in cache: $e');
           // Continue even if cache update fails
         }
-        
+
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
@@ -408,7 +422,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
           receiverId: receiverId,
           content: content,
         );
-        
+
         // Cache the message locally
         try {
           // Create a message with roomId
@@ -426,7 +440,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
           log('Error caching message: $e');
           // Continue even if caching fails
         }
-        
+
         return Right(message);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));

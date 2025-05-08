@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Firebase configuration values -->
+    <string name="firebase_database_url" translatable="false">https://bsocial-9e6c3.firebaseio.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">788358758157</string>
+    <string name="google_api_key" translatable="false">AIzaSyCpK7HrlUzOLY62g49y68_pstz9YOPIMN0</string>
+    <string name="google_app_id" translatable="false">1:788358758157:android:6f86989bf518ac14f8ba44</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyCpK7HrlUzOLY62g49y68_pstz9YOPIMN0</string>
+    <string name="google_storage_bucket" translatable="false">bsocial-9e6c3.appspot.com</string>
+    <string name="project_id" translatable="false">bsocial-9e6c3</string>
+</resources>
