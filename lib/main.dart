@@ -1,36 +1,25 @@
 import 'dart:async';
 import 'dart:developer';
-
-import 'package:bsocial/provider/chat_search_provider.dart';
-import 'package:bsocial/provider/comment_provider.dart';
-import 'package:bsocial/provider/followers_provider.dart';
-import 'package:bsocial/provider/following_provider.dart';
-import 'package:bsocial/provider/message_screen_provider.dart';
-import 'package:bsocial/provider/post_card_provider.dart';
-import 'package:bsocial/provider/post_image_provider.dart';
-import 'package:bsocial/provider/profile_screen_provider.dart';
-import 'package:bsocial/provider/search_provider.dart';
-import 'package:bsocial/provider/update_screen_provider.dart';
-import 'package:bsocial/utils/colors.dart';
-import 'package:bsocial/provider/bottom_navigation_provider.dart';
-import 'package:bsocial/provider/google_button_provider.dart';
-import 'package:bsocial/provider/login_screen_provider.dart';
-import 'package:bsocial/provider/mobile_screen_provider.dart';
-import 'package:bsocial/provider/users_provider.dart';
-import 'package:bsocial/provider/sign_up_provider.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_phoenix/flutter_phoenix.dart';
-import 'package:bsocial/view/layout/mobile_screen_layout.dart';
-import 'package:bsocial/view/layout/web_screen_layout.dart';
-import 'package:bsocial/view/screens/login_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
-import 'view/layout/responsive_layout_building.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+
+import 'core/errors/error_handler.dart';
+import 'core/theme/app_theme.dart';
+import 'core/utils/snackbar_utils.dart';
+import 'di/injection_container.dart' as di;
+import 'presentation/pages/auth/login_page.dart';
+import 'presentation/pages/home/home_page.dart';
+import 'presentation/providers/auth/auth_provider.dart';
+import 'presentation/providers/navigation/navigation_provider.dart';
+import 'presentation/providers/post/post_provider.dart';
+import 'presentation/providers/profile/profile_provider.dart';
+import 'presentation/providers/user/user_provider.dart';
 
 void main() async {
   // Ensure Flutter is initialized
@@ -59,7 +48,16 @@ void main() async {
 
     // Set up Crashlytics (only if Firebase initialized successfully)
     try {
+      // Set up Crashlytics error reporting
       FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+
+      // Set up error handling for async errors
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        // Use our custom error handler to log the error
+        ErrorHandler().handleError(error);
+        return true;
+      };
     } catch (e) {
       log("Error setting up Crashlytics: ${e.toString()}");
     }
@@ -72,6 +70,9 @@ void main() async {
     log("Error initializing Firebase: ${e.toString()}");
     // Continue without Firebase if initialization fails
   }
+
+  // Initialize dependency injection
+  await di.init();
 
   // Run the app regardless of Firebase initialization status
   runApp(Phoenix(child: const MyApp()));
@@ -116,216 +117,77 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // FirebaseCrashlytics.instance.crash();
   }
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        // Auth provider
         ChangeNotifierProvider(
-          create: (context) => LoginScreenProvider(),
+          create: (_) => di.sl<AuthProvider>(),
         ),
+        // Navigation provider
         ChangeNotifierProvider(
-          create: (context) => SignUpScreenProvider(),
+          create: (_) => NavigationProvider(),
         ),
+        // Profile provider
         ChangeNotifierProvider(
-          create: (context) => UsersProvider(),
+          create: (_) => di.sl<ProfileProvider>(),
         ),
+        // Post provider
         ChangeNotifierProvider(
-          create: (context) => MobileScreenProvider(),
+          create: (_) => di.sl<PostProvider>(),
         ),
+        // User provider
         ChangeNotifierProvider(
-          create: (context) => BottomNavigationProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => GoogleButtonProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => PostImageProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => PostCardProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => CommentProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => SearchProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => ProfileScreenProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => UpdateScreenProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => FollowerProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => FollowingProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => ChatSearchProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) => MessageProvider(),
+          create: (_) => di.sl<UserProvider>(),
         ),
       ],
       child: OverlaySupport.global(
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'BSocial',
-          theme: ThemeData.dark(useMaterial3: true)
-              .copyWith(scaffoldBackgroundColor: mobileBackgroundColor),
-          home: const Main(),
+          theme: AppTheme.darkTheme,
+          scaffoldMessengerKey: SnackbarUtils.scaffoldMessengerKey,
+          home: const AuthWrapper(),
         ),
       ),
     );
   }
 }
 
-class Main extends StatelessWidget {
-  const Main({
-    super.key,
-  });
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Handle potential Firebase Auth errors
-    try {
-      return StreamBuilder(
-        // here we use authStateChanges to listen if there any changes in the user authentication
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-          // Handle connection errors
-          if (snapshot.hasError) {
-            log("Auth stream error: ${snapshot.error}");
-            return _buildErrorScreen(
-              context,
-              "Authentication error",
-              "There was a problem connecting to the authentication service.",
-            );
-          }
+    // Initialize the auth provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AuthProvider>(context, listen: false).init();
+    });
 
-          // Handle different connection states
-          switch (snapshot.connectionState) {
-            case ConnectionState.active:
-              // User is authenticated
-              if (snapshot.hasData && snapshot.data != null) {
-                return _buildAuthenticatedScreen(context);
-              }
-              // User is not authenticated
-              return const LoginScreen();
-
-            case ConnectionState.waiting:
-              // Show loading indicator while waiting for auth state
-              return const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                ),
-              );
-
-            default:
-              // Handle other connection states (none, done)
-              return const LoginScreen();
-          }
-        },
-      );
-    } catch (e) {
-      // Catch any errors in the Firebase Auth setup
-      log("Critical error in Firebase Auth: ${e.toString()}");
-      return _buildErrorScreen(
-        context,
-        "Authentication Service Unavailable",
-        "Please check your internet connection and try again later.",
-      );
-    }
-  }
-
-  // Build the authenticated screen with proper error handling
-  Widget _buildAuthenticatedScreen(BuildContext context) {
-    try {
-      // Load user data in a safe way, without blocking the UI
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        try {
-          if (FirebaseAuth.instance.currentUser != null) {
-            Provider.of<ProfileScreenProvider>(context, listen: false)
-                .getData(FirebaseAuth.instance.currentUser!.uid);
-            Provider.of<UpdateScreenProvider>(context, listen: false).getData();
-            Provider.of<UsersProvider>(context, listen: false).refreshUi();
-          }
-        } catch (e) {
-          log("Error loading user data: ${e.toString()}");
-          // Show a snackbar with the error
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Error loading profile data: ${e.toString()}"),
-              duration: const Duration(seconds: 5),
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, _) {
+        // Show loading indicator while checking auth state
+        if (authProvider.status == AuthStatus.initial ||
+            authProvider.status == AuthStatus.loading) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
             ),
           );
         }
-      });
 
-      // Return the main app layout
-      return const ResponsiveLayout(
-        webScreenLayout: WebScreenLayout(),
-        mobileScreenLayout: MobileScreenLayout(),
-      );
-    } catch (e) {
-      log("Error building authenticated screen: ${e.toString()}");
-      return _buildErrorScreen(
-        context,
-        "Error Loading App",
-        "There was a problem loading the application. Please try again.",
-      );
-    }
-  }
+        // Show login page if not authenticated
+        if (authProvider.status == AuthStatus.unauthenticated ||
+            authProvider.status == AuthStatus.error) {
+          return const LoginPage();
+        }
 
-  // Build an error screen with a sign out button
-  Widget _buildErrorScreen(BuildContext context, String title, String message) {
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 70, color: Colors.red[300]),
-              const SizedBox(height: 20),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () {
-                  try {
-                    FirebaseAuth.instance.signOut();
-                  } catch (e) {
-                    log("Error signing out: ${e.toString()}");
-                  }
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const LoginScreen()),
-                  );
-                },
-                child: const Text('Go to Login'),
-              ),
-            ],
-          ),
-        ),
-      ),
+        // Show home page if authenticated
+        return const HomePage();
+      },
     );
   }
 }
