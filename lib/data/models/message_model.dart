@@ -9,6 +9,7 @@ class MessageModel extends Message {
     required super.content,
     required super.timestamp,
     required super.isRead,
+    super.roomId = '',
   });
 
   // Convert model to JSON
@@ -19,6 +20,7 @@ class MessageModel extends Message {
         'content': content,
         'timestamp': timestamp,
         'isRead': isRead,
+        'roomId': roomId,
       };
 
   // Create model from JSON
@@ -30,6 +32,7 @@ class MessageModel extends Message {
       content: json['content'] ?? '',
       timestamp: (json['timestamp'] as Timestamp).toDate(),
       isRead: json['isRead'] ?? false,
+      roomId: json['roomId'] ?? '',
     );
   }
 

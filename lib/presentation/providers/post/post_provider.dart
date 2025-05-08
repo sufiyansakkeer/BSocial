@@ -107,26 +107,45 @@ class PostProvider extends ChangeNotifier {
     );
   }
 
-  // Get all posts
+  // Get all posts with error handling
   Future<void> getAllPosts() async {
-    _status = PostStatus.loading;
-    notifyListeners();
+    try {
+      // Only set loading state if we're not already loading
+      if (_status != PostStatus.loading) {
+        _status = PostStatus.loading;
+        notifyListeners();
+      }
 
-    final result = await _getAllPostsUseCase();
+      final result = await _getAllPostsUseCase();
 
-    result.fold(
-      (failure) {
+      // Use try-catch to handle any unexpected errors in the fold operation
+      try {
+        result.fold(
+          (failure) {
+            _status = PostStatus.error;
+            _errorMessage = failure.message;
+            log('Error getting all posts: ${failure.message}');
+          },
+          (posts) {
+            _posts = posts;
+            _status = PostStatus.loaded;
+          },
+        );
+      } catch (e) {
         _status = PostStatus.error;
-        _errorMessage = failure.message;
-        log('Error getting all posts: ${failure.message}');
-      },
-      (posts) {
-        _posts = posts;
-        _status = PostStatus.loaded;
-      },
-    );
+        _errorMessage = 'Unexpected error: $e';
+        log('Unexpected error in getAllPosts fold: $e');
+      }
 
-    notifyListeners();
+      // Only notify if the widget is still mounted
+      notifyListeners();
+    } catch (e) {
+      // Catch any exceptions that might occur
+      _status = PostStatus.error;
+      _errorMessage = 'Failed to load posts: $e';
+      log('Exception in getAllPosts: $e');
+      notifyListeners();
+    }
   }
 
   // Get posts by user ID

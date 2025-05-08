@@ -4,9 +4,11 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/snackbar_utils.dart';
 import '../../../core/utils/ui_constants.dart';
 import '../../providers/auth/auth_provider.dart';
+import '../../providers/chat/chat_provider.dart';
 import '../../providers/profile/profile_provider.dart';
 import '../../providers/user/user_provider.dart';
 import '../../widgets/common/custom_button.dart';
+import '../chat/chat_detail_page.dart';
 import 'edit_profile_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -201,11 +203,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                         child: CustomButton(
                                           text: 'Message',
                                           onPressed: () {
-                                            // Navigate to message screen
-                                            SnackbarUtils.showSnackBar(
-                                              'Messaging feature coming soon',
-                                              context,
-                                            );
+                                            // Navigate to chat with this user
+                                            _startChat(context, user.uid);
                                           },
                                           backgroundColor: Colors.grey[800],
                                           borderRadius:
@@ -358,6 +357,50 @@ class _ProfilePageState extends State<ProfilePage> {
           },
         );
       },
+    );
+  }
+
+  Future<void> _startChat(BuildContext context, String otherUserId) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+    final profileProvider =
+        Provider.of<ProfileProvider>(context, listen: false);
+
+    if (authProvider.currentUser == null) {
+      SnackbarUtils.showSnackBar(
+        'You must be logged in to send messages',
+        context,
+        type: SnackBarType.error,
+      );
+      return;
+    }
+
+    final currentUserId = authProvider.currentUser!.uid;
+
+    // Create or get a chat room with these two participants
+    final participants = [currentUserId, otherUserId];
+    final chatRoom = await chatProvider.createOrGetChatRoom(participants);
+
+    if (!mounted) return;
+
+    if (chatRoom == null) {
+      SnackbarUtils.showSnackBar(
+        'Failed to create chat room: ${chatProvider.errorMessage}',
+        context,
+        type: SnackBarType.error,
+      );
+      return;
+    }
+
+    // Navigate to the chat detail page
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatDetailPage(
+          chatRoom: chatRoom,
+          otherUser: profileProvider.user,
+        ),
+      ),
     );
   }
 }

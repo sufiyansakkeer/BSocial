@@ -6,14 +6,18 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 import '../core/network/network_info.dart';
+import '../data/datasources/local/hive_local_data_source.dart';
 import '../data/datasources/local/storage_local_data_source.dart';
 import '../data/datasources/remote/auth_remote_data_source.dart';
+import '../data/datasources/remote/chat_remote_data_source.dart';
 import '../data/datasources/remote/post_remote_data_source.dart';
 import '../data/datasources/remote/user_remote_data_source.dart';
 import '../data/repositories/auth_repository_impl.dart';
-import '../data/repositories/post_repository_impl.dart';
+import '../data/repositories/cached_chat_repository_impl.dart';
+import '../data/repositories/cached_post_repository_impl.dart';
 import '../data/repositories/user_repository_impl.dart';
 import '../domain/repositories/auth_repository.dart';
+import '../domain/repositories/chat_repository.dart';
 import '../domain/repositories/post_repository.dart';
 import '../domain/repositories/user_repository.dart';
 import '../domain/usecases/auth/get_current_user.dart';
@@ -38,7 +42,14 @@ import '../domain/usecases/user/get_user_by_id.dart';
 import '../domain/usecases/user/search_users.dart';
 import '../domain/usecases/user/unfollow_user.dart';
 import '../domain/usecases/user/update_user_profile.dart';
+import '../domain/usecases/chat/create_chat_room.dart';
+import '../domain/usecases/chat/get_chat_room_by_participants.dart';
+import '../domain/usecases/chat/get_chat_rooms.dart';
+import '../domain/usecases/chat/get_messages.dart';
+import '../domain/usecases/chat/mark_messages_as_read.dart';
+import '../domain/usecases/chat/send_message.dart';
 import '../presentation/providers/auth/auth_provider.dart';
+import '../presentation/providers/chat/chat_provider.dart';
 import '../presentation/providers/post/post_provider.dart';
 import '../presentation/providers/profile/profile_provider.dart';
 import '../presentation/providers/user/user_provider.dart';
@@ -86,6 +97,16 @@ Future<void> init() async {
         updateUserProfileUseCase: sl(),
       ));
 
+  sl.registerFactory<ChatProvider>(() => ChatProvider(
+        createChatRoomUseCase: sl(),
+        getChatRoomsUseCase: sl(),
+        getMessagesUseCase: sl(),
+        sendMessageUseCase: sl(),
+        markMessagesAsReadUseCase: sl(),
+        getChatRoomByParticipantsUseCase: sl(),
+        getUserByIdUseCase: sl(),
+      ));
+
   // Auth Use Cases
   sl.registerLazySingleton(() => SignUpUserUseCase(sl()));
   sl.registerLazySingleton(() => LoginUserUseCase(sl()));
@@ -114,6 +135,14 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetCommentsUseCase(sl()));
   sl.registerLazySingleton(() => DeleteCommentUseCase(sl()));
 
+  // Chat Use Cases
+  sl.registerLazySingleton(() => CreateChatRoomUseCase(sl()));
+  sl.registerLazySingleton(() => GetChatRoomsUseCase(sl()));
+  sl.registerLazySingleton(() => GetMessagesUseCase(sl()));
+  sl.registerLazySingleton(() => SendMessageUseCase(sl()));
+  sl.registerLazySingleton(() => MarkMessagesAsReadUseCase(sl()));
+  sl.registerLazySingleton(() => GetChatRoomByParticipantsUseCase(sl()));
+
   // Repositories
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
@@ -130,9 +159,20 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton<PostRepository>(
-    () => PostRepositoryImpl(
+    () => CachedPostRepositoryImpl(
       remoteDataSource: sl(),
+      localDataSource: sl(),
       networkInfo: sl(),
+      cacheMaxAge: const Duration(hours: 24),
+    ),
+  );
+
+  sl.registerLazySingleton<ChatRepository>(
+    () => CachedChatRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+      networkInfo: sl(),
+      cacheMaxAge: const Duration(hours: 24),
     ),
   );
 
@@ -163,6 +203,16 @@ Future<void> init() async {
   sl.registerLazySingleton<StorageLocalDataSource>(
     () => StorageLocalDataSourceImpl(
       storage: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<HiveLocalDataSource>(
+    () => HiveLocalDataSourceImpl(),
+  );
+
+  sl.registerLazySingleton<ChatRemoteDataSource>(
+    () => ChatRemoteDataSourceImpl(
+      firestore: sl(),
     ),
   );
 

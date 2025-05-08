@@ -63,8 +63,12 @@ class _SignupPageState extends State<SignupPage> {
                                 )
                               : const CircleAvatar(
                                   radius: 64,
-                                  backgroundImage:
-                                      AssetImage('assets/default_profile.png'),
+                                  backgroundColor: Colors.grey,
+                                  child: Icon(
+                                    Icons.person,
+                                    size: 64,
+                                    color: Colors.white,
+                                  ),
                                 ),
                           Positioned(
                             bottom: 0,

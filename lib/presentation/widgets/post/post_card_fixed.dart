@@ -168,7 +168,7 @@ class _PostCardState extends State<PostCard>
                     ),
                   ),
                 ),
-
+                
                 // Like animation overlay
                 AnimatedBuilder(
                   animation: _likeAnimation,
@@ -304,7 +304,6 @@ class _PostCardState extends State<PostCard>
     final postProvider = Provider.of<PostProvider>(context, listen: false);
     postProvider.setSelectedPost(widget.post);
 
-    // Navigate to comments screen
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => CommentsPage(postId: widget.post.postId),

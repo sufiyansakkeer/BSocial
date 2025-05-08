@@ -7,12 +7,12 @@ class ImageUtils {
   static Future<dynamic> pickImage(ImageSource imageSource) async {
     final ImagePicker imagePicker = ImagePicker();
     final XFile? file = await imagePicker.pickImage(source: imageSource);
-    
+
     if (file != null) {
       // Return file as Uint8List to be compatible with web
       return file.readAsBytes();
     }
-    
+
     log('No image was picked');
     return null;
   }
