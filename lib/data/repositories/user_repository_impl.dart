@@ -23,7 +23,7 @@ class UserRepositoryImpl implements UserRepository {
         return Right(users);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -39,7 +39,7 @@ class UserRepositoryImpl implements UserRepository {
         return Right(followers);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -55,7 +55,7 @@ class UserRepositoryImpl implements UserRepository {
         return Right(following);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -71,7 +71,7 @@ class UserRepositoryImpl implements UserRepository {
         return Right(user);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -87,7 +87,7 @@ class UserRepositoryImpl implements UserRepository {
         return Right(users);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -113,7 +113,7 @@ class UserRepositoryImpl implements UserRepository {
         return Right(user);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -129,7 +129,7 @@ class UserRepositoryImpl implements UserRepository {
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {

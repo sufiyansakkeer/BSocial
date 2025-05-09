@@ -62,7 +62,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
       final postUrl = await _storageDataSource.uploadImage(
         AppConstants.postsPath,
         file,
-        true,
+        isPost: true,
       );
 
       // Generate a unique post ID

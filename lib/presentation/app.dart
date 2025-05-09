@@ -6,11 +6,12 @@ import 'package:overlay_support/overlay_support.dart';
 
 import '../core/theme/app_theme.dart';
 import 'blocs/auth/auth_bloc.dart';
+import 'widgets/auth/auth_wrapper.dart';
 
 /// Main app widget
-class MyApp extends StatelessWidget {
+class App extends StatelessWidget {
   /// Constructor
-  const MyApp({
+  const App({
     required this.router,
     super.key,
   });
@@ -35,6 +36,9 @@ class MyApp extends StatelessWidget {
             supportedLocales: const [
               Locale('en', ''), // English
             ],
+            // Wrap the app content with AuthWrapper
+            builder: (context, child) =>
+                AuthWrapper(child: child ?? const SizedBox.shrink()),
           ),
         ),
       );

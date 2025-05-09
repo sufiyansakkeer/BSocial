@@ -26,9 +26,9 @@ class LoggerService {
     if (appConfig.isDebugMode) {
       _logger = Logger(
         printer: PrettyPrinter(
-          printTime: true,
+          dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
         ),
-        level: Level.verbose,
+        level: Level.trace,
       );
     } else {
       _logger = Logger(
@@ -38,7 +38,7 @@ class LoggerService {
           lineLength: 80,
           colors: false,
           printEmojis: false,
-          printTime: true,
+          dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
         ),
         level: appConfig.isProduction ? Level.warning : Level.info,
       );
@@ -48,7 +48,7 @@ class LoggerService {
   /// Log a verbose message
   void v(String message, [dynamic error, StackTrace? stackTrace]) {
     if (kDebugMode) {
-      _logger.v(message, error: error, stackTrace: stackTrace);
+      _logger.t(message, error: error, stackTrace: stackTrace);
     }
   }
 

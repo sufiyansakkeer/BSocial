@@ -1,19 +1,28 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import '../services/logger_service.dart';
 
 /// Utility class for handling notifications
 class NotificationUtils {
-  static final _logger = LoggerService();
-  static final FlutterLocalNotificationsPlugin _localNotifications =
+  // Factory constructor
+  factory NotificationUtils() => _instance;
+
+  // Private constructor
+  NotificationUtils._internal();
+  final _logger = LoggerService();
+  final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
-  static bool _initialized = false;
+  bool _initialized = false;
+
+  // Singleton instance
+  static final NotificationUtils _instance = NotificationUtils._internal();
 
   /// Initialize local notifications
-  static Future<void> initializeLocalNotifications() async {
-    if (_initialized) return;
+  Future<void> initializeLocalNotifications() async {
+    if (_initialized) {
+      return;
+    }
 
     try {
       // Android initialization settings
@@ -37,19 +46,19 @@ class NotificationUtils {
 
       _initialized = true;
       _logger.i('Local notifications initialized');
-    } catch (e) {
+    } on Exception catch (e) {
       _logger.e('Error initializing local notifications', e);
     }
   }
 
   /// Handle notification tap
-  static void _onNotificationTapped(NotificationResponse response) {
+  void _onNotificationTapped(NotificationResponse response) {
     _logger.i('Notification tapped: ${response.payload}');
     // TODO: Handle notification tap
   }
 
   /// Show a local notification from a Firebase message
-  static void showLocalNotification(RemoteMessage message) {
+  void showLocalNotification(RemoteMessage message) {
     try {
       if (!_initialized) {
         _logger.w('Local notifications not initialized');
@@ -94,7 +103,7 @@ class NotificationUtils {
       );
 
       _logger.i('Local notification shown: ${notification.title}');
-    } catch (e) {
+    } on Exception catch (e) {
       _logger.e('Error showing local notification', e);
     }
   }

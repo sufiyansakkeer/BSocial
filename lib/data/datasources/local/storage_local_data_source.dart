@@ -5,7 +5,8 @@ import 'package:uuid/uuid.dart';
 import '../../../core/errors/exceptions.dart';
 
 abstract class StorageLocalDataSource {
-  Future<String> uploadImage(String path, Uint8List file, bool isPost);
+  Future<String> uploadImage(String path, Uint8List file,
+      {required bool isPost});
   Future<void> deleteImage(String url);
 }
 
@@ -26,7 +27,8 @@ class StorageLocalDataSourceImpl implements StorageLocalDataSource {
   }
 
   @override
-  Future<String> uploadImage(String path, Uint8List file, bool isPost) async {
+  Future<String> uploadImage(String path, Uint8List file,
+      {required bool isPost}) async {
     try {
       // Create a unique file name
       final fileName = isPost ? 'post_${const Uuid().v1()}' : const Uuid().v1();

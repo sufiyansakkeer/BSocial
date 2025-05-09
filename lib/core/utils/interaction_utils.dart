@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'ui_constants.dart';
 
-/// Utility class for micro-interactions throughout the app
-class InteractionUtils {
-  /// Apply a ripple effect to any widget
-  static Widget addRipple({
-    required Widget child,
+/// Extension methods for widget interactions
+extension InteractionExtensions on Widget {
+  /// Apply a ripple effect to this widget
+  Widget withRipple({
     required VoidCallback onTap,
     BorderRadius? borderRadius,
     Color? splashColor,
@@ -27,13 +26,12 @@ class InteractionUtils {
           splashColor: splashColor,
           highlightColor: highlightColor,
           enableFeedback: enableFeedback,
-          child: child,
+          child: this,
         ),
       );
 
-  /// Add a bounce effect to any widget
-  static Widget addBounce({
-    required Widget child,
+  /// Add a bounce effect to this widget
+  Widget withBounce({
     required VoidCallback onTap,
     Duration duration = const Duration(milliseconds: 150),
     double scale = 0.95,
@@ -44,12 +42,11 @@ class InteractionUtils {
         duration: duration,
         scale: scale,
         enableHaptics: enableHaptics,
-        child: child,
+        child: this,
       );
 
-  /// Add a pulse effect to any widget
-  static Widget addPulse({
-    required Widget child,
+  /// Add a pulse effect to this widget
+  Widget withPulse({
     Duration duration = const Duration(milliseconds: 1500),
     double minScale = 0.97,
     double maxScale = 1.03,
@@ -58,8 +55,16 @@ class InteractionUtils {
         duration: duration,
         minScale: minScale,
         maxScale: maxScale,
-        child: child,
+        child: this,
       );
+}
+
+/// Toast utility for showing toast messages
+class ToastUtils {
+  ToastUtils._(); // Private constructor to prevent instantiation
+
+  /// Overlay entry for toast
+  static OverlayEntry? _overlayEntry;
 
   /// Show a custom toast message
   static void showToast(
@@ -95,9 +100,6 @@ class InteractionUtils {
     _overlayEntry?.remove();
     _overlayEntry = null;
   }
-
-  /// Overlay entry for toast
-  static OverlayEntry? _overlayEntry;
 }
 
 /// Toast type enum
@@ -189,7 +191,6 @@ class _ToastOverlayState extends State<ToastOverlay>
         iconData = widget.icon ?? Icons.error;
         break;
       case ToastType.info:
-      default:
         backgroundColor = Theme.of(context).colorScheme.primary;
         iconColor = Colors.white;
         iconData = widget.icon ?? Icons.info;

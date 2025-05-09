@@ -7,7 +7,10 @@ import '../../data/models/hive/message_hive_model.dart';
 import '../../data/models/hive/post_hive_model.dart';
 import '../../data/models/hive/user_hive_model.dart';
 
+/// Utility for Hive database operations
 class HiveService {
+  HiveService._(); // Private constructor to prevent instantiation
+
   static bool _isInitialized = false;
 
   /// Initialize Hive and register adapters
@@ -23,11 +26,12 @@ class HiveService {
       await Hive.initFlutter(appDocumentDir.path);
 
       // Register adapters
-      Hive.registerAdapter(UserHiveModelAdapter());
-      Hive.registerAdapter(PostHiveModelAdapter());
-      Hive.registerAdapter(CommentHiveModelAdapter());
-      Hive.registerAdapter(ChatRoomHiveModelAdapter());
-      Hive.registerAdapter(MessageHiveModelAdapter());
+      Hive
+        ..registerAdapter(UserHiveModelAdapter())
+        ..registerAdapter(PostHiveModelAdapter())
+        ..registerAdapter(CommentHiveModelAdapter())
+        ..registerAdapter(ChatRoomHiveModelAdapter())
+        ..registerAdapter(MessageHiveModelAdapter());
 
       _isInitialized = true;
       log('Hive initialized successfully');

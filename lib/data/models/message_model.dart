@@ -12,6 +12,12 @@ class MessageModel extends Message {
     super.roomId = '',
   });
 
+  // Create model from Firestore snapshot
+  factory MessageModel.fromSnapshot(DocumentSnapshot snapshot) {
+    final data = snapshot.data() as Map<String, dynamic>;
+    return MessageModel.fromJson(data);
+  }
+
   // Create model from JSON
   factory MessageModel.fromJson(Map<String, dynamic> json) => MessageModel(
         messageId: json['messageId'] ?? '',
@@ -33,10 +39,4 @@ class MessageModel extends Message {
         'isRead': isRead,
         'roomId': roomId,
       };
-
-  // Create model from Firestore snapshot
-  static MessageModel fromSnapshot(DocumentSnapshot snapshot) {
-    final data = snapshot.data() as Map<String, dynamic>;
-    return MessageModel.fromJson(data);
-  }
 }

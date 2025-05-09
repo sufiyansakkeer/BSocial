@@ -4,11 +4,21 @@ import 'ui_constants.dart';
 
 /// Enhanced snackbar utility functions with animations and micro-interactions
 class SnackbarUtils {
-  static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+  // Factory constructor
+  factory SnackbarUtils() => _instance;
+
+  // Private constructor
+  SnackbarUtils._internal();
+
+  // Singleton instance
+  static final SnackbarUtils _instance = SnackbarUtils._internal();
+
+  // Global key for accessing ScaffoldMessenger from anywhere
+  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
 
   /// Show an animated snackbar with the given content
-  static void showSnackBar(
+  void showSnackBar(
     String content,
     BuildContext context, {
     SnackBarType type = SnackBarType.info,
@@ -76,8 +86,9 @@ class SnackbarUtils {
     );
   }
 
-  /// Show a snackbar with the global key (can be used outside of a build context)
-  static void showGlobalSnackBar(
+  /// Show a snackbar with the global key
+  /// (can be used outside of a build context)
+  void showGlobalSnackBar(
     String content, {
     SnackBarType type = SnackBarType.info,
     Duration duration = const Duration(seconds: 3),
@@ -110,7 +121,7 @@ class SnackbarUtils {
   }
 
   /// Create a custom animation for the snackbar
-  static Animation<double> _createSnackBarAnimation(BuildContext context) {
+  Animation<double> _createSnackBarAnimation(BuildContext context) {
     // Create a dummy controller for the animation
     // Note: This is just to create the animation curve, the actual animation
     // will be controlled by the SnackBar widget
@@ -135,8 +146,7 @@ class SnackbarUtils {
   }
 
   /// Get the style for the snackbar based on type
-  static (Color, IconData) _getSnackBarStyle(
-      SnackBarType type, BuildContext context) {
+  (Color, IconData) _getSnackBarStyle(SnackBarType type, BuildContext context) {
     final theme = Theme.of(context);
 
     switch (type) {

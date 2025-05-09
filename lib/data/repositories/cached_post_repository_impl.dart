@@ -9,7 +9,8 @@ import '../../domain/repositories/post_repository.dart';
 import '../datasources/local/hive_local_data_source.dart';
 import '../datasources/remote/post_remote_data_source.dart';
 
-/// Implementation of [PostRepository] that uses both remote and local data sources
+/// Implementation of [PostRepository] that uses both remote and local data
+/// sources
 /// with offline caching support
 class CachedPostRepositoryImpl extends BaseRepository
     implements PostRepository {

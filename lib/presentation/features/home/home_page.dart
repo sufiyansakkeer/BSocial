@@ -1,3 +1,6 @@
+import 'package:bsocial/presentation/features/post/add_post_page.dart';
+import 'package:bsocial/presentation/features/profile/profile_page.dart';
+import 'package:bsocial/presentation/features/search/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -25,27 +28,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('BSocial'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.message),
-              onPressed: () => context.go('/chats'),
-            ),
-            IconButton(
-              icon: const Icon(Icons.notifications),
-              onPressed: () {
-                // TODO: Implement notifications
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () {
-                context.read<AuthBloc>().add(SignOutEvent());
-              },
-            ),
-          ],
-        ),
+        appBar: _buildAppBar(), // Call the new method
         body: _buildBody(),
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,
@@ -57,20 +40,13 @@ class _HomePageState extends State<HomePage> {
             // Navigate based on the selected tab
             switch (index) {
               case 1: // Search
-                context.go('/search');
+                // No navigation needed here, _buildBody handles it.
                 break;
               case 2: // Add Post
-                context.go('/post/add');
+                // No navigation needed here, _buildBody handles it.
                 break;
               case 4: // Profile
-                // Get the current user ID from the AuthBloc
-                final authState = context.read<AuthBloc>().state;
-                if (authState is Authenticated) {
-                  context
-                      .go('/profile/${authState.user.uid}?isCurrentUser=true');
-                } else {
-                  context.go('/profile/current?isCurrentUser=true');
-                }
+                // No navigation needed here, _buildBody handles it.
                 break;
             }
           },
@@ -104,19 +80,79 @@ class _HomePageState extends State<HomePage> {
         ),
       );
 
+  PreferredSizeWidget? _buildAppBar() {
+    switch (_currentIndex) {
+      case 0: // Home
+        return AppBar(
+          title: const Text('BSocial'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.message),
+              onPressed: () => context.go('/chats'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.notifications),
+              onPressed: () {
+                // TODO: Implement notifications
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () {
+                context.read<AuthBloc>().add(const SignOutEvent());
+              },
+            ),
+          ],
+        );
+      case 1: // Search
+        return AppBar(
+          title: const Text('Search'),
+        );
+      case 2: // Add Post
+        return AppBar(
+          title: const Text('Add Post'),
+          // Example: Add a post button if needed, or handle in AddPostPage itself
+          // actions: [
+          //   IconButton(
+          //     icon: const Icon(Icons.send),
+          //     onPressed: () {
+          //       // Logic to submit post
+          //     },
+          //   ),
+          // ],
+        );
+      case 3: // Activity
+        return AppBar(
+          title: const Text('Activity'),
+        );
+      case 4: // Profile
+        // ProfilePage has its own AppBar, so HomePage doesn't need to show one.
+        return null;
+      default:
+        return AppBar(title: const Text('BSocial'));
+    }
+  }
+
   Widget _buildBody() {
     // Return different screens based on the selected navigation index
     switch (_currentIndex) {
       case 0:
         return _buildFeedScreen();
       case 1:
-        return const Center(child: Text('Search Screen'));
+        return const SearchPage();
       case 2:
-        return const Center(child: Text('Add Post Screen'));
+        return const AddPostPage();
       case 3:
         return const Center(child: Text('Activity Screen'));
       case 4:
-        return const Center(child: Text('Profile Screen'));
+        // Display ProfilePage directly in the body
+        final authState = context.read<AuthBloc>().state;
+        if (authState is Authenticated) {
+          return ProfilePage(userId: authState.user.uid, isCurrentUser: true);
+        }
+        // AuthWrapper should prevent unauthenticated access to HomePage.
+        // If somehow reached, show a placeholder or error.
+        return const Center(child: Text('Please log in to see your profile.'));
       default:
         return _buildFeedScreen();
     }
@@ -143,7 +179,7 @@ class _HomePageState extends State<HomePage> {
                 itemCount: state.posts.length,
                 itemBuilder: (context, index) {
                   final post = state.posts[index];
-                  return PostCard(post: post);
+                  return PostCardBloc(post: post);
                 },
               ),
             );

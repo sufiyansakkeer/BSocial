@@ -13,6 +13,12 @@ class PostModel extends Post {
     required super.likes,
   });
 
+  // Create model from Firestore snapshot
+  factory PostModel.fromSnapshot(DocumentSnapshot snapshot) {
+    final data = snapshot.data() as Map<String, dynamic>;
+    return PostModel.fromJson(data);
+  }
+
   // Create model from JSON
   factory PostModel.fromJson(Map<String, dynamic> json) => PostModel(
         postId: json['postId'] ?? '',
@@ -36,12 +42,6 @@ class PostModel extends Post {
         'datePublished': datePublished,
         'likes': likes,
       };
-
-  // Create model from Firestore snapshot
-  static PostModel fromSnapshot(DocumentSnapshot snapshot) {
-    final data = snapshot.data() as Map<String, dynamic>;
-    return PostModel.fromJson(data);
-  }
 
   // Helper method to convert dynamic list to List<String>
   static List<String> _convertToStringList(List<dynamic> list) =>

@@ -208,8 +208,9 @@ class _SwipeableItemState extends State<SwipeableItem>
       ),
     );
 
-    _controller.reset();
-    _controller.forward();
+    _controller
+      ..reset()
+      ..forward();
     _dragExtent = 0.0;
   }
 

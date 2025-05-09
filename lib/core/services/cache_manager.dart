@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import '../../data/datasources/local/hive_local_data_source.dart';
-import '../../di/injection_container.dart' as di;
 
 class CacheManager {
   factory CacheManager() => _instance;
@@ -13,10 +12,13 @@ class CacheManager {
 
   /// Initialize the cache manager
   Future<void> init() async {
-    if (_isInitialized) return;
+    if (_isInitialized) {
+      return;
+    }
 
     try {
-      _localDataSource = di.sl<HiveLocalDataSource>();
+      // Create a new instance directly instead of using GetIt
+      _localDataSource = HiveLocalDataSourceImpl();
       _isInitialized = true;
       log('CacheManager initialized successfully');
     } catch (e) {
@@ -36,7 +38,7 @@ class CacheManager {
     try {
       await _localDataSource.clearExpiredCache(maxAge);
       log('Expired cache cleared successfully');
-    } catch (e) {
+    } on Exception catch (e) {
       log('Error clearing expired cache: $e');
       // Don't rethrow, just log the error
     }
@@ -51,7 +53,7 @@ class CacheManager {
     try {
       await _localDataSource.clearCache();
       log('All cache cleared successfully');
-    } catch (e) {
+    } on Exception catch (e) {
       log('Error clearing all cache: $e');
       // Don't rethrow, just log the error
     }

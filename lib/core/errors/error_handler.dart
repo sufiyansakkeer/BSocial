@@ -3,13 +3,15 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'failures.dart';
 
+/// Handles errors and exceptions throughout the application
+/// Provides user-friendly error messages and logs errors appropriately
 class ErrorHandler {
   factory ErrorHandler() => _instance;
   ErrorHandler._internal();
   // Singleton instance
   static final ErrorHandler _instance = ErrorHandler._internal();
 
-  // Handle any error and return a user-friendly message
+  /// Handle any error and return a user-friendly message
   String handleError(dynamic error,
       {String fallbackMessage = 'An unexpected error occurred'}) {
     // Log the error
@@ -22,7 +24,7 @@ class ErrorHandler {
 
     // Handle different error types
     if (error is Failure) {
-      return error.message;
+      return _handleFailure(error);
     } else if (error is Exception) {
       return _handleException(error);
     } else {
@@ -30,7 +32,7 @@ class ErrorHandler {
     }
   }
 
-  // Handle different types of exceptions
+  /// Handle different types of exceptions
   String _handleException(Exception exception) {
     final exceptionString = exception.toString();
 
@@ -41,14 +43,16 @@ class ErrorHandler {
       } else if (exceptionString.contains('wrong-password')) {
         return 'Incorrect password. Please try again.';
       } else if (exceptionString.contains('email-already-in-use')) {
-        return 'Email is already in use. Please use a different email or try logging in.';
+        return 'Email is already in use. Please use a different email or '
+            'try logging in.';
       } else if (exceptionString.contains('weak-password')) {
         return 'Password is too weak. Please use a stronger password.';
       } else if (exceptionString.contains('invalid-email')) {
         return 'Invalid email format. Please enter a valid email address.';
       } else if (exceptionString
           .contains('account-exists-with-different-credential')) {
-        return 'An account already exists with a different sign-in method. Please try another method.';
+        return 'An account already exists with a different sign-in method. '
+            'Please try another method.';
       } else if (exceptionString.contains('operation-not-allowed')) {
         return 'This operation is not allowed. Please contact support.';
       } else if (exceptionString.contains('too-many-requests')) {
@@ -59,7 +63,8 @@ class ErrorHandler {
     // Network exceptions
     if (exceptionString.contains('SocketException') ||
         exceptionString.contains('ConnectionRefused')) {
-      return 'Network error. Please check your internet connection and try again.';
+      return 'Network error. Please check your internet connection and '
+          'try again.';
     }
 
     // Timeout exceptions
@@ -76,8 +81,8 @@ class ErrorHandler {
     return 'An error occurred: ${exception.toString()}';
   }
 
-  // Handle specific failure types
-  String handleFailure(Failure failure) {
+  /// Handle specific failure types
+  String _handleFailure(Failure failure) {
     if (failure is ServerFailure) {
       return 'Server error: ${failure.message}';
     } else if (failure is AuthFailure) {
@@ -92,4 +97,8 @@ class ErrorHandler {
       return 'Error: ${failure.message}';
     }
   }
+
+  /// Public method to handle failures directly
+  /// This is kept for backward compatibility
+  String handleFailure(Failure failure) => _handleFailure(failure);
 }

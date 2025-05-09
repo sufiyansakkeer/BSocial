@@ -26,7 +26,7 @@ void main() {
     );
 
     // Build our app and trigger a frame
-    await tester.pumpWidget(MyApp(router: router));
+    await tester.pumpWidget(App(router: router));
 
     // Verify the app renders without errors
     expect(find.byType(MaterialApp), findsOneWidget);

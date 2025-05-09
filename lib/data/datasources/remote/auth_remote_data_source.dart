@@ -1,8 +1,10 @@
 import 'dart:developer';
 import 'dart:typed_data';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
+
 import '../../../core/constants/app_constants.dart';
 import '../../../core/errors/exceptions.dart';
 import '../../models/user_model.dart';
@@ -66,6 +68,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
 
       return UserModel.fromSnapshot(userDoc);
+    } on FirebaseException catch (e) {
+      log('Firebase error getting current user: $e');
+      throw AuthException(
+          message: 'Failed to get current user: ${e.toString()}');
     } catch (e) {
       log('Error getting current user: $e');
       throw AuthException(
@@ -190,18 +196,44 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<void> signOutUser() async {
+    // Log the sign-out attempt
+    log('Attempting to sign out user...');
+
     try {
       // Update user status to offline
       if (_auth.currentUser != null) {
-        await _firestore
+        // Check if user document exists before updating
+        final userDoc = await _firestore
             .collection(AppConstants.usersCollection)
             .doc(_auth.currentUser!.uid)
-            .update({'status': 'offline'});
+            .get();
+
+        if (userDoc.exists) {
+          await _firestore
+              .collection(AppConstants.usersCollection)
+              .doc(_auth.currentUser!.uid)
+              .update({'status': 'offline'});
+
+          log('User status updated to offline in Firestore.');
+        } else {
+          log('User document not found in Firestore. Skipping status update.');
+        }
+      } else {
+        log('No user currently signed in. Skipping Firestore status update.');
       }
 
+      // Sign out from Google Sign-In
       await _googleSignIn.signOut();
+      log('Signed out from Google Sign-In (if applicable).');
+
+      // Sign out from Firebase Authentication
       await _auth.signOut();
+      log('Signed out from Firebase Authentication.');
+
+      // Log successful sign-out
+      log('User signed out successfully.');
     } catch (e) {
+      // Log the error with details
       log('Sign out error: $e');
       throw AuthException(message: 'Failed to sign out: ${e.toString()}');
     }
@@ -245,7 +277,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final photoUrl = await _storageDataSource.uploadImage(
         AppConstants.profilePicsPath,
         file,
-        false,
+        isPost: false,
       );
 
       // Create user model

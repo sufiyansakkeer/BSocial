@@ -35,15 +35,15 @@ class CustomScrollBehavior extends ScrollBehavior {
     BuildContext context,
     Widget child,
     ScrollableDetails details,
-  ) {
-    // Use GlowingOverscrollIndicator on all platforms for consistent experience
-    return GlowingOverscrollIndicator(
-      axisDirection: details.direction,
-      color:
-          Theme.of(context).colorScheme.primary.withAlpha(76), // 0.3 * 255 = 76
-      child: child,
-    );
-  }
+  ) =>
+      GlowingOverscrollIndicator(
+        axisDirection: details.direction,
+        color: Theme.of(context)
+            .colorScheme
+            .primary
+            .withAlpha(76), // 0.3 * 255 = 76
+        child: child,
+      );
 }
 
 /// Scroll to top button widget with animation

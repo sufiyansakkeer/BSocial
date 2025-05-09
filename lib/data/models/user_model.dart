@@ -12,6 +12,12 @@ class UserModel extends User {
     super.status = 'offline',
   });
 
+  // Create model from Firestore snapshot
+  factory UserModel.fromSnapshot(DocumentSnapshot snapshot) {
+    final data = snapshot.data() as Map<String, dynamic>;
+    return UserModel.fromJson(data);
+  }
+
   // Create model from JSON
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
         userName: json['username'] ?? '',
@@ -33,12 +39,6 @@ class UserModel extends User {
         'photoUrl': photoUrl,
         'status': status,
       };
-
-  // Create model from Firestore snapshot
-  static UserModel fromSnapshot(DocumentSnapshot snapshot) {
-    final data = snapshot.data() as Map<String, dynamic>;
-    return UserModel.fromJson(data);
-  }
 
   // Helper method to convert dynamic list to List<String>
   static List<String> _convertToStringList(List<dynamic> list) =>

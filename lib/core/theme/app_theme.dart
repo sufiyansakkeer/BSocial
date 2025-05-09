@@ -3,6 +3,9 @@ import 'app_colors.dart';
 
 // Modern app theme configuration with Material 3
 class AppTheme {
+  // Private constructor to prevent instantiation
+  AppTheme._();
+
   // Common theme settings
   static ThemeData _baseTheme(ThemeData base) => base.copyWith(
         // Use Material 3 typography

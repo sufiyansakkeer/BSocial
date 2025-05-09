@@ -57,7 +57,16 @@ class SignUpEvent extends AuthEvent {
 }
 
 /// Event to sign out
-class SignOutEvent extends AuthEvent {}
+class SignOutEvent extends AuthEvent {
+  /// Constructor
+  const SignOutEvent({this.isUserInitiated = true});
+
+  /// Flag to indicate if the event is initiated by the user
+  final bool isUserInitiated;
+
+  @override
+  List<Object> get props => [isUserInitiated];
+}
 
 /// Event to sign in with Google
 class GoogleSignInEvent extends AuthEvent {}

@@ -19,16 +19,12 @@ class MockPostRemoteDataSource implements PostRemoteDataSource {
   }
 
   @override
-  Future<List<PostModel>> getAllPosts() async {
-    // Return an empty list in offline mode
-    return [];
-  }
+  Future<List<PostModel>> getAllPosts() async =>
+      []; // Return an empty list in offline mode
 
   @override
-  Future<List<PostModel>> getPostsByUserId(String userId) async {
-    // Return an empty list in offline mode
-    return [];
-  }
+  Future<List<PostModel>> getPostsByUserId(String userId) async =>
+      []; // Return an empty list in offline mode
 
   @override
   Future<void> deletePost(String postId) async {
@@ -61,10 +57,8 @@ class MockPostRemoteDataSource implements PostRemoteDataSource {
   }
 
   @override
-  Future<List<CommentModel>> getComments(String postId) async {
-    // Return an empty list in offline mode
-    return [];
-  }
+  Future<List<CommentModel>> getComments(String postId) async =>
+      []; // Return an empty list in offline mode
 
   @override
   Future<void> deleteComment(String commentId, String postId) async {

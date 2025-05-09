@@ -11,9 +11,9 @@ import '../../blocs/auth/auth_bloc.dart';
 import '../../blocs/post/post_bloc.dart';
 
 /// A card widget that displays a post
-class PostCard extends StatefulWidget {
+class PostCardBloc extends StatefulWidget {
   /// Constructor
-  const PostCard({
+  const PostCardBloc({
     required this.post,
     super.key,
   });
@@ -22,10 +22,10 @@ class PostCard extends StatefulWidget {
   final Post post;
 
   @override
-  State<PostCard> createState() => _PostCardState();
+  State<PostCardBloc> createState() => _PostCardBlocState();
 }
 
-class _PostCardState extends State<PostCard>
+class _PostCardBlocState extends State<PostCardBloc>
     with SingleTickerProviderStateMixin {
   late AnimationController _likeAnimationController;
   late Animation<double> _likeAnimation;

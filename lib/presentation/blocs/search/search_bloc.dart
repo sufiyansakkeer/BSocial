@@ -27,7 +27,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       // TODO: Implement actual search functionality
       // This is just a placeholder for demonstration
       await Future.delayed(const Duration(seconds: 1));
-      
+
       final users = List.generate(
         5,
         (index) => User(
@@ -40,9 +40,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           status: 'online',
         ),
       );
-      
+
       emit(SearchSuccess(users: users));
-    } catch (e) {
+    } on Exception catch (e) {
       emit(SearchFailure(message: e.toString()));
     }
   }

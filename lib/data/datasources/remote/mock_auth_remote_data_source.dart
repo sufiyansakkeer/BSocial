@@ -1,7 +1,8 @@
 import 'dart:typed_data';
+
+import 'package:bsocial/core/errors/exceptions.dart';
 import 'package:bsocial/data/datasources/remote/auth_remote_data_source.dart';
 import 'package:bsocial/data/models/user_model.dart';
-import 'package:bsocial/core/errors/exceptions.dart';
 
 /// Mock implementation of [AuthRemoteDataSource] for offline mode
 class MockAuthRemoteDataSource implements AuthRemoteDataSource {
@@ -12,10 +13,8 @@ class MockAuthRemoteDataSource implements AuthRemoteDataSource {
   }
 
   @override
-  Future<bool> isUserAuthenticated() async {
-    // Always return false in offline mode
-    return false;
-  }
+  Future<bool> isUserAuthenticated() async =>
+      false; // Always return false in offline mode
 
   @override
   Future<UserModel> loginUser({

@@ -190,7 +190,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             .get();
 
         return querySnapshot.docs.map(ChatRoomModel.fromSnapshot).toList();
-      } catch (indexError) {
+      } on Exception catch (indexError) {
         // If index error occurs, use a fallback approach
         log('Index error, using fallback approach: $indexError');
 
@@ -202,11 +202,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
         // Convert to models and sort in memory
         final chatRooms =
-            querySnapshot.docs.map(ChatRoomModel.fromSnapshot).toList();
+            querySnapshot.docs.map(ChatRoomModel.fromSnapshot).toList()
 
-        // Sort by lastMessageTime in descending order
-        chatRooms
-            .sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
+              // Sort by lastMessageTime in descending order
+              ..sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
 
         return chatRooms;
       }

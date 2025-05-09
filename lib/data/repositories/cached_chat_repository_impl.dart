@@ -10,7 +10,8 @@ import '../../domain/repositories/chat_repository.dart';
 import '../datasources/local/hive_local_data_source.dart';
 import '../datasources/remote/chat_remote_data_source.dart';
 
-/// Implementation of [ChatRepository] that uses both remote and local data sources
+/// Implementation of [ChatRepository] that uses both remote and local data
+/// sources
 /// with offline caching support
 class CachedChatRepositoryImpl implements ChatRepository {
   CachedChatRepositoryImpl({

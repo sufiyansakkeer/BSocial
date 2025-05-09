@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// A button that appears when the user scrolls down and allows them to scroll back to the top
+/// A button that appears when the user scrolls down and allows them to scroll
+/// back to the top
 class ScrollToTopButton extends StatefulWidget {
   const ScrollToTopButton({
     required this.scrollController,

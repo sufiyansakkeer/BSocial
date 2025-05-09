@@ -136,10 +136,9 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
   Future<List<Post>> getAllPosts() async {
     try {
       final postBox = await Hive.openBox<PostHiveModel>(_postBoxName);
-      final posts = postBox.values.map((model) => model.toEntity()).toList();
-
-      // Sort by date published (newest first)
-      posts.sort((a, b) => b.datePublished.compareTo(a.datePublished));
+      final posts = postBox.values.map((model) => model.toEntity()).toList()
+        // Sort by date published (newest first)
+        ..sort((a, b) => b.datePublished.compareTo(a.datePublished));
 
       return posts;
     } catch (e) {
@@ -156,10 +155,9 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
       final posts = postBox.values
           .where((post) => post.uid == userId)
           .map((model) => model.toEntity())
-          .toList();
-
-      // Sort by date published (newest first)
-      posts.sort((a, b) => b.datePublished.compareTo(a.datePublished));
+          .toList()
+        // Sort by date published (newest first)
+        ..sort((a, b) => b.datePublished.compareTo(a.datePublished));
 
       return posts;
     } catch (e) {
@@ -238,10 +236,9 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
       final comments = commentBox.values
           .where((comment) => comment.postId == postId)
           .map((model) => model.toEntity())
-          .toList();
-
-      // Sort by date published (newest first)
-      comments.sort((a, b) => b.datePublished.compareTo(a.datePublished));
+          .toList()
+        // Sort by date published (newest first)
+        ..sort((a, b) => b.datePublished.compareTo(a.datePublished));
 
       return comments;
     } catch (e) {
@@ -300,10 +297,9 @@ class HiveLocalDataSourceImpl implements HiveLocalDataSource {
       final chatRooms = chatRoomBox.values
           .where((room) => room.participants.contains(userId))
           .map((model) => model.toEntity())
-          .toList();
-
-      // Sort by last message time (newest first)
-      chatRooms.sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
+          .toList()
+        // Sort by last message time (newest first)
+        ..sort((a, b) => b.lastMessageTime.compareTo(a.lastMessageTime));
 
       return chatRooms;
     } catch (e) {

@@ -10,6 +10,12 @@ class ChatRoomModel extends ChatRoom {
     required super.lastMessageSenderId,
   });
 
+  // Create model from Firestore snapshot
+  factory ChatRoomModel.fromSnapshot(DocumentSnapshot snapshot) {
+    final data = snapshot.data() as Map<String, dynamic>;
+    return ChatRoomModel.fromJson(data);
+  }
+
   // Create model from JSON
   factory ChatRoomModel.fromJson(Map<String, dynamic> json) => ChatRoomModel(
         roomId: json['roomId'] ?? '',
@@ -27,12 +33,6 @@ class ChatRoomModel extends ChatRoom {
         'lastMessage': lastMessage,
         'lastMessageSenderId': lastMessageSenderId,
       };
-
-  // Create model from Firestore snapshot
-  static ChatRoomModel fromSnapshot(DocumentSnapshot snapshot) {
-    final data = snapshot.data() as Map<String, dynamic>;
-    return ChatRoomModel.fromJson(data);
-  }
 
   // Helper method to convert dynamic list to List<String>
   static List<String> _convertToStringList(List<dynamic> list) =>

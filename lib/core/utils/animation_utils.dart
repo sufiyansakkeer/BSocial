@@ -3,6 +3,9 @@ import 'ui_constants.dart';
 
 /// Animation utilities for the app
 class AnimationUtils {
+  // Private constructor to prevent instantiation
+  AnimationUtils._();
+
   /// Fade in animation
   static Widget fadeIn({
     required Widget child,
@@ -12,7 +15,9 @@ class AnimationUtils {
     double end = 1.0,
     bool animate = true,
   }) {
-    if (!animate) return child;
+    if (!animate) {
+      return child;
+    }
 
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: begin, end: end),
@@ -35,7 +40,9 @@ class AnimationUtils {
     Offset end = Offset.zero,
     bool animate = true,
   }) {
-    if (!animate) return child;
+    if (!animate) {
+      return child;
+    }
 
     return TweenAnimationBuilder<Offset>(
       tween: Tween<Offset>(begin: begin, end: end),
@@ -58,7 +65,9 @@ class AnimationUtils {
     double end = 1.0,
     bool animate = true,
   }) {
-    if (!animate) return child;
+    if (!animate) {
+      return child;
+    }
 
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: begin, end: end),
@@ -83,7 +92,9 @@ class AnimationUtils {
     double endOpacity = 1.0,
     bool animate = true,
   }) {
-    if (!animate) return child;
+    if (!animate) {
+      return child;
+    }
 
     return fadeIn(
       duration: duration,
@@ -109,7 +120,9 @@ class AnimationUtils {
     Curve curve = Curves.easeOut,
     bool animate = true,
   }) {
-    if (!animate) return children;
+    if (!animate) {
+      return children;
+    }
 
     return List.generate(children.length, (index) {
       final delay = initialDelay + (staggerDuration * index);
@@ -233,6 +246,9 @@ class _ShimmerEffectState extends State<ShimmerEffect>
 
 /// Page transition animations
 class PageTransitions {
+  // Private constructor to prevent instantiation
+  PageTransitions._();
+
   /// Fade transition
   static PageRouteBuilder<T> fade<T>({
     required Widget page,

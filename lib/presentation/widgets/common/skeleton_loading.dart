@@ -86,7 +86,8 @@ class _SkeletonLoadingState extends State<SkeletonLoading>
 class PostCardSkeleton extends StatelessWidget {
   const PostCardSkeleton({super.key});
 
-  // Use a single shimmer duration for all skeleton elements to improve performance
+  // Use a single shimmer duration for all skeleton elements
+  // to improve performance
   static const shimmerDuration = Duration(milliseconds: 2000);
 
   @override
