@@ -1,6 +1,6 @@
 import 'package:bsocial/core/errors/exceptions.dart';
 import 'package:bsocial/data/datasources/remote/user_remote_data_source.dart';
-import 'package:bsocial/data/models/user_model.dart';
+import 'package:bsocial/features/user/data/models/user_model.dart';
 
 /// Mock implementation of [UserRemoteDataSource] for offline mode
 class MockUserRemoteDataSource implements UserRemoteDataSource {

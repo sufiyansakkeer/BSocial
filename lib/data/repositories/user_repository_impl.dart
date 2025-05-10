@@ -20,7 +20,7 @@ class UserRepositoryImpl implements UserRepository {
     if (await networkInfo.isConnected) {
       try {
         final users = await remoteDataSource.getAllUsers();
-        return Right(users);
+        return Right(users.map((user) => user.toEntity()).toList());
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
       } on Exception catch (e) {
@@ -36,7 +36,7 @@ class UserRepositoryImpl implements UserRepository {
     if (await networkInfo.isConnected) {
       try {
         final followers = await remoteDataSource.getFollowers(userId);
-        return Right(followers);
+        return Right(followers.map((user) => user.toEntity()).toList());
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
       } on Exception catch (e) {
@@ -52,7 +52,7 @@ class UserRepositoryImpl implements UserRepository {
     if (await networkInfo.isConnected) {
       try {
         final following = await remoteDataSource.getFollowing(userId);
-        return Right(following);
+        return Right(following.map((user) => user.toEntity()).toList());
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
       } on Exception catch (e) {
@@ -68,7 +68,7 @@ class UserRepositoryImpl implements UserRepository {
     if (await networkInfo.isConnected) {
       try {
         final user = await remoteDataSource.getUserById(userId);
-        return Right(user);
+        return Right(user.toEntity());
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
       } on Exception catch (e) {
@@ -84,7 +84,7 @@ class UserRepositoryImpl implements UserRepository {
     if (await networkInfo.isConnected) {
       try {
         final users = await remoteDataSource.searchUsers(query);
-        return Right(users);
+        return Right(users.map((user) => user.toEntity()).toList());
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
       } on Exception catch (e) {
@@ -110,7 +110,7 @@ class UserRepositoryImpl implements UserRepository {
           photoUrl: photoUrl,
           status: status,
         );
-        return Right(user);
+        return Right(user.toEntity());
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
       } on Exception catch (e) {

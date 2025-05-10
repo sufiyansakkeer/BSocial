@@ -1,11 +1,13 @@
 import 'dart:typed_data';
+
 import 'package:dartz/dartz.dart';
+
+import '../../../core/datasources/local/storage_local_data_source.dart';
 import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
 import '../../core/network/network_info.dart';
 import '../../core/utils/typedefs.dart';
 import '../../domain/repositories/storage_repository.dart';
-import '../datasources/local/storage_local_data_source.dart';
 
 /// Implementation of [StorageRepository] that uses Firebase Storage
 class StorageRepositoryImpl implements StorageRepository {
@@ -17,16 +19,13 @@ class StorageRepositoryImpl implements StorageRepository {
   final NetworkInfo networkInfo;
 
   @override
-  ResultFuture<String> uploadImage(
-    String path, 
-    Uint8List file, 
-    {required bool isPost}
-  ) async {
+  ResultFuture<String> uploadImage(String path, Uint8List file,
+      {required bool isPost}) async {
     if (await networkInfo.isConnected) {
       try {
         final imageUrl = await storageDataSource.uploadImage(
-          path, 
-          file, 
+          path,
+          file,
           isPost: isPost,
         );
         return Right(imageUrl);

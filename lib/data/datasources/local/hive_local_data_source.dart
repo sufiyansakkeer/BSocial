@@ -5,7 +5,7 @@ import '../../../domain/entities/chat_room.dart';
 import '../../../domain/entities/comment.dart';
 import '../../../domain/entities/message.dart';
 import '../../../domain/entities/post.dart';
-import '../../../domain/entities/user.dart';
+import '../../../features/user/domain/entities/user.dart';
 import '../../models/hive/chat_room_hive_model.dart';
 import '../../models/hive/comment_hive_model.dart';
 import '../../models/hive/message_hive_model.dart';

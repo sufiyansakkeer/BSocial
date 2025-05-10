@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../presentation/features/auth/login_page.dart';
-import '../../presentation/features/auth/signup_page.dart';
-import '../../presentation/features/chat/chat_list_page.dart';
-import '../../presentation/features/chat/chat_page.dart';
-import '../../presentation/features/home/home_page.dart';
-import '../../presentation/features/post/add_post_page.dart';
-import '../../presentation/features/post/post_detail_page.dart';
-import '../../presentation/features/profile/profile_page.dart';
-import '../../presentation/features/search/search_page.dart';
+import '../../features/auth/presentation/blocs/auth_bloc.dart';
+import '../../features/auth/presentation/pages/change_password_page.dart';
+import '../../features/auth/presentation/pages/forgot_password_page.dart';
+import '../../features/auth/presentation/pages/login_page.dart';
+import '../../features/auth/presentation/pages/mfa_verification_page.dart';
+import '../../features/auth/presentation/pages/profile_page.dart'
+    as auth_profile;
+import '../../features/auth/presentation/pages/signup_page.dart';
+import '../../features/auth/presentation/widgets/auth_wrapper.dart';
+import '../../features/chat/presentation/pages/chat_list_page.dart';
+import '../../features/chat/presentation/pages/chat_page.dart';
+import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/post/presentation/pages/add_post_page.dart';
+import '../../features/post/presentation/pages/post_detail_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/search/presentation/pages/search_page.dart';
 import '../services/logger_service.dart';
-import '../../presentation/widgets/auth/auth_wrapper.dart'; // Import AuthWrapper
 
 /// Custom GoRouter observer for logging navigation events
 class GoRouterObserver extends NavigatorObserver {
@@ -51,6 +58,26 @@ class GoRouterObserver extends NavigatorObserver {
 GoRouter createAppRouter() => GoRouter(
       initialLocation: '/',
       debugLogDiagnostics: true,
+      // Add redirect to handle authentication state
+      redirect: (context, state) {
+        // Get the current auth state
+        final authBloc = context.read<AuthBloc>();
+        final authState = authBloc.state;
+
+        // Get the current location
+        final location = state.uri.toString();
+        final isAuthRoute = location.startsWith('/auth') ||
+            location == '/login' ||
+            location == '/signup';
+
+        // If authenticated user tries to access auth routes, redirect to home
+        if (authState is Authenticated && isAuthRoute) {
+          return '/';
+        }
+
+        // Otherwise, allow the navigation to proceed
+        return null;
+      },
       routes: [
         // Home route
         GoRoute(
@@ -107,20 +134,13 @@ GoRouter createAppRouter() => GoRouter(
               routes: [
                 // Chat detail route
                 GoRoute(
-                  path: ':chatId',
+                  path: ':roomId',
                   name: 'chat-detail',
                   builder: (context, state) {
-                    final chatId = state.pathParameters['chatId'] ?? '';
-                    final receiverId =
-                        state.uri.queryParameters['receiverId'] ?? '';
-                    final receiverName =
-                        state.uri.queryParameters['receiverName'] ?? '';
+                    final roomId = state.pathParameters['roomId'] ?? '';
                     return AuthWrapper(
-                        child: ChatPage(
-                      chatId: chatId,
-                      receiverId: receiverId,
-                      receiverName: receiverName,
-                    )); // Wrap with AuthWrapper
+                      child: ChatPage(roomId: roomId),
+                    ); // Wrap with AuthWrapper
                   },
                 ),
               ],
@@ -129,14 +149,56 @@ GoRouter createAppRouter() => GoRouter(
         ),
         // Auth routes
         GoRoute(
+          path: '/auth',
+          name: 'auth',
+          builder: (context, state) => const LoginPage(), // Default to login
+          routes: [
+            GoRoute(
+              path: 'login',
+              name: 'login',
+              builder: (context, state) => const LoginPage(),
+            ),
+            GoRoute(
+              path: 'signup',
+              name: 'signup',
+              builder: (context, state) => const SignupPage(),
+            ),
+            GoRoute(
+              path: 'forgot-password',
+              name: 'forgot-password',
+              builder: (context, state) => const ForgotPasswordPage(),
+            ),
+            GoRoute(
+              path: 'change-password',
+              name: 'change-password',
+              builder: (context, state) => const AuthWrapper(
+                child: ChangePasswordPage(),
+              ),
+            ),
+            GoRoute(
+              path: 'mfa-verification',
+              name: 'mfa-verification',
+              builder: (context, state) => const MfaVerificationPage(),
+            ),
+            GoRoute(
+              path: 'profile',
+              name: 'auth-profile',
+              builder: (context, state) => const AuthWrapper(
+                child: auth_profile.ProfilePage(),
+              ),
+            ),
+          ],
+        ),
+        // Legacy routes for backward compatibility
+        GoRoute(
           path: '/login',
-          name: 'login',
           builder: (context, state) => const LoginPage(),
+          redirect: (context, state) => '/auth/login',
         ),
         GoRoute(
           path: '/signup',
-          name: 'signup',
           builder: (context, state) => const SignupPage(),
+          redirect: (context, state) => '/auth/signup',
         ),
       ],
       errorBuilder: (context, state) => Scaffold(

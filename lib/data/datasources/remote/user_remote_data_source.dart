@@ -1,4 +1,4 @@
-import '../../models/user_model.dart';
+import '../../../../features/user/data/models/user_model.dart';
 
 abstract class UserRemoteDataSource {
   Future<UserModel> getUserById(String userId);

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-// Enhanced UI constants
+/// Enhanced UI constants
 class UiConstants {
-  // Screen breakpoints
+  /// Screen breakpoints
   static const webScreenHeight = 600;
   static const tabletBreakpoint = 768;
   static const desktopBreakpoint = 1200;
 
-  // Spacing - Height
+  /// Spacing - Height
   static const SizedBox kHeight4 = SizedBox(height: 4);
   static const SizedBox kHeight8 = SizedBox(height: 8);
   static const SizedBox kHeight = SizedBox(height: 10);
@@ -19,7 +19,7 @@ class UiConstants {
   static const SizedBox kHeight40 = SizedBox(height: 40);
   static const SizedBox kHeight50 = SizedBox(height: 50);
 
-  // Spacing - Width
+  /// Spacing - Width
   static const SizedBox kWidth4 = SizedBox(width: 4);
   static const SizedBox kWidth8 = SizedBox(width: 8);
   static const SizedBox kWidth = SizedBox(width: 10);
@@ -30,7 +30,7 @@ class UiConstants {
   static const SizedBox kWidth30 = SizedBox(width: 30);
   static const SizedBox kWidth40 = SizedBox(width: 40);
 
-  // Padding
+  /// Padding
   static const EdgeInsets paddingAll4 = EdgeInsets.all(4);
   static const EdgeInsets paddingAll8 = EdgeInsets.all(8);
   static const EdgeInsets paddingAll12 = EdgeInsets.all(12);
@@ -39,36 +39,55 @@ class UiConstants {
   static const EdgeInsets paddingAll24 = EdgeInsets.all(24);
 
   static const EdgeInsets paddingH8 = EdgeInsets.symmetric(horizontal: 8);
+  static const EdgeInsets paddingH12 = EdgeInsets.symmetric(horizontal: 12);
   static const EdgeInsets paddingH16 = EdgeInsets.symmetric(horizontal: 16);
   static const EdgeInsets paddingH24 = EdgeInsets.symmetric(horizontal: 24);
+  static const EdgeInsets paddingV4 = EdgeInsets.symmetric(vertical: 4);
   static const EdgeInsets paddingV8 = EdgeInsets.symmetric(vertical: 8);
+  static const EdgeInsets paddingV12 = EdgeInsets.symmetric(vertical: 12);
   static const EdgeInsets paddingV16 = EdgeInsets.symmetric(vertical: 16);
   static const EdgeInsets paddingV24 = EdgeInsets.symmetric(vertical: 24);
 
-  static const EdgeInsets paddingH16V8 =
-      EdgeInsets.symmetric(horizontal: 16, vertical: 8);
-  static const EdgeInsets paddingH24V16 =
-      EdgeInsets.symmetric(horizontal: 24, vertical: 16);
+  static const EdgeInsets paddingH8V4 = EdgeInsets.symmetric(
+    horizontal: 8,
+    vertical: 4,
+  );
+  static const EdgeInsets paddingH12V8 = EdgeInsets.symmetric(
+    horizontal: 12,
+    vertical: 8,
+  );
+  static const EdgeInsets paddingH16V8 = EdgeInsets.symmetric(
+    horizontal: 16,
+    vertical: 8,
+  );
+  static const EdgeInsets paddingH16V12 = EdgeInsets.symmetric(
+    horizontal: 16,
+    vertical: 12,
+  );
+  static const EdgeInsets paddingH24V16 = EdgeInsets.symmetric(
+    horizontal: 24,
+    vertical: 16,
+  );
 
-  // Border radius
+  /// Border radius
   static const double borderRadiusSmall = 8;
   static const double borderRadiusMedium = 12;
   static const double borderRadiusLarge = 16;
   static const double borderRadiusXLarge = 24;
   static const double borderRadiusCircular = 100;
 
-  // Animation durations
+  /// Animation durations
   static const Duration animFast = Duration(milliseconds: 200);
   static const Duration animMedium = Duration(milliseconds: 350);
   static const Duration animSlow = Duration(milliseconds: 500);
   static const Duration animXSlow = Duration(milliseconds: 800);
 
-  // Animation curves
+  /// Animation curves
   static const Curve animCurveSmooth = Curves.easeInOut;
   static const Curve animCurveEmphasized = Curves.easeOutBack;
   static const Curve animCurveBounce = Curves.elasticOut;
 
-  // Elevation
+  /// Elevation
   static const double elevationNone = 0;
   static const double elevationXSmall = 1;
   static const double elevationSmall = 2;

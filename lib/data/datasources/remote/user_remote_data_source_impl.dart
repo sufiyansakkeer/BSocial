@@ -1,10 +1,11 @@
 import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 
+import '../../../../features/user/data/models/user_model.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/errors/exceptions.dart';
-import '../../models/user_model.dart';
 import 'user_remote_data_source.dart';
 
 class UserRemoteDataSourceImpl implements UserRemoteDataSource {

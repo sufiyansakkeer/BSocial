@@ -1,12 +1,14 @@
 import 'dart:developer';
 import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
+
 import '../../../core/constants/app_constants.dart';
+import '../../../core/datasources/local/storage_local_data_source.dart';
 import '../../../core/errors/exceptions.dart';
 import '../../models/comment_model.dart';
 import '../../models/post_model.dart';
-import '../local/storage_local_data_source.dart';
 
 abstract class PostRemoteDataSource {
   Future<PostModel> createPost({

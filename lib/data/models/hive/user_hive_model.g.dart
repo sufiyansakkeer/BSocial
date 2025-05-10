@@ -23,8 +23,8 @@ class UserHiveModelAdapter extends TypeAdapter<UserHiveModel> {
       userName: fields[3] as String,
       followers: (fields[4] as List).cast<String>(),
       following: (fields[5] as List).cast<String>(),
-      status: fields[6] as String,
       lastUpdated: fields[7] as DateTime,
+      status: fields[6] as String,
     );
   }
 

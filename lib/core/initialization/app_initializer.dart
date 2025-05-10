@@ -5,14 +5,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../domain/repositories/user_repository.dart';
-import '../../presentation/app.dart';
+import '../../app.dart';
 import '../config/app_config.dart';
 import '../routes/app_router.dart';
 import '../services/hive_service.dart';
 import '../services/logger_service.dart';
-import 'bloc_providers.dart';
 import 'dependency_initializer.dart';
+import 'feature_bloc_providers.dart';
 import 'firebase_initializer.dart';
 
 /// Handles the initialization of the entire application
@@ -82,9 +81,10 @@ class AppInitializer {
     await dependencyInitializer.initialize();
 
     // Create BLoC providers
-    final blocProviders = BlocProviders(
+    final blocProviders = FeatureBlocProviders(
       authRepository: dependencyInitializer.authRepository,
       postRepository: dependencyInitializer.postRepository,
+      chatRepository: dependencyInitializer.chatRepository,
     );
 
     // Create router
@@ -92,16 +92,9 @@ class AppInitializer {
 
     // Run the app
     runApp(
-      MultiRepositoryProvider(
-        providers: [
-          RepositoryProvider<UserRepository>(
-            create: (context) => dependencyInitializer.userRepository,
-          ),
-        ],
-        child: MultiBlocProvider(
-          providers: blocProviders.getProviders(),
-          child: App(router: router),
-        ),
+      MultiBlocProvider(
+        providers: blocProviders.getProviders(),
+        child: App(router: router),
       ),
     );
   }

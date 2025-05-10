@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import '../../../domain/entities/user.dart';
+import '../../../features/user/domain/entities/user.dart';
 
 part 'user_hive_model.g.dart';
 
@@ -14,6 +14,9 @@ class UserHiveModel extends HiveObject {
     required this.following,
     required this.lastUpdated,
     this.status = 'offline',
+    this.bio = '',
+    this.isMfaEnabled = false,
+    this.isEmailVerified = false,
   });
 
   // Convert from domain entity to Hive model
@@ -25,6 +28,9 @@ class UserHiveModel extends HiveObject {
         followers: user.followers,
         following: user.following,
         status: user.status,
+        bio: user.bio,
+        isMfaEnabled: user.isMfaEnabled,
+        isEmailVerified: user.isEmailVerified,
         lastUpdated: DateTime.now(),
       );
   @HiveField(0)
@@ -51,6 +57,15 @@ class UserHiveModel extends HiveObject {
   @HiveField(7)
   final DateTime lastUpdated;
 
+  @HiveField(8)
+  final String bio;
+
+  @HiveField(9)
+  final bool isMfaEnabled;
+
+  @HiveField(10)
+  final bool isEmailVerified;
+
   // Convert to domain entity
   User toEntity() => User(
         email: email,
@@ -60,5 +75,8 @@ class UserHiveModel extends HiveObject {
         followers: followers,
         following: following,
         status: status,
+        bio: bio,
+        isMfaEnabled: isMfaEnabled,
+        isEmailVerified: isEmailVerified,
       );
 }

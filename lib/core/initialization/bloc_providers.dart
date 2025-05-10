@@ -1,36 +1,40 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../data/repositories/auth_repository_impl.dart';
-import '../../data/repositories/cached_post_repository_impl.dart';
-import '../../presentation/blocs/auth/auth_bloc.dart';
-import '../../presentation/blocs/post/post_bloc.dart';
-import '../../presentation/blocs/search/search_bloc.dart';
+import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/presentation/blocs/auth_bloc.dart';
+import '../../features/post/domain/repositories/post_repository.dart'; // Added import
+import '../../features/post/presentation/blocs/post_bloc.dart';
+import '../../features/search/domain/usecases/search_users.dart'; // Added import
+import '../../features/search/presentation/blocs/search_bloc.dart';
 
 /// Provides BLoC providers for the application
 class BlocProviders {
-
   BlocProviders({
     required AuthRepositoryImpl authRepository,
-    required CachedPostRepositoryImpl postRepository,
+    required PostRepository postRepository, // Changed type
+    required SearchUsersUseCase searchUsersUseCase, // Added parameter
   })  : _authRepository = authRepository,
-        _postRepository = postRepository;
+        _postRepository = postRepository,
+        _searchUsersUseCase = searchUsersUseCase; // Assigned parameter
   final AuthRepositoryImpl _authRepository;
-  final CachedPostRepositoryImpl _postRepository;
+  final PostRepository _postRepository; // Changed type
+  final SearchUsersUseCase _searchUsersUseCase; // Added field
 
   /// Get all BLoC providers
   List<BlocProvider> getProviders() => [
-      BlocProvider<AuthBloc>(
-        create: (context) => AuthBloc(
-          authRepository: _authRepository,
-        )..add(CheckAuthStatusEvent()),
-      ),
-      BlocProvider<PostBloc>(
-        create: (context) => PostBloc(
-          postRepository: _postRepository,
+        BlocProvider<AuthBloc>(
+          create: (context) => AuthBloc(
+            authRepository: _authRepository,
+          )..add(CheckAuthStatusEvent()),
         ),
-      ),
-      BlocProvider<SearchBloc>(
-        create: (context) => SearchBloc(),
-      ),
-    ];
+        BlocProvider<PostBloc>(
+          create: (context) => PostBloc(
+            postRepository: _postRepository,
+          ),
+        ),
+        BlocProvider<SearchBloc>(
+          create: (context) => SearchBloc(
+              searchUsersUseCase: _searchUsersUseCase), // Passed parameter
+        ),
+      ];
 }
