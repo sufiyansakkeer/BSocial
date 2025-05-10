@@ -21,7 +21,7 @@ class StorageLocalDataSourceImpl implements StorageLocalDataSource {
     try {
       await _storage.refFromURL(url).delete();
     } catch (e) {
-      log('Error deleting image: $e');
+      log('Error deleting image: $e', name: 'deleteImage');
       throw ServerException(message: 'Failed to delete image: ${e.toString()}');
     }
   }
@@ -47,7 +47,7 @@ class StorageLocalDataSourceImpl implements StorageLocalDataSource {
 
       return downloadUrl;
     } catch (e) {
-      log('Error uploading image: $e');
+      log('Error uploading image: $e', name: 'uploadImage');
       throw ServerException(message: 'Failed to upload image: ${e.toString()}');
     }
   }

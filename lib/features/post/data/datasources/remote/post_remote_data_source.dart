@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
@@ -122,14 +123,41 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   @override
   Future<List<PostModel>> getPostsByUserId(String userId) async {
     try {
-      final snapshot = await _firestore
-          .collection(AppConstants.postsCollection)
-          .where('uid', isEqualTo: userId)
-          .orderBy('datePublished', descending: true)
-          .get();
+      try {
+        // Try with the complex query that requires an index
+        final snapshot = await _firestore
+            .collection(AppConstants.postsCollection)
+            .where('uid', isEqualTo: userId)
+            .orderBy('datePublished', descending: true)
+            .get();
 
-      return snapshot.docs.map(PostModel.fromSnapshot).toList();
+        return snapshot.docs.map(PostModel.fromSnapshot).toList();
+      } on FirebaseException catch (e) {
+        // Check if the error is related to missing index
+        if (e.code == 'failed-precondition' &&
+            e.message != null &&
+            e.message!.contains('requires an index')) {
+          log('Index error: ${e.message}. Using fallback query.',
+              name: 'getPostsByUserId');
+
+          // Fallback to a simpler query without ordering
+          final snapshot = await _firestore
+              .collection(AppConstants.postsCollection)
+              .where('uid', isEqualTo: userId)
+              .get();
+
+          // Sort the results in memory instead
+          final posts = snapshot.docs.map(PostModel.fromSnapshot).toList()
+            ..sort((a, b) => b.datePublished.compareTo(a.datePublished));
+
+          return posts;
+        } else {
+          // For other Firebase errors, rethrow
+          rethrow;
+        }
+      }
     } catch (e) {
+      log('Error getting posts by user ID: $e', name: 'getPostsByUserId');
       throw ServerException(message: 'Failed to get user posts: $e');
     }
   }

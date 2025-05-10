@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../blocs/auth_bloc.dart';
+import '../utils/auth_error_handler.dart';
 import '../widgets/google_sign_in_button.dart';
 
 class SignupPage extends StatefulWidget {
@@ -49,10 +50,19 @@ class _SignupPageState extends State<SignupPage> {
       }
     } on Exception catch (e) {
       if (mounted) {
+        // Use a more consistent error handling approach
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error selecting image: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.orange, // Use orange for non-auth errors
+            duration: const Duration(seconds: 3),
+            action: SnackBarAction(
+              label: 'Dismiss',
+              textColor: Colors.white,
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+            ),
           ),
         );
       }
@@ -102,12 +112,8 @@ class _SignupPageState extends State<SignupPage> {
             if (state is Authenticated) {
               context.go('/');
             } else if (state is AuthError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.red,
-                ),
-              );
+              // Use the AuthErrorHandler to handle the error
+              AuthErrorHandler.handleError(context, state.message);
             }
           },
           builder: (context, state) => Center(

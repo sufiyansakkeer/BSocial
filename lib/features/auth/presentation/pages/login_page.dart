@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../blocs/auth_bloc.dart';
+import '../utils/auth_error_handler.dart';
 import '../widgets/google_sign_in_button.dart';
 
 /// Login page
@@ -83,12 +84,8 @@ class _LoginPageState extends State<LoginPage> {
                 context.go('/');
               }
             } else if (state is AuthError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.red,
-                ),
-              );
+              // Use the AuthErrorHandler to handle the error
+              AuthErrorHandler.handleError(context, state.message);
             } else if (state is PasswordResetSent) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(

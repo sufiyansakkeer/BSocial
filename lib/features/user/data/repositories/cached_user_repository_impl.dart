@@ -40,20 +40,24 @@ class CachedUserRepositoryImpl implements UserRepository {
       try {
         return await remoteCall();
       } on ServerException catch (e) {
-        log('Remote call failed: ${e.message}. Trying local fallback.');
+        log('Remote call failed: ${e.message}. Trying local fallback.',
+            name: '_handleRemoteCallWithLocalFallback');
         try {
           return await localCall();
         } on CacheException catch (e) {
-          log('Local fallback failed: ${e.message}');
+          log('Local fallback failed: ${e.message}',
+              name: '_handleRemoteCallWithLocalFallback');
           throw CacheException(message: localErrorMessage);
         }
       }
     } else {
-      log('No internet connection. Using local data.');
+      log('No internet connection. Using local data.',
+          name: '_handleRemoteCallWithLocalFallback');
       try {
         return await localCall();
       } on CacheException catch (e) {
-        log('Local fallback failed: ${e.message}');
+        log('Local fallback failed: ${e.message}',
+            name: '_handleRemoteCallWithLocalFallback');
         throw CacheException(message: localErrorMessage);
       }
     }
@@ -90,7 +94,7 @@ class CachedUserRepositoryImpl implements UserRepository {
             try {
               await localDataSource.cacheUser(user);
             } on Exception catch (e) {
-              log('Error caching user: $e');
+              log('Error caching user: $e', name: 'getAllUsers');
               // Continue even if caching fails
             }
           }
@@ -102,7 +106,7 @@ class CachedUserRepositoryImpl implements UserRepository {
           if (localUsers.isEmpty) {
             throw CacheException(message: 'No cached users available');
           }
-          log('Returning users from cache');
+          log('Returning users from cache', name: 'getAllUsers');
           return localUsers;
         },
         remoteErrorMessage: 'Failed to fetch users from server',
@@ -145,7 +149,7 @@ class CachedUserRepositoryImpl implements UserRepository {
             try {
               await localDataSource.cacheUser(user);
             } on Exception catch (e) {
-              log('Error caching user: $e');
+              log('Error caching user: $e', name: 'getFollowers');
               // Continue even if caching fails
             }
           }
@@ -162,7 +166,7 @@ class CachedUserRepositoryImpl implements UserRepository {
             throw CacheException(
                 message: 'No cached followers available for user $userId');
           }
-          log('Returning followers from cache');
+          log('Returning followers from cache', name: 'getFollowers');
           return followers;
         },
         remoteErrorMessage: 'Failed to fetch followers from server',
@@ -190,7 +194,7 @@ class CachedUserRepositoryImpl implements UserRepository {
             try {
               await localDataSource.cacheUser(user);
             } on Exception catch (e) {
-              log('Error caching user: $e');
+              log('Error caching user: $e', name: 'getFollowing');
               // Continue even if caching fails
             }
           }
@@ -207,7 +211,7 @@ class CachedUserRepositoryImpl implements UserRepository {
             throw CacheException(
                 message: 'No cached following available for user $userId');
           }
-          log('Returning following from cache');
+          log('Returning following from cache', name: 'getFollowing');
           return following;
         },
         remoteErrorMessage: 'Failed to fetch following from server',
@@ -234,7 +238,7 @@ class CachedUserRepositoryImpl implements UserRepository {
           try {
             await localDataSource.cacheUser(remoteUser);
           } on Exception catch (e) {
-            log('Error caching user: $e');
+            log('Error caching user: $e', name: 'getUserById');
             // Continue even if caching fails
           }
 
@@ -242,7 +246,7 @@ class CachedUserRepositoryImpl implements UserRepository {
         },
         localCall: () async {
           final localUser = await localDataSource.getUserById(userId);
-          log('Returning user from cache');
+          log('Returning user from cache', name: 'getUserById');
           return localUser;
         },
         remoteErrorMessage: 'Failed to fetch user from server',
@@ -311,7 +315,7 @@ class CachedUserRepositoryImpl implements UserRepository {
       try {
         await localDataSource.cacheUser(user);
       } on Exception catch (e) {
-        log('Error caching updated user: $e');
+        log('Error caching updated user: $e', name: 'updateUserProfile');
         // Continue even if caching fails
       }
 

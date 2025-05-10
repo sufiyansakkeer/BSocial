@@ -33,7 +33,7 @@ class ChatRepositoryImpl implements ChatRepository {
           try {
             await localDataSource.cacheChatRoom(chatRoom);
           } on Exception catch (e) {
-            log('Error caching chat room: $e');
+            log('Error caching chat room: $e', name: 'getChatRooms');
           }
         }
 
@@ -69,7 +69,7 @@ class ChatRepositoryImpl implements ChatRepository {
         try {
           await localDataSource.cacheChatRoom(chatRoom);
         } on Exception catch (e) {
-          log('Error caching chat room: $e');
+          log('Error caching chat room: $e', name: 'createChatRoom');
         }
 
         return Right(chatRoom);
@@ -92,7 +92,7 @@ class ChatRepositoryImpl implements ChatRepository {
         try {
           await localDataSource.cacheChatRoom(chatRoom);
         } on Exception catch (e) {
-          log('Error caching chat room: $e');
+          log('Error caching chat room: $e', name: 'getChatRoomById');
         }
 
         return Right(chatRoom);
@@ -137,7 +137,8 @@ class ChatRepositoryImpl implements ChatRepository {
           try {
             await localDataSource.cacheChatRoom(chatRoom);
           } on Exception catch (e) {
-            log('Error caching chat room: $e');
+            log('Error caching chat room: $e',
+                name: 'getChatRoomByParticipants');
           }
         }
 
@@ -171,7 +172,7 @@ class ChatRepositoryImpl implements ChatRepository {
         try {
           await localDataSource.cacheMessage(message);
         } on Exception catch (e) {
-          log('Error caching message: $e');
+          log('Error caching message: $e', name: 'sendMessage');
         }
 
         return Right(message);
@@ -195,7 +196,7 @@ class ChatRepositoryImpl implements ChatRepository {
           try {
             await localDataSource.cacheMessage(message);
           } on Exception catch (e) {
-            log('Error caching message: $e');
+            log('Error caching message: $e', name: 'getMessages');
           }
         }
 
@@ -231,7 +232,7 @@ class ChatRepositoryImpl implements ChatRepository {
         try {
           await localDataSource.markMessagesAsRead(roomId, userId);
         } on Exception catch (e) {
-          log('Error updating local cache: $e');
+          log('Error updating local cache: $e', name: 'markMessagesAsRead');
         }
 
         return const Right(null);
@@ -254,7 +255,7 @@ class ChatRepositoryImpl implements ChatRepository {
         try {
           await localDataSource.deleteMessage(messageId, roomId);
         } on Exception catch (e) {
-          log('Error updating local cache: $e');
+          log('Error updating local cache: $e', name: 'deleteMessage');
         }
 
         return const Right(null);
@@ -277,7 +278,7 @@ class ChatRepositoryImpl implements ChatRepository {
         try {
           await localDataSource.deleteChatRoom(roomId);
         } on Exception catch (e) {
-          log('Error updating local cache: $e');
+          log('Error updating local cache: $e', name: 'deleteChatRoom');
         }
 
         return const Right(null);

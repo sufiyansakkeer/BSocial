@@ -66,8 +66,10 @@ class AppInitializer {
 
     // Initialize Hive for local storage
     try {
-      await HiveService.init();
-      _logger.i('Hive initialized successfully');
+      // Always reset Hive on startup to avoid adapter conflicts
+      _logger.i('Resetting Hive to ensure clean initialization...');
+      await HiveService.reset();
+      _logger.i('Hive reset and initialized successfully');
     } on Exception catch (e) {
       _logger.e('Error initializing local storage', e);
       // Continue without local storage if initialization fails

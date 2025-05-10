@@ -15,7 +15,7 @@ class ErrorHandler {
   String handleError(dynamic error,
       {String fallbackMessage = 'An unexpected error occurred'}) {
     // Log the error
-    log('Error: $error');
+    log('Error: $error', name: 'handleError');
 
     // Report to Crashlytics if not in debug mode
     if (!kDebugMode) {

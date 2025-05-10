@@ -65,7 +65,7 @@ class UserLocalDataSourceImpl implements UserLocalDataSource {
       );
       await box.put(user.uid, hiveModel); // user.uid is from super.uid
     } catch (e) {
-      log('Error caching user: $e');
+      log('Error caching user: $e', name: 'cacheUser');
       throw CacheException(message: 'Failed to cache user: $e');
     }
   }
@@ -76,7 +76,7 @@ class UserLocalDataSourceImpl implements UserLocalDataSource {
       final box = await _usersBox;
       await box.clear();
     } catch (e) {
-      log('Error clearing users: $e');
+      log('Error clearing users: $e', name: 'clearUsers');
       throw CacheException(message: 'Failed to clear users: $e');
     }
   }
@@ -87,7 +87,7 @@ class UserLocalDataSourceImpl implements UserLocalDataSource {
       final box = await _usersBox;
       await box.delete(userId);
     } catch (e) {
-      log('Error deleting user: $e');
+      log('Error deleting user: $e', name: 'deleteUser');
       throw CacheException(message: 'Failed to delete user: $e');
     }
   }
@@ -118,7 +118,7 @@ class UserLocalDataSourceImpl implements UserLocalDataSource {
               ))
           .toList();
     } catch (e) {
-      log('Error getting all users: $e');
+      log('Error getting all users: $e', name: 'getAllUsers');
       throw CacheException(message: 'Failed to get all users: $e');
     }
   }
@@ -149,7 +149,7 @@ class UserLocalDataSourceImpl implements UserLocalDataSource {
         isEmailVerified: hiveModel.isEmailVerified,
       );
     } catch (e) {
-      log('Error getting user by ID: $e');
+      log('Error getting user by ID: $e', name: 'getUserById');
       throw CacheException(message: 'Failed to get user by ID: $e');
     }
   }
@@ -185,7 +185,7 @@ class UserLocalDataSourceImpl implements UserLocalDataSource {
       }
       return users;
     } catch (e) {
-      log('Error getting users by IDs: $e');
+      log('Error getting users by IDs: $e', name: 'getUsersByIds');
       throw CacheException(message: 'Failed to get users by IDs: $e');
     }
   }

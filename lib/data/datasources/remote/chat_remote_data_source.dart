@@ -76,7 +76,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       return chatRoom;
     } catch (e) {
-      log('Error creating chat room: $e');
+      log('Error creating chat room: $e', name: 'createChatRoom');
       throw ServerException(
           message: 'Failed to create chat room: ${e.toString()}');
     }
@@ -104,7 +104,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       // Commit the batch
       await batch.commit();
     } catch (e) {
-      log('Error deleting chat room: $e');
+      log('Error deleting chat room: $e', name: 'deleteChatRoom');
       throw ServerException(
           message: 'Failed to delete chat room: ${e.toString()}');
     }
@@ -120,7 +120,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           .doc(messageId)
           .delete();
     } catch (e) {
-      log('Error deleting message: $e');
+      log('Error deleting message: $e', name: 'deleteMessage');
       throw ServerException(
           message: 'Failed to delete message: ${e.toString()}');
     }
@@ -140,7 +140,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       return ChatRoomModel.fromSnapshot(docSnapshot);
     } catch (e) {
-      log('Error getting chat room: $e');
+      log('Error getting chat room: $e', name: 'getChatRoomById');
       throw ServerException(
           message: 'Failed to get chat room: ${e.toString()}');
     }
@@ -172,7 +172,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       return null;
     } catch (e) {
-      log('Error getting chat room by participants: $e');
+      log('Error getting chat room by participants: $e',
+          name: 'getChatRoomByParticipants');
       throw ServerException(
           message: 'Failed to get chat room: ${e.toString()}');
     }
@@ -192,7 +193,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         return querySnapshot.docs.map(ChatRoomModel.fromSnapshot).toList();
       } on Exception catch (indexError) {
         // If index error occurs, use a fallback approach
-        log('Index error, using fallback approach: $indexError');
+        log('Index error, using fallback approach: $indexError',
+            name: 'getChatRooms');
 
         // Fallback: Get all chat rooms for the user without ordering
         final querySnapshot = await _firestore
@@ -210,7 +212,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         return chatRooms;
       }
     } catch (e) {
-      log('Error getting chat rooms: $e');
+      log('Error getting chat rooms: $e', name: 'getChatRooms');
       throw ServerException(
           message: 'Failed to get chat rooms: ${e.toString()}');
     }
@@ -228,7 +230,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       return querySnapshot.docs.map(MessageModel.fromSnapshot).toList();
     } catch (e) {
-      log('Error getting messages: $e');
+      log('Error getting messages: $e', name: 'getMessages');
       throw ServerException(message: 'Failed to get messages: ${e.toString()}');
     }
   }
@@ -251,7 +253,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       await batch.commit();
     } catch (e) {
-      log('Error marking messages as read: $e');
+      log('Error marking messages as read: $e', name: 'markMessagesAsRead');
       throw ServerException(
           message: 'Failed to mark messages as read: ${e.toString()}');
     }
@@ -299,7 +301,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       return message;
     } catch (e) {
-      log('Error sending message: $e');
+      log('Error sending message: $e', name: 'sendMessage');
       throw ServerException(message: 'Failed to send message: ${e.toString()}');
     }
   }

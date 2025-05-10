@@ -46,7 +46,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (isAuthenticated) {
       final result = await _authRepository.getCurrentUser();
       result.fold(
-        (failure) => emit(AuthError(message: failure.message)),
+        (failure) {
+          // Check if the error is related to no current user
+          if (failure.message.contains('No user is currently signed in') ||
+              failure.message.contains('User data not found')) {
+            // If there's no current user or user data, emit Unauthenticated
+            // This will trigger navigation to login page
+            emit(Unauthenticated());
+          } else {
+            // For other errors, emit AuthError
+            emit(AuthError(message: failure.message));
+          }
+        },
         (user) => emit(Authenticated(user: user)),
       );
     } else {

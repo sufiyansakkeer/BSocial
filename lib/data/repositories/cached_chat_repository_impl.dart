@@ -32,7 +32,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
         try {
           await localDataSource.cacheChatRoom(chatRoom);
         } on Exception catch (e) {
-          log('Error caching chat room: $e');
+          log('Error caching chat room: $e', name: 'createChatRoom');
         }
 
         return Right(chatRoom);
@@ -55,7 +55,8 @@ class CachedChatRepositoryImpl implements ChatRepository {
         try {
           await localDataSource.deleteChatRoom(roomId);
         } on Exception catch (e) {
-          log('Error deleting chat room from cache: $e');
+          log('Error deleting chat room from cache: $e',
+              name: 'deleteChatRoom');
         }
 
         return const Right(null);
@@ -78,7 +79,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
         try {
           await localDataSource.deleteMessage(messageId);
         } on Exception catch (e) {
-          log('Error deleting message from cache: $e');
+          log('Error deleting message from cache: $e', name: 'deleteMessage');
         }
 
         return const Right(null);
@@ -101,7 +102,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
         try {
           await localDataSource.cacheChatRoom(remoteChatRoom);
         } on Exception catch (e) {
-          log('Error caching chat room: $e');
+          log('Error caching chat room: $e', name: 'getChatRoomById');
         }
 
         return Right(remoteChatRoom);
@@ -109,22 +110,26 @@ class CachedChatRepositoryImpl implements ChatRepository {
         try {
           final localChatRoom = await localDataSource.getChatRoom(roomId);
           if (localChatRoom != null) {
-            log('Returning chat room from cache after remote failure');
+            log('Returning chat room from cache after remote failure',
+                name: 'getChatRoomById');
             return Right(localChatRoom);
           }
         } on Exception catch (cacheE) {
-          log('Error getting chat room from cache: $cacheE');
+          log('Error getting chat room from cache: $cacheE',
+              name: 'getChatRoomById');
         }
         return Left(ServerFailure(message: e.message));
       } on Exception catch (e) {
         try {
           final localChatRoom = await localDataSource.getChatRoom(roomId);
           if (localChatRoom != null) {
-            log('Returning chat room from cache after remote failure');
+            log('Returning chat room from cache after remote failure',
+                name: 'getChatRoomById');
             return Right(localChatRoom);
           }
         } on Exception catch (cacheE) {
-          log('Error getting chat room from cache: $cacheE');
+          log('Error getting chat room from cache: $cacheE',
+              name: 'getChatRoomById');
         }
         return Left(ServerFailure(message: e.toString()));
       }
@@ -132,7 +137,8 @@ class CachedChatRepositoryImpl implements ChatRepository {
       try {
         final localChatRoom = await localDataSource.getChatRoom(roomId);
         if (localChatRoom != null) {
-          log('Returning chat room from cache due to no internet');
+          log('Returning chat room from cache due to no internet',
+              name: 'getChatRoomById');
           return Right(localChatRoom);
         } else {
           return const Left(
@@ -159,7 +165,8 @@ class CachedChatRepositoryImpl implements ChatRepository {
           try {
             await localDataSource.cacheChatRoom(remoteChatRoom);
           } on Exception catch (e) {
-            log('Error caching chat room: $e');
+            log('Error caching chat room: $e',
+                name: 'getChatRoomByParticipants');
           }
         }
 
@@ -174,12 +181,14 @@ class CachedChatRepositoryImpl implements ChatRepository {
           for (final room in localChatRooms) {
             if (room.participants.length == participants.length &&
                 room.participants.every((p) => participants.contains(p))) {
-              log('Returning chat room from cache after remote failure');
+              log('Returning chat room from cache after remote failure',
+                  name: 'getChatRoomByParticipants');
               return Right(room);
             }
           }
         } on Exception catch (cacheE) {
-          log('Error getting chat rooms from cache: $cacheE');
+          log('Error getting chat rooms from cache: $cacheE',
+              name: 'getChatRoomByParticipants');
         }
 
         return Left(ServerFailure(message: e.message));
@@ -195,7 +204,8 @@ class CachedChatRepositoryImpl implements ChatRepository {
         for (final room in localChatRooms) {
           if (room.participants.length == participants.length &&
               room.participants.every((p) => participants.contains(p))) {
-            log('Returning chat room from cache due to no internet');
+            log('Returning chat room from cache due to no internet',
+                name: 'getChatRoomByParticipants');
             return Right(room);
           }
         }
@@ -220,7 +230,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
             await localDataSource.cacheChatRoom(chatRoom);
           }
         } on Exception catch (e) {
-          log('Error caching chat rooms: $e');
+          log('Error caching chat rooms: $e', name: 'getChatRooms');
         }
 
         return Right(remoteChatRooms);
@@ -229,11 +239,13 @@ class CachedChatRepositoryImpl implements ChatRepository {
           final localChatRooms =
               await localDataSource.getChatRoomsByUserId(userId);
           if (localChatRooms.isNotEmpty) {
-            log('Returning chat rooms from cache after remote failure');
+            log('Returning chat rooms from cache after remote failure',
+                name: 'getChatRooms');
             return Right(localChatRooms);
           }
         } on Exception catch (cacheE) {
-          log('Error getting chat rooms from cache: $cacheE');
+          log('Error getting chat rooms from cache: $cacheE',
+              name: 'getChatRooms');
         }
         return Left(ServerFailure(message: e.message));
       } on Exception catch (e) {
@@ -241,11 +253,13 @@ class CachedChatRepositoryImpl implements ChatRepository {
           final localChatRooms =
               await localDataSource.getChatRoomsByUserId(userId);
           if (localChatRooms.isNotEmpty) {
-            log('Returning chat rooms from cache after remote failure');
+            log('Returning chat rooms from cache after remote failure',
+                name: 'getChatRooms');
             return Right(localChatRooms);
           }
         } on Exception catch (cacheE) {
-          log('Error getting chat rooms from cache: $cacheE');
+          log('Error getting chat rooms from cache: $cacheE',
+              name: 'getChatRooms');
         }
         return Left(ServerFailure(message: e.toString()));
       }
@@ -254,7 +268,8 @@ class CachedChatRepositoryImpl implements ChatRepository {
         final localChatRooms =
             await localDataSource.getChatRoomsByUserId(userId);
         if (localChatRooms.isNotEmpty) {
-          log('Returning chat rooms from cache due to no internet');
+          log('Returning chat rooms from cache due to no internet',
+              name: 'getChatRooms');
           return Right(localChatRooms);
         } else {
           return const Left(
@@ -288,7 +303,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
             await localDataSource.cacheMessage(messageWithRoomId);
           }
         } on Exception catch (e) {
-          log('Error caching messages: $e');
+          log('Error caching messages: $e', name: 'getMessages');
         }
 
         return Right(remoteMessages);
@@ -297,11 +312,13 @@ class CachedChatRepositoryImpl implements ChatRepository {
           final localMessages =
               await localDataSource.getMessagesByChatRoomId(roomId);
           if (localMessages.isNotEmpty) {
-            log('Returning messages from cache after remote failure');
+            log('Returning messages from cache after remote failure',
+                name: 'getMessages');
             return Right(localMessages);
           }
         } on Exception catch (cacheE) {
-          log('Error getting messages from cache: $cacheE');
+          log('Error getting messages from cache: $cacheE',
+              name: 'getMessages');
         }
         return Left(ServerFailure(message: e.message));
       } on Exception catch (e) {
@@ -309,11 +326,13 @@ class CachedChatRepositoryImpl implements ChatRepository {
           final localMessages =
               await localDataSource.getMessagesByChatRoomId(roomId);
           if (localMessages.isNotEmpty) {
-            log('Returning messages from cache after remote failure');
+            log('Returning messages from cache after remote failure',
+                name: 'getMessages');
             return Right(localMessages);
           }
         } on Exception catch (cacheE) {
-          log('Error getting messages from cache: $cacheE');
+          log('Error getting messages from cache: $cacheE',
+              name: 'getMessages');
         }
         return Left(ServerFailure(message: e.toString()));
       }
@@ -322,7 +341,8 @@ class CachedChatRepositoryImpl implements ChatRepository {
         final localMessages =
             await localDataSource.getMessagesByChatRoomId(roomId);
         if (localMessages.isNotEmpty) {
-          log('Returning messages from cache due to no internet');
+          log('Returning messages from cache due to no internet',
+              name: 'getMessages');
           return Right(localMessages);
         } else {
           return const Left(CacheFailure(
@@ -345,7 +365,8 @@ class CachedChatRepositoryImpl implements ChatRepository {
         try {
           await localDataSource.markMessagesAsRead(roomId, userId);
         } on Exception catch (e) {
-          log('Error marking messages as read in cache: $e');
+          log('Error marking messages as read in cache: $e',
+              name: 'markMessagesAsRead');
         }
 
         return const Right(null);
@@ -359,7 +380,8 @@ class CachedChatRepositoryImpl implements ChatRepository {
         await localDataSource.markMessagesAsRead(roomId, userId);
         return const Right(null);
       } on Exception catch (e) {
-        log('Error marking messages as read in cache: $e');
+        log('Error marking messages as read in cache: $e',
+            name: 'markMessagesAsRead');
         return const Left(NetworkFailure(message: 'No internet connection'));
       }
     }
@@ -393,7 +415,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
           );
           await localDataSource.cacheMessage(messageWithRoomId);
         } on Exception catch (e) {
-          log('Error caching message: $e');
+          log('Error caching message: $e', name: 'sendMessage');
         }
 
         return Right(message);

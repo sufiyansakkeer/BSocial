@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/extensions/widget_extensions.dart';
 import '../../../../core/utils/ui_constants.dart';
 import '../../../../features/auth/domain/entities/user.dart';
 
@@ -19,10 +20,10 @@ class ProfileHeader extends StatelessWidget {
         padding: UiConstants.paddingAll16,
         child: Column(
           children: [
-            // Profile image
-            CircleAvatar(
+            // Profile image with safe loading
+            ImageWidgetExtensions.safeCircleAvatar(
+              imageUrl: user.photoUrl,
               radius: 50,
-              backgroundImage: NetworkImage(user.photoUrl),
             ),
             UiConstants.kHeight16,
 

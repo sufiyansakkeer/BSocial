@@ -65,9 +65,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
       final box = await _chatRoomsBox;
       final hiveModel = ChatRoomHiveModel.fromEntity(chatRoom);
       await box.put(chatRoom.roomId, hiveModel);
-      log('Chat room cached: ${chatRoom.roomId}');
+      log('Chat room cached: ${chatRoom.roomId}', name: 'cacheChatRoom');
     } catch (e) {
-      log('Error caching chat room: $e');
+      log('Error caching chat room: $e', name: 'cacheChatRoom');
       throw CacheException(message: 'Failed to cache chat room: $e');
     }
   }
@@ -87,7 +87,7 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
               ))
           .toList();
     } catch (e) {
-      log('Error getting cached chat rooms: $e');
+      log('Error getting cached chat rooms: $e', name: 'getChatRooms');
       throw CacheException(message: 'Failed to get cached chat rooms: $e');
     }
   }
@@ -108,7 +108,7 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
         lastMessageSenderId: hiveModel.lastMessageSenderId,
       );
     } catch (e) {
-      log('Error getting cached chat room: $e');
+      log('Error getting cached chat room: $e', name: 'getChatRoomById');
       throw CacheException(message: 'Failed to get cached chat room: $e');
     }
   }
@@ -119,9 +119,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
       final box = await _messagesBox;
       final hiveModel = MessageHiveModel.fromEntity(message);
       await box.put(message.messageId, hiveModel);
-      log('Message cached: ${message.messageId}');
+      log('Message cached: ${message.messageId}', name: 'cacheMessage');
     } catch (e) {
-      log('Error caching message: $e');
+      log('Error caching message: $e', name: 'cacheMessage');
       throw CacheException(message: 'Failed to cache message: $e');
     }
   }
@@ -143,7 +143,7 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
               ))
           .toList();
     } catch (e) {
-      log('Error getting cached messages: $e');
+      log('Error getting cached messages: $e', name: 'getMessages');
       throw CacheException(message: 'Failed to get cached messages: $e');
     }
   }
@@ -170,9 +170,10 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
         );
         await box.put(message.messageId, updatedMessage);
       }
-      log('Messages marked as read for room: $roomId, user: $userId');
+      log('Messages marked as read for room: $roomId, user: $userId',
+          name: 'markMessagesAsRead');
     } catch (e) {
-      log('Error marking messages as read: $e');
+      log('Error marking messages as read: $e', name: 'markMessagesAsRead');
       throw CacheException(message: 'Failed to mark messages as read: $e');
     }
   }
@@ -182,9 +183,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
     try {
       final box = await _messagesBox;
       await box.delete(messageId);
-      log('Message deleted from cache: $messageId');
+      log('Message deleted from cache: $messageId', name: 'deleteMessage');
     } catch (e) {
-      log('Error deleting cached message: $e');
+      log('Error deleting cached message: $e', name: 'deleteMessage');
       throw CacheException(message: 'Failed to delete cached message: $e');
     }
   }
@@ -207,9 +208,10 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
         await messagesBox.delete(messageId);
       }
 
-      log('Chat room and messages deleted from cache: $roomId');
+      log('Chat room and messages deleted from cache: $roomId',
+          name: 'deleteChatRoom');
     } catch (e) {
-      log('Error deleting cached chat room: $e');
+      log('Error deleting cached chat room: $e', name: 'deleteChatRoom');
       throw CacheException(message: 'Failed to delete cached chat room: $e');
     }
   }
@@ -219,9 +221,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
     try {
       final box = await _chatRoomsBox;
       await box.clear();
-      log('All chat rooms cleared from cache');
+      log('All chat rooms cleared from cache', name: 'clearChatRooms');
     } catch (e) {
-      log('Error clearing cached chat rooms: $e');
+      log('Error clearing cached chat rooms: $e', name: 'clearChatRooms');
       throw CacheException(message: 'Failed to clear cached chat rooms: $e');
     }
   }
@@ -231,9 +233,9 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
     try {
       final box = await _messagesBox;
       await box.clear();
-      log('All messages cleared from cache');
+      log('All messages cleared from cache', name: 'clearMessages');
     } catch (e) {
-      log('Error clearing cached messages: $e');
+      log('Error clearing cached messages: $e', name: 'clearMessages');
       throw CacheException(message: 'Failed to clear cached messages: $e');
     }
   }

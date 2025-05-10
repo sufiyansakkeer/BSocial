@@ -25,7 +25,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
 
       return querySnapshot.docs.map(UserModel.fromSnapshot).toList();
     } catch (e) {
-      log('Error getting all users: $e');
+      log('Error getting all users: $e', name: 'getAllUsers');
       throw ServerException(message: 'Failed to get users: ${e.toString()}');
     }
   }
@@ -68,7 +68,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       // Filter out any null values (in case a follower document doesn't exist)
       return followers.whereType<UserModel>().toList();
     } catch (e) {
-      log('Error getting followers: $e');
+      log('Error getting followers: $e', name: 'getFollowers');
       throw ServerException(
           message: 'Failed to get followers: ${e.toString()}');
     }
@@ -112,7 +112,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       // Filter out any null values (in case a following document doesn't exist)
       return following.whereType<UserModel>().toList();
     } catch (e) {
-      log('Error getting following: $e');
+      log('Error getting following: $e', name: 'getFollowing');
       throw ServerException(
           message: 'Failed to get following: ${e.toString()}');
     }
@@ -132,7 +132,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
 
       return UserModel.fromSnapshot(userDoc);
     } catch (e) {
-      log('Error getting user by ID: $e');
+      log('Error getting user by ID: $e', name: 'getUserById');
       throw ServerException(message: 'Failed to get user: ${e.toString()}');
     }
   }
@@ -148,7 +148,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
 
       return querySnapshot.docs.map(UserModel.fromSnapshot).toList();
     } catch (e) {
-      log('Error searching users: $e');
+      log('Error searching users: $e', name: 'searchUsers');
       throw ServerException(message: 'Failed to search users: ${e.toString()}');
     }
   }
@@ -182,7 +182,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       final updatedUserDoc = await userRef.get();
       return UserModel.fromSnapshot(updatedUserDoc);
     } catch (e) {
-      log('Error updating user profile: $e');
+      log('Error updating user profile: $e', name: 'updateUserProfile');
       throw ServerException(
           message: 'Failed to update profile: ${e.toString()}');
     }
@@ -232,7 +232,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
         'followers': FieldValue.arrayUnion([currentUserId])
       });
     } catch (e) {
-      log('Error following user: $e');
+      log('Error following user: $e', name: 'followUser');
       throw ServerException(message: 'Failed to follow user: ${e.toString()}');
     }
   }
@@ -281,7 +281,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
         'followers': FieldValue.arrayRemove([currentUserId])
       });
     } catch (e) {
-      log('Error unfollowing user: $e');
+      log('Error un following user: $e', name: 'unfollowUser');
       throw ServerException(
           message: 'Failed to unfollow user: ${e.toString()}');
     }

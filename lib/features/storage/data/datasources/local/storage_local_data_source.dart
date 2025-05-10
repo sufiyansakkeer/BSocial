@@ -68,7 +68,7 @@ class StorageLocalDataSourceImpl implements StorageLocalDataSource {
       final ref = storage.refFromURL(url);
       await ref.delete();
     } on Exception catch (e) {
-      log('Error deleting image: $e');
+      log('Error deleting image: $e', name: 'deleteImage');
       // Handle error appropriately, e.g., log it or throw a custom exception
     }
   }

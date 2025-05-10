@@ -5,7 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 import '../../data/datasources/local/storage_local_data_source.dart';
-import '../../features/auth/data/datasources/remote/auth_remote_data_source.dart';
+import '../../features/auth/data/datasources/remote/auth_remote_data_source_impl.dart';
 import '../../features/auth/data/datasources/remote/mock_auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/chat/data/datasources/local/chat_local_data_source.dart';
@@ -56,7 +56,10 @@ class DependencyInitializer {
       // Firebase services
       final firestore = FirebaseFirestore.instance;
       final auth = FirebaseAuth.instance;
-      final googleSignIn = GoogleSignIn();
+      // Initialize GoogleSignIn with required scopes
+      final googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
+      );
       final firebaseStorage = FirebaseStorage.instance;
 
       // Storage DataSource

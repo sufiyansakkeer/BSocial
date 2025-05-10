@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+
 import '../../domain/entities/comment.dart';
 import '../../domain/entities/post.dart';
 import '../../domain/repositories/post_repository.dart';
@@ -11,8 +13,10 @@ part 'post_state.dart';
 /// BLoC for posts
 class PostBloc extends Bloc<PostEvent, PostState> {
   /// Constructor
-  PostBloc({required PostRepository postRepository})
-      : _postRepository = postRepository,
+  PostBloc({
+    required PostRepository postRepository,
+    this.onMissingIndexError,
+  })  : _postRepository = postRepository,
         super(PostInitial()) {
     on<LoadPostsEvent>(_onLoadPosts);
     on<LoadUserPostsEvent>(_onLoadUserPosts);
@@ -25,7 +29,13 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     on<DeleteCommentEvent>(_onDeleteComment);
     on<SetSelectedPostEvent>(_onSetSelectedPost);
   }
+
+  /// Repository for posts
   final PostRepository _postRepository;
+
+  /// Callback for missing index error
+  final void Function(BuildContext context, String errorMessage)?
+      onMissingIndexError;
 
   /// Handle load posts event
   Future<void> _onLoadPosts(
@@ -52,7 +62,17 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     final result = await _postRepository.getPostsByUserId(event.userId);
 
     result.fold(
-      (failure) => emit(PostError(message: failure.message)),
+      (failure) {
+        // Check if the error is related to missing index
+        if (failure.message.contains('requires an index') &&
+            event.context != null &&
+            onMissingIndexError != null) {
+          // Call the callback to show the missing index dialog
+          onMissingIndexError!(event.context!, failure.message);
+        }
+
+        emit(PostError(message: failure.message));
+      },
       (posts) => emit(UserPostsLoaded(posts: posts)),
     );
   }

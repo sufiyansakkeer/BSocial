@@ -20,9 +20,9 @@ class CacheManager {
       // Create a new instance directly instead of using GetIt
       _localDataSource = HiveLocalDataSourceImpl();
       _isInitialized = true;
-      log('CacheManager initialized successfully');
+      log('CacheManager initialized successfully', name: 'init');
     } catch (e) {
-      log('Error initializing CacheManager: $e');
+      log('Error initializing CacheManager: $e', name: 'init');
       rethrow;
     }
   }
@@ -37,9 +37,9 @@ class CacheManager {
 
     try {
       await _localDataSource.clearExpiredCache(maxAge);
-      log('Expired cache cleared successfully');
+      log('Expired cache cleared successfully', name: 'clearExpiredCache');
     } on Exception catch (e) {
-      log('Error clearing expired cache: $e');
+      log('Error clearing expired cache: $e', name: 'clearExpiredCache');
       // Don't rethrow, just log the error
     }
   }
@@ -52,9 +52,9 @@ class CacheManager {
 
     try {
       await _localDataSource.clearCache();
-      log('All cache cleared successfully');
+      log('All cache cleared successfully', name: 'clearAllCache');
     } on Exception catch (e) {
-      log('Error clearing all cache: $e');
+      log('Error clearing all cache: $e', name: 'clearAllCache');
       // Don't rethrow, just log the error
     }
   }
@@ -73,7 +73,8 @@ class CacheManager {
           maxAge: maxAge,
         );
       });
-      log('Cache cleanup scheduled every ${cleanupInterval.inHours} hours');
+      log('Cache cleanup scheduled every ${cleanupInterval.inHours} hours',
+          name: 'scheduleCacheCleanup');
     }
   }
 }

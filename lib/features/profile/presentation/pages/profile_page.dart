@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/extensions/widget_extensions.dart';
 import '../../../../features/post/presentation/blocs/post_bloc.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../blocs/profile_bloc.dart';
@@ -46,8 +47,11 @@ class _ProfilePageState extends State<ProfilePage>
     // Load profile
     context.read<ProfileBloc>().add(LoadProfileEvent(userId: widget.userId));
 
-    // Load user posts
-    context.read<PostBloc>().add(LoadUserPostsEvent(userId: widget.userId));
+    // Load user posts with context for error handling
+    context.read<PostBloc>().add(LoadUserPostsEvent(
+          userId: widget.userId,
+          context: context,
+        ));
   }
 
   @override
@@ -168,9 +172,10 @@ class _ProfilePageState extends State<ProfilePage>
                   context
                       .read<ProfileBloc>()
                       .add(LoadProfileEvent(userId: widget.userId));
-                  context
-                      .read<PostBloc>()
-                      .add(LoadUserPostsEvent(userId: widget.userId));
+                  context.read<PostBloc>().add(LoadUserPostsEvent(
+                        userId: widget.userId,
+                        context: context,
+                      ));
                 },
                 child: SingleChildScrollView(
                   child: Column(
@@ -252,12 +257,15 @@ class _ProfilePageState extends State<ProfilePage>
             // Profile image
             Stack(
               children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: _selectedImage != null
-                      ? MemoryImage(_selectedImage!)
-                      : NetworkImage(user.photoUrl) as ImageProvider,
-                ),
+                _selectedImage != null
+                    ? CircleAvatar(
+                        radius: 50,
+                        backgroundImage: MemoryImage(_selectedImage!),
+                      )
+                    : ImageWidgetExtensions.safeCircleAvatar(
+                        imageUrl: user.photoUrl,
+                        radius: 50,
+                      ),
                 Positioned(
                   bottom: 0,
                   right: 0,

@@ -90,7 +90,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
 
       return post;
     } catch (e) {
-      log('Error creating post: $e');
+      log('Error creating post: $e', name: 'createPost');
       throw ServerException(message: 'Failed to create post: ${e.toString()}');
     }
   }
@@ -105,7 +105,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
           .doc(commentId)
           .delete();
     } catch (e) {
-      log('Error deleting comment: $e');
+      log('Error deleting comment: $e', name: 'deleteComment');
       throw ServerException(
           message: 'Failed to delete comment: ${e.toString()}');
     }
@@ -147,7 +147,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
           .doc(postId)
           .delete();
     } catch (e) {
-      log('Error deleting post: $e');
+      log('Error deleting post: $e', name: 'deletePost');
       throw ServerException(message: 'Failed to delete post: ${e.toString()}');
     }
   }
@@ -162,7 +162,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
 
       return querySnapshot.docs.map(PostModel.fromSnapshot).toList();
     } catch (e) {
-      log('Error getting all posts: $e');
+      log('Error getting all posts: $e', name: 'getAllPosts');
       throw ServerException(message: 'Failed to get posts: ${e.toString()}');
     }
   }
@@ -179,7 +179,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
 
       return querySnapshot.docs.map(CommentModel.fromSnapshot).toList();
     } catch (e) {
-      log('Error getting comments: $e');
+      log('Error getting comments: $e', name: 'getComments');
       throw ServerException(message: 'Failed to get comments: ${e.toString()}');
     }
   }
@@ -195,7 +195,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
 
       return querySnapshot.docs.map(PostModel.fromSnapshot).toList();
     } catch (e) {
-      log('Error getting posts by user ID: $e');
+      log('Error getting posts by user ID: $e', name: 'getPostsByUserId');
       throw ServerException(
           message: 'Failed to get user posts: ${e.toString()}');
     }
@@ -211,7 +211,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
         'likes': FieldValue.arrayUnion([userId])
       });
     } catch (e) {
-      log('Error liking post: $e');
+      log('Error liking post: $e', name: 'likePost');
       throw ServerException(message: 'Failed to like post: ${e.toString()}');
     }
   }
@@ -249,7 +249,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
 
       return comment;
     } catch (e) {
-      log('Error posting comment: $e');
+      log('Error posting comment: $e', name: 'postComment');
       throw ServerException(message: 'Failed to post comment: ${e.toString()}');
     }
   }
@@ -264,7 +264,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
         'likes': FieldValue.arrayRemove([userId])
       });
     } catch (e) {
-      log('Error unliking post: $e');
+      log('Error un liking post: $e', name: 'unlikePost');
       throw ServerException(message: 'Failed to unlike post: ${e.toString()}');
     }
   }

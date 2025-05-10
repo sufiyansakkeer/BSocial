@@ -58,7 +58,8 @@ class CachedPostRepositoryImpl implements PostRepository {
     try {
       return await remoteCall();
     } on ServerException catch (e) {
-      log('Remote call failed: ${e.message}. Trying local fallback.');
+      log('Remote call failed: ${e.message}. Trying local fallback.',
+          name: '_handleRemoteCallWithLocalFallback');
       try {
         return await localCall();
       } on CacheException catch (e) {
@@ -67,7 +68,8 @@ class CachedPostRepositoryImpl implements PostRepository {
         throw CacheFailure(message: '$localErrorMessage: $e');
       }
     } on Exception catch (e) {
-      log('Remote call failed: $e. Trying local fallback.');
+      log('Remote call failed: $e. Trying local fallback.',
+          name: '_handleRemoteCallWithLocalFallback');
       try {
         return await localCall();
       } on CacheException catch (e) {
@@ -75,6 +77,24 @@ class CachedPostRepositoryImpl implements PostRepository {
       } on Exception catch (e) {
         throw CacheFailure(message: '$localErrorMessage: $e');
       }
+    }
+  }
+
+  /// Safely cache data with error handling
+  Future<void> _safelyCacheData<T>(
+      Future<void> Function() cacheOperation, String errorPrefix) async {
+    try {
+      await cacheOperation();
+    } on CacheException catch (e) {
+      log('$errorPrefix: ${e.message}', name: '_safelyCacheData');
+      // Continue even if caching fails
+    } on Exception catch (e) {
+      log('$errorPrefix: $e', name: '_safelyCacheData');
+      // Continue even if caching fails
+    } on Object catch (e) {
+      // This will catch HiveError and other errors
+      log('Unexpected error $errorPrefix: $e', name: '_safelyCacheData');
+      // Continue even if caching fails due to unexpected errors
     }
   }
 
@@ -99,15 +119,8 @@ class CachedPostRepositoryImpl implements PostRepository {
       );
 
       // Cache the post locally
-      try {
-        await localDataSource.cachePost(post);
-      } on CacheException catch (e) {
-        log('Error caching post: ${e.message}');
-        // Continue even if caching fails
-      } on Exception catch (e) {
-        log('Error caching post: $e');
-        // Continue even if caching fails
-      }
+      await _safelyCacheData(
+          () => localDataSource.cachePost(post), 'Error caching post');
 
       return Right(post);
     } on Failure catch (failure) {
@@ -127,15 +140,8 @@ class CachedPostRepositoryImpl implements PostRepository {
 
           // Cache posts locally
           for (final post in remotePosts) {
-            try {
-              await localDataSource.cachePost(post);
-            } on CacheException catch (e) {
-              log('Error caching post: ${e.message}');
-              // Continue even if caching fails
-            } on Exception catch (e) {
-              log('Error caching post: $e');
-              // Continue even if caching fails
-            }
+            await _safelyCacheData(
+                () => localDataSource.cachePost(post), 'Error caching post');
           }
 
           return remotePosts;
@@ -145,7 +151,7 @@ class CachedPostRepositoryImpl implements PostRepository {
           if (localPosts.isEmpty) {
             throw CacheException(message: 'No cached posts available');
           }
-          log('Returning posts from cache');
+          log('Returning posts from cache', name: 'getAllPosts');
           return localPosts;
         },
         remoteErrorMessage: 'Failed to fetch posts from server',
@@ -170,15 +176,8 @@ class CachedPostRepositoryImpl implements PostRepository {
 
           // Cache posts locally
           for (final post in remotePosts) {
-            try {
-              await localDataSource.cachePost(post);
-            } on CacheException catch (e) {
-              log('Error caching post: ${e.message}');
-              // Continue even if caching fails
-            } on Exception catch (e) {
-              log('Error caching post: $e');
-              // Continue even if caching fails
-            }
+            await _safelyCacheData(
+                () => localDataSource.cachePost(post), 'Error caching post');
           }
 
           return remotePosts;
@@ -189,7 +188,7 @@ class CachedPostRepositoryImpl implements PostRepository {
             throw CacheException(
                 message: 'No cached posts available for user $userId');
           }
-          log('Returning user posts from cache');
+          log('Returning user posts from cache', name: 'getPostsByUserId');
           return localPosts;
         },
         remoteErrorMessage: 'Failed to fetch user posts from server',
@@ -213,15 +212,8 @@ class CachedPostRepositoryImpl implements PostRepository {
       );
 
       // Delete from local cache
-      try {
-        await localDataSource.deletePost(postId);
-      } on CacheException catch (e) {
-        log('Error deleting post from cache: ${e.message}');
-        // Continue even if cache deletion fails
-      } on Exception catch (e) {
-        log('Error deleting post from cache: $e');
-        // Continue even if cache deletion fails
-      }
+      await _safelyCacheData(() => localDataSource.deletePost(postId),
+          'Error deleting post from cache');
 
       return const Right(null);
     } on Failure catch (failure) {
@@ -284,15 +276,8 @@ class CachedPostRepositoryImpl implements PostRepository {
       );
 
       // Cache the comment locally
-      try {
-        await localDataSource.cacheComment(comment);
-      } on CacheException catch (e) {
-        log('Error caching comment: ${e.message}');
-        // Continue even if caching fails
-      } on Exception catch (e) {
-        log('Error caching comment: $e');
-        // Continue even if caching fails
-      }
+      await _safelyCacheData(
+          () => localDataSource.cacheComment(comment), 'Error caching comment');
 
       return Right(comment);
     } on Failure catch (failure) {
@@ -312,15 +297,8 @@ class CachedPostRepositoryImpl implements PostRepository {
 
           // Cache comments locally
           for (final comment in remoteComments) {
-            try {
-              await localDataSource.cacheComment(comment);
-            } on CacheException catch (e) {
-              log('Error caching comment: ${e.message}');
-              // Continue even if caching fails
-            } on Exception catch (e) {
-              log('Error caching comment: $e');
-              // Continue even if caching fails
-            }
+            await _safelyCacheData(() => localDataSource.cacheComment(comment),
+                'Error caching comment');
           }
 
           return remoteComments;
@@ -331,7 +309,7 @@ class CachedPostRepositoryImpl implements PostRepository {
             throw CacheException(
                 message: 'No cached comments available for post $postId');
           }
-          log('Returning comments from cache');
+          log('Returning comments from cache', name: 'getComments');
           return localComments;
         },
         remoteErrorMessage: 'Failed to fetch comments from server',
@@ -355,15 +333,9 @@ class CachedPostRepositoryImpl implements PostRepository {
       );
 
       // Delete from local cache
-      try {
-        await localDataSource.deleteComment(commentId, postId);
-      } on CacheException catch (e) {
-        log('Error deleting comment from cache: ${e.message}');
-        // Continue even if cache deletion fails
-      } on Exception catch (e) {
-        log('Error deleting comment from cache: $e');
-        // Continue even if cache deletion fails
-      }
+      await _safelyCacheData(
+          () => localDataSource.deleteComment(commentId, postId),
+          'Error deleting comment from cache');
 
       return const Right(null);
     } on Failure catch (failure) {

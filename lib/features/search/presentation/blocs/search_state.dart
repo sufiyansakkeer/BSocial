@@ -10,7 +10,18 @@ abstract class SearchState extends Equatable {
 }
 
 /// Initial search state
-class SearchInitial extends SearchState {}
+class SearchInitial extends SearchState {
+  /// Constructor
+  const SearchInitial({
+    this.recentSearches = const [],
+  });
+
+  /// Recent searches
+  final List<RecentSearchModel> recentSearches;
+
+  @override
+  List<Object?> get props => [recentSearches];
+}
 
 /// Loading search state
 class SearchLoading extends SearchState {}

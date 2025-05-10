@@ -15,13 +15,19 @@ class LoadPostsEvent extends PostEvent {}
 /// Event to load posts by user ID
 class LoadUserPostsEvent extends PostEvent {
   /// Constructor
-  const LoadUserPostsEvent({required this.userId});
+  const LoadUserPostsEvent({
+    required this.userId,
+    this.context,
+  });
 
   /// User ID
   final String userId;
 
+  /// BuildContext for showing dialogs
+  final BuildContext? context;
+
   @override
-  List<Object> get props => [userId];
+  List<Object?> get props => [userId, context];
 }
 
 /// Event to create a post
