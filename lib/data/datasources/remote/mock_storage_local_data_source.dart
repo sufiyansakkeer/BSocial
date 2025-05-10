@@ -18,7 +18,6 @@ class MockStorageLocalDataSource implements StorageLocalDataSource {
     throw ServerException(message: 'Not available in offline mode');
   }
 
-  @override
   Future<String> uploadFile(
       Uint8List file, String path, String name, String contentType) async {
     // Return a mock URL or throw an exception

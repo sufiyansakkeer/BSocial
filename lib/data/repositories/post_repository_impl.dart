@@ -37,7 +37,11 @@ class PostRepositoryImpl implements PostRepository {
         return Right(post);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -53,7 +57,11 @@ class PostRepositoryImpl implements PostRepository {
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -69,7 +77,11 @@ class PostRepositoryImpl implements PostRepository {
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -85,7 +97,11 @@ class PostRepositoryImpl implements PostRepository {
         return Right(posts);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -101,7 +117,11 @@ class PostRepositoryImpl implements PostRepository {
         return Right(comments);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -117,7 +137,11 @@ class PostRepositoryImpl implements PostRepository {
         return Right(posts);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -133,7 +157,11 @@ class PostRepositoryImpl implements PostRepository {
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -161,7 +189,11 @@ class PostRepositoryImpl implements PostRepository {
         return Right(comment);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -177,7 +209,11 @@ class PostRepositoryImpl implements PostRepository {
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {

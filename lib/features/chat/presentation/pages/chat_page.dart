@@ -191,7 +191,8 @@ class _ChatPageState extends State<ChatPage> {
                                           builder: (context) => AlertDialog(
                                             title: const Text('Delete Message'),
                                             content: const Text(
-                                                'Are you sure you want to delete this message?'),
+                                                'Are you sure you want to '
+                                                'delete this message?'),
                                             actions: [
                                               TextButton(
                                                 onPressed: () =>
@@ -231,7 +232,7 @@ class _ChatPageState extends State<ChatPage> {
                       color: Theme.of(context).cardColor,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withAlpha((0.05 * 255).round()),
                           blurRadius: 5,
                           offset: const Offset(0, -1),
                         ),

@@ -41,6 +41,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         ),
         body: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
+            // If the widget is no longer mounted, don't attempt to use
+            // BuildContext or setState.
+            if (!mounted) {
+              return;
+            }
             if (state is AuthLoading) {
               setState(() {
                 _isLoading = true;
@@ -59,8 +64,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
               );
               // Navigate back to login page after a short delay
+              final router = GoRouter.of(context);
               Future.delayed(const Duration(seconds: 2), () {
-                context.go('/auth/login');
+                // Ensure the widget is still mounted before navigating
+                if (mounted) {
+                  router.go('/auth/login');
+                }
               });
             } else if (state is AuthError) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -96,7 +105,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'Enter your email address and we\'ll send you a link to reset your password.',
+                      'Enter your email address and we\'ll'
+                      ' send you a link to reset your password.',
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 32),

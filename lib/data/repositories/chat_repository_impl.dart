@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+
 import '../../core/errors/exceptions.dart';
 import '../../core/errors/failures.dart';
 import '../../core/network/network_info.dart';
@@ -13,18 +14,19 @@ class ChatRepositoryImpl implements ChatRepository {
     required this.remoteDataSource,
     required this.networkInfo,
   });
+
   final ChatRemoteDataSource remoteDataSource;
   final NetworkInfo networkInfo;
 
-  @override
-  ResultFuture<ChatRoom> createChatRoom(List<String> participants) async {
+  Future<Either<Failure, T>> _guardNetworkCall<T>(
+      Future<T> Function() call) async {
     if (await networkInfo.isConnected) {
       try {
-        final chatRoom = await remoteDataSource.createChatRoom(participants);
-        return Right(chatRoom);
+        final result = await call();
+        return Right(result);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -33,118 +35,40 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  ResultVoid deleteChatRoom(String roomId) async {
-    if (await networkInfo.isConnected) {
-      try {
-        await remoteDataSource.deleteChatRoom(roomId);
-        return const Right(null);
-      } on ServerException catch (e) {
-        return Left(ServerFailure(message: e.message));
-      } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
-      }
-    } else {
-      return const Left(NetworkFailure(message: 'No internet connection'));
-    }
-  }
+  ResultFuture<ChatRoom> createChatRoom(List<String> participants) =>
+      _guardNetworkCall(() => remoteDataSource.createChatRoom(participants));
 
   @override
-  ResultVoid deleteMessage(String messageId, String roomId) async {
-    if (await networkInfo.isConnected) {
-      try {
-        await remoteDataSource.deleteMessage(messageId, roomId);
-        return const Right(null);
-      } on ServerException catch (e) {
-        return Left(ServerFailure(message: e.message));
-      } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
-      }
-    } else {
-      return const Left(NetworkFailure(message: 'No internet connection'));
-    }
-  }
+  ResultVoid deleteChatRoom(String roomId) =>
+      _guardNetworkCall(() => remoteDataSource.deleteChatRoom(roomId));
 
   @override
-  ResultFuture<ChatRoom> getChatRoomById(String roomId) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final chatRoom = await remoteDataSource.getChatRoomById(roomId);
-        return Right(chatRoom);
-      } on ServerException catch (e) {
-        return Left(ServerFailure(message: e.message));
-      } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
-      }
-    } else {
-      return const Left(NetworkFailure(message: 'No internet connection'));
-    }
-  }
+  ResultVoid deleteMessage(String messageId, String roomId) =>
+      _guardNetworkCall(
+          () => remoteDataSource.deleteMessage(messageId, roomId));
+
+  @override
+  ResultFuture<ChatRoom> getChatRoomById(String roomId) =>
+      _guardNetworkCall(() => remoteDataSource.getChatRoomById(roomId));
 
   @override
   ResultFuture<ChatRoom?> getChatRoomByParticipants(
-      List<String> participants) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final chatRoom =
-            await remoteDataSource.getChatRoomByParticipants(participants);
-        return Right(chatRoom);
-      } on ServerException catch (e) {
-        return Left(ServerFailure(message: e.message));
-      } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
-      }
-    } else {
-      return const Left(NetworkFailure(message: 'No internet connection'));
-    }
-  }
+          List<String> participants) =>
+      _guardNetworkCall(
+          () => remoteDataSource.getChatRoomByParticipants(participants));
 
   @override
-  ResultFuture<List<ChatRoom>> getChatRooms(String userId) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final chatRooms = await remoteDataSource.getChatRooms(userId);
-        return Right(chatRooms);
-      } on ServerException catch (e) {
-        return Left(ServerFailure(message: e.message));
-      } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
-      }
-    } else {
-      return const Left(NetworkFailure(message: 'No internet connection'));
-    }
-  }
+  ResultFuture<List<ChatRoom>> getChatRooms(String userId) =>
+      _guardNetworkCall(() => remoteDataSource.getChatRooms(userId));
 
   @override
-  ResultFuture<List<Message>> getMessages(String roomId) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final messages = await remoteDataSource.getMessages(roomId);
-        return Right(messages);
-      } on ServerException catch (e) {
-        return Left(ServerFailure(message: e.message));
-      } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
-      }
-    } else {
-      return const Left(NetworkFailure(message: 'No internet connection'));
-    }
-  }
+  ResultFuture<List<Message>> getMessages(String roomId) =>
+      _guardNetworkCall(() => remoteDataSource.getMessages(roomId));
 
   @override
-  ResultVoid markMessagesAsRead(String roomId, String userId) async {
-    if (await networkInfo.isConnected) {
-      try {
-        await remoteDataSource.markMessagesAsRead(roomId, userId);
-        return const Right(null);
-      } on ServerException catch (e) {
-        return Left(ServerFailure(message: e.message));
-      } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
-      }
-    } else {
-      return const Left(NetworkFailure(message: 'No internet connection'));
-    }
-  }
+  ResultVoid markMessagesAsRead(String roomId, String userId) =>
+      _guardNetworkCall(
+          () => remoteDataSource.markMessagesAsRead(roomId, userId));
 
   @override
   ResultFuture<Message> sendMessage({
@@ -152,23 +76,11 @@ class ChatRepositoryImpl implements ChatRepository {
     required String senderId,
     required String receiverId,
     required String content,
-  }) async {
-    if (await networkInfo.isConnected) {
-      try {
-        final message = await remoteDataSource.sendMessage(
-          roomId: roomId,
-          senderId: senderId,
-          receiverId: receiverId,
-          content: content,
-        );
-        return Right(message);
-      } on ServerException catch (e) {
-        return Left(ServerFailure(message: e.message));
-      } catch (e) {
-        return Left(ServerFailure(message: e.toString()));
-      }
-    } else {
-      return const Left(NetworkFailure(message: 'No internet connection'));
-    }
-  }
+  }) =>
+      _guardNetworkCall(() => remoteDataSource.sendMessage(
+            roomId: roomId,
+            senderId: senderId,
+            receiverId: receiverId,
+            content: content,
+          ));
 }

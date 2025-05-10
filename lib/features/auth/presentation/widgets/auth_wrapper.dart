@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../blocs/auth_bloc.dart';
 
-/// A widget that wraps authenticated content and redirects to login if not authenticated
+/// A widget that wraps authenticated content and redirects to login if not
+/// authenticated
 class AuthWrapper extends StatelessWidget {
   /// Constructor
   const AuthWrapper({

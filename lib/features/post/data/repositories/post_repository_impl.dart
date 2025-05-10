@@ -45,7 +45,11 @@ class PostRepositoryImpl implements PostRepository {
         return either_type.Right(post);
       } on ServerException catch (e) {
         return either_type.Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return either_type.Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return either_type.Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return either_type.Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -62,7 +66,11 @@ class PostRepositoryImpl implements PostRepository {
         return either_type.Right(posts);
       } on ServerException catch (e) {
         return either_type.Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return either_type.Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return either_type.Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return either_type.Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -79,7 +87,11 @@ class PostRepositoryImpl implements PostRepository {
         return either_type.Right(posts);
       } on ServerException catch (e) {
         return either_type.Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return either_type.Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return either_type.Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return either_type.Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -96,7 +108,11 @@ class PostRepositoryImpl implements PostRepository {
         return const either_type.Right(null);
       } on ServerException catch (e) {
         return either_type.Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return either_type.Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return either_type.Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return either_type.Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -113,7 +129,11 @@ class PostRepositoryImpl implements PostRepository {
         return const either_type.Right(null);
       } on ServerException catch (e) {
         return either_type.Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return either_type.Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return either_type.Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return either_type.Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -130,7 +150,11 @@ class PostRepositoryImpl implements PostRepository {
         return const either_type.Right(null);
       } on ServerException catch (e) {
         return either_type.Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return either_type.Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return either_type.Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return either_type.Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -159,7 +183,11 @@ class PostRepositoryImpl implements PostRepository {
         return either_type.Right(comment);
       } on ServerException catch (e) {
         return either_type.Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return either_type.Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return either_type.Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return either_type.Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -176,7 +204,11 @@ class PostRepositoryImpl implements PostRepository {
         return either_type.Right(comments);
       } on ServerException catch (e) {
         return either_type.Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return either_type.Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return either_type.Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return either_type.Left(ServerFailure(message: e.toString()));
       }
     } else {
@@ -193,7 +225,11 @@ class PostRepositoryImpl implements PostRepository {
         return const either_type.Right(null);
       } on ServerException catch (e) {
         return either_type.Left(ServerFailure(message: e.message));
-      } catch (e) {
+      } on AuthException catch (e) {
+        return either_type.Left(AuthFailure(message: e.message));
+      } on CacheException catch (e) {
+        return either_type.Left(CacheFailure(message: e.message));
+      } on Exception catch (e) {
         return either_type.Left(ServerFailure(message: e.toString()));
       }
     } else {

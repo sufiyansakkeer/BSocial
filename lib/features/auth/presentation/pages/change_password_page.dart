@@ -60,23 +60,30 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             }
 
             if (state is PasswordChanged) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.green,
-                ),
-              );
+              final router = GoRouter.of(context);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
               // Navigate back after a short delay
               Future.delayed(const Duration(seconds: 2), () {
-                context.pop();
+                if (mounted) {
+                  router.pop();
+                }
               });
             } else if (state is AuthError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.red,
-                ),
-              );
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             }
           },
           builder: (context, state) => Center(

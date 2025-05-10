@@ -39,7 +39,11 @@ class CachedPostRepositoryImpl implements PostRepository {
       return await call();
     } on ServerException catch (e) {
       throw ServerFailure(message: e.message);
-    } catch (e) {
+    } on AuthException catch (e) {
+      throw AuthFailure(message: e.message);
+    } on CacheException catch (e) {
+      throw CacheFailure(message: e.message);
+    } on Exception catch (e) {
       throw ServerFailure(message: '$errorMessage: $e');
     }
   }
@@ -59,16 +63,16 @@ class CachedPostRepositoryImpl implements PostRepository {
         return await localCall();
       } on CacheException catch (e) {
         throw CacheFailure(message: e.message);
-      } catch (e) {
+      } on Exception catch (e) {
         throw CacheFailure(message: '$localErrorMessage: $e');
       }
-    } catch (e) {
+    } on Exception catch (e) {
       log('Remote call failed: $e. Trying local fallback.');
       try {
         return await localCall();
       } on CacheException catch (e) {
         throw CacheFailure(message: e.message);
-      } catch (e) {
+      } on Exception catch (e) {
         throw CacheFailure(message: '$localErrorMessage: $e');
       }
     }
@@ -97,7 +101,10 @@ class CachedPostRepositoryImpl implements PostRepository {
       // Cache the post locally
       try {
         await localDataSource.cachePost(post);
-      } catch (e) {
+      } on CacheException catch (e) {
+        log('Error caching post: ${e.message}');
+        // Continue even if caching fails
+      } on Exception catch (e) {
         log('Error caching post: $e');
         // Continue even if caching fails
       }
@@ -105,7 +112,7 @@ class CachedPostRepositoryImpl implements PostRepository {
       return Right(post);
     } on Failure catch (failure) {
       return Left(failure);
-    } catch (e) {
+    } on Exception catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
   }
@@ -122,7 +129,10 @@ class CachedPostRepositoryImpl implements PostRepository {
           for (final post in remotePosts) {
             try {
               await localDataSource.cachePost(post);
-            } catch (e) {
+            } on CacheException catch (e) {
+              log('Error caching post: ${e.message}');
+              // Continue even if caching fails
+            } on Exception catch (e) {
               log('Error caching post: $e');
               // Continue even if caching fails
             }
@@ -145,7 +155,7 @@ class CachedPostRepositoryImpl implements PostRepository {
       return Right(posts);
     } on Failure catch (failure) {
       return Left(failure);
-    } catch (e) {
+    } on Exception catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
   }
@@ -162,7 +172,10 @@ class CachedPostRepositoryImpl implements PostRepository {
           for (final post in remotePosts) {
             try {
               await localDataSource.cachePost(post);
-            } catch (e) {
+            } on CacheException catch (e) {
+              log('Error caching post: ${e.message}');
+              // Continue even if caching fails
+            } on Exception catch (e) {
               log('Error caching post: $e');
               // Continue even if caching fails
             }
@@ -186,7 +199,7 @@ class CachedPostRepositoryImpl implements PostRepository {
       return Right(posts);
     } on Failure catch (failure) {
       return Left(failure);
-    } catch (e) {
+    } on Exception catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
   }
@@ -202,7 +215,10 @@ class CachedPostRepositoryImpl implements PostRepository {
       // Delete from local cache
       try {
         await localDataSource.deletePost(postId);
-      } catch (e) {
+      } on CacheException catch (e) {
+        log('Error deleting post from cache: ${e.message}');
+        // Continue even if cache deletion fails
+      } on Exception catch (e) {
         log('Error deleting post from cache: $e');
         // Continue even if cache deletion fails
       }
@@ -210,7 +226,7 @@ class CachedPostRepositoryImpl implements PostRepository {
       return const Right(null);
     } on Failure catch (failure) {
       return Left(failure);
-    } catch (e) {
+    } on Exception catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
   }
@@ -226,7 +242,7 @@ class CachedPostRepositoryImpl implements PostRepository {
       return const Right(null);
     } on Failure catch (failure) {
       return Left(failure);
-    } catch (e) {
+    } on Exception catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
   }
@@ -242,7 +258,7 @@ class CachedPostRepositoryImpl implements PostRepository {
       return const Right(null);
     } on Failure catch (failure) {
       return Left(failure);
-    } catch (e) {
+    } on Exception catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
   }
@@ -270,7 +286,10 @@ class CachedPostRepositoryImpl implements PostRepository {
       // Cache the comment locally
       try {
         await localDataSource.cacheComment(comment);
-      } catch (e) {
+      } on CacheException catch (e) {
+        log('Error caching comment: ${e.message}');
+        // Continue even if caching fails
+      } on Exception catch (e) {
         log('Error caching comment: $e');
         // Continue even if caching fails
       }
@@ -278,7 +297,7 @@ class CachedPostRepositoryImpl implements PostRepository {
       return Right(comment);
     } on Failure catch (failure) {
       return Left(failure);
-    } catch (e) {
+    } on Exception catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
   }
@@ -295,7 +314,10 @@ class CachedPostRepositoryImpl implements PostRepository {
           for (final comment in remoteComments) {
             try {
               await localDataSource.cacheComment(comment);
-            } catch (e) {
+            } on CacheException catch (e) {
+              log('Error caching comment: ${e.message}');
+              // Continue even if caching fails
+            } on Exception catch (e) {
               log('Error caching comment: $e');
               // Continue even if caching fails
             }
@@ -319,7 +341,7 @@ class CachedPostRepositoryImpl implements PostRepository {
       return Right(comments);
     } on Failure catch (failure) {
       return Left(failure);
-    } catch (e) {
+    } on Exception catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
   }
@@ -335,7 +357,10 @@ class CachedPostRepositoryImpl implements PostRepository {
       // Delete from local cache
       try {
         await localDataSource.deleteComment(commentId, postId);
-      } catch (e) {
+      } on CacheException catch (e) {
+        log('Error deleting comment from cache: ${e.message}');
+        // Continue even if cache deletion fails
+      } on Exception catch (e) {
         log('Error deleting comment from cache: $e');
         // Continue even if cache deletion fails
       }
@@ -343,7 +368,7 @@ class CachedPostRepositoryImpl implements PostRepository {
       return const Right(null);
     } on Failure catch (failure) {
       return Left(failure);
-    } catch (e) {
+    } on Exception catch (e) {
       return Left(ServerFailure(message: e.toString()));
     }
   }

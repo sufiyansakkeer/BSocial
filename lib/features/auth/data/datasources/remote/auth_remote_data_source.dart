@@ -272,8 +272,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> verifyEmail(String code) async {
     try {
-      // Firebase doesn't have a direct API for verifying email with code
-      // This would typically be handled by the user clicking a link in their email
+      // Firebase doesn't have a direct API for verifying email with code This
+      // would typically be handled by the user clicking a link in their email
       // This is a placeholder implementation
       throw AuthException(
           message: 'Email verification with code not supported by Firebase');
@@ -350,9 +350,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> enableMfa() async {
     try {
-      // Firebase doesn't directly support TOTP MFA through the SDK
-      // This would typically involve additional setup with a third-party MFA provider
-      // This is a placeholder implementation
+      // Firebase doesn't directly support TOTP MFA through the SDK This would
+      // typically involve additional setup with a third-party MFA provider This
+      // is a placeholder implementation
       throw AuthException(message: 'MFA enablement not implemented');
     } catch (e) {
       log('Enable MFA error: $e');
@@ -363,9 +363,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> disableMfa({required String password}) async {
     try {
-      // Firebase doesn't directly support TOTP MFA through the SDK
-      // This would typically involve additional setup with a third-party MFA provider
-      // This is a placeholder implementation
+      // Firebase doesn't directly support TOTP MFA through the SDK This would
+      // typically involve additional setup with a third-party MFA provider This
+      // is a placeholder implementation
       throw AuthException(message: 'MFA disablement not implemented');
     } catch (e) {
       log('Disable MFA error: $e');
@@ -376,9 +376,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserAuthModel> verifyMfaCode(String code) async {
     try {
-      // Firebase doesn't directly support TOTP MFA through the SDK
-      // This would typically involve additional setup with a third-party MFA provider
-      // This is a placeholder implementation
+      // Firebase doesn't directly support TOTP MFA through the SDK This would
+      // typically involve additional setup with a third-party MFA provider This
+      // is a placeholder implementation
       throw AuthException(message: 'MFA verification not implemented');
     } catch (e) {
       log('Verify MFA code error: $e');
@@ -716,8 +716,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           _firestore.collection(AppConstants.usersCollection).doc(userId);
 
       final updateData = <String, dynamic>{};
-      if (userName != null) updateData['userName'] = userName;
-      if (bio != null) updateData['bio'] = bio;
+      if (userName != null) {
+        updateData['userName'] = userName;
+      }
+      if (bio != null) {
+        updateData['bio'] = bio;
+      }
 
       // Upload profile picture if provided
       if (profilePic != null) {

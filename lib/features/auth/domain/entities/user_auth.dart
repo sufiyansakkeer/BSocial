@@ -14,8 +14,9 @@ enum UserRole {
 
 /// User authentication entity
 ///
-/// This entity contains the user information needed for authentication and authorization.
-/// It's separate from the full User entity to avoid circular dependencies between features.
+/// This entity contains the user information needed for authentication and
+/// authorization. It's separate from the full User entity to avoid circular
+/// dependencies between features.
 class UserAuth extends Equatable {
   /// Creates a new [UserAuth] instance
   const UserAuth({
@@ -73,7 +74,8 @@ class UserAuth extends Equatable {
   /// When the user last logged in
   final DateTime? lastLoginAt;
 
-  /// Creates a copy of this [UserAuth] with the given fields replaced with new values
+  /// Creates a copy of this [UserAuth] with the given fields replaced with new
+  /// values
   UserAuth copyWith({
     String? email,
     String? uid,

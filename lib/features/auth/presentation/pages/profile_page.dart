@@ -110,7 +110,8 @@ class _ProfilePageState extends State<ProfilePage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text(
-            'For security reasons, please enter your password to disable two-factor authentication.',
+            'For security reasons, please enter your password to disable '
+            'two-factor authentication.',
           ),
           const SizedBox(height: 16),
           TextField(
@@ -159,7 +160,8 @@ class _ProfilePageState extends State<ProfilePage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text(
-            'This action cannot be undone. All your data will be permanently deleted. Please enter your password to confirm.',
+            'This action cannot be undone. All your data will be permanently'
+            ' deleted. Please enter your password to confirm.',
             style: TextStyle(color: Colors.red),
           ),
           const SizedBox(height: 16),

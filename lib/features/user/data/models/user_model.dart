@@ -30,8 +30,9 @@ class UserModel extends User {
         uid: '', // Required by User
         username: '', // Required by User
         profilePic: '', // Required by User
-        // UserModel specific fields will use their default values from constructor
-        // Other User fields will use their defaults from User constructor
+        // UserModel specific fields will use their default values from
+        // constructor Other User fields will use their defaults from User
+        // constructor
       );
     }
     return UserModel.fromJson(data);
@@ -91,6 +92,7 @@ class UserModel extends User {
         followers: super.followers,
         following: super.following,
         status: super.status,
-        // UserModel-specific fields (bio, isMfaEnabled, isEmailVerified) are not in the canonical User entity.
+        // UserModel-specific fields (bio, isMfaEnabled, isEmailVerified) are
+        // not in the canonical User entity.
       );
 }

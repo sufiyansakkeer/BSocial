@@ -51,7 +51,7 @@ class MockAuthRemoteDataSource implements AuthRemoteDataSource {
       final user = _users.firstWhere((user) => user.email == email);
       _currentUser = user;
       return user;
-    } catch (e) {
+    } on Exception {
       throw AuthException(message: 'Invalid email or password');
     }
   }
@@ -271,8 +271,10 @@ class MockAuthRemoteDataSource implements AuthRemoteDataSource {
         status: _users[index].status,
         isEmailVerified: true,
       );
-    } catch (e) {
-      throw AuthException(message: 'Failed to update user: $e');
+    } on AuthException {
+      rethrow;
+    } on Exception catch (e) {
+      throw AuthException(message: 'Failed to update user: ${e.toString()}');
     }
   }
 

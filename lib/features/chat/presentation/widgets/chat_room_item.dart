@@ -25,7 +25,8 @@ class ChatRoomItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final authState = context.read<AuthBloc>().state;
-    final currentUserId = authState is Authenticated ? authState.user.uid : null;
+    final currentUserId =
+        authState is Authenticated ? authState.user.uid : null;
 
     // Find the other participant's ID
     final otherUserId = currentUserId != null
@@ -51,8 +52,7 @@ class ChatRoomItem extends StatelessWidget {
             : DateFormat.MMMd().format(chatRoom.lastMessageTime);
 
     // Check if the last message was sent by the current user
-    final isLastMessageFromMe =
-        chatRoom.lastMessageSenderId == currentUserId;
+    final isLastMessageFromMe = chatRoom.lastMessageSenderId == currentUserId;
 
     return InkWell(
       onTap: onTap,

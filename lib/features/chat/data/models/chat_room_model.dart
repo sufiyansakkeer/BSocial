@@ -36,7 +36,7 @@ class ChatRoomModel extends ChatRoom {
         'lastMessageSenderId': lastMessageSenderId,
       };
 
-  /// Helper method to convert dynamic list to List<String>
+  /// Helper method to convert dynamic list to `List<String>`
   static List<String> _convertToStringList(List<dynamic> list) =>
       list.map((item) => item.toString()).toList();
 }

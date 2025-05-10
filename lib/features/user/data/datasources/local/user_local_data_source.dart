@@ -48,11 +48,12 @@ class UserLocalDataSourceImpl implements UserLocalDataSource {
         email: user.email,
         userName: user
             .username, // Map UserModel's primary username to hiveModel.userName
-        photoUrl: user
-            .profilePic, // Map UserModel's primary profilePic to hiveModel.photoUrl
-        // Assuming canonical User's optional userName and photoUrl are not primary here
-        // or that UserModel itself doesn't differentiate them beyond what User entity has.
-        // If UserModel had distinct fields for User's optional userName/photoUrl, map them here.
+        photoUrl: user.profilePic, // Map UserModel's primary profilePic to
+        // hiveModel.photoUrl
+        // Assuming canonical User's optional userName and photoUrl are not
+        //primary here or that UserModel itself doesn't differentiate them
+        //beyond what User entity has. If UserModel had distinct fields for
+        //User's optional userName/photoUrl, map them here.
         followers: user.followers,
         following: user.following,
         status: user.status,
@@ -102,18 +103,18 @@ class UserLocalDataSourceImpl implements UserLocalDataSource {
                     .userName, // Map to canonical User's required username
                 profilePic: hiveModel
                     .photoUrl, // Map to canonical User's required profilePic
-                email: hiveModel.email ?? '',
+                email: hiveModel.email,
                 photoUrl: hiveModel
                     .photoUrl, // For canonical User's optional photoUrl
-                userName: hiveModel.userName ??
-                    '', // For canonical User's optional userName
-                followers: hiveModel.followers ?? [],
-                following: hiveModel.following ?? [],
-                status: hiveModel.status ?? '',
+                userName: hiveModel
+                    .userName, // For canonical User's optional userName
+                followers: hiveModel.followers,
+                following: hiveModel.following,
+                status: hiveModel.status,
                 // UserModel specific fields
-                bio: hiveModel.bio ?? '',
-                isMfaEnabled: hiveModel.isMfaEnabled ?? false,
-                isEmailVerified: hiveModel.isEmailVerified ?? false,
+                bio: hiveModel.bio,
+                isMfaEnabled: hiveModel.isMfaEnabled,
+                isEmailVerified: hiveModel.isEmailVerified,
               ))
           .toList();
     } catch (e) {
@@ -136,18 +137,16 @@ class UserLocalDataSourceImpl implements UserLocalDataSource {
             hiveModel.userName, // Map to canonical User's required username
         profilePic:
             hiveModel.photoUrl, // Map to canonical User's required profilePic
-        email: hiveModel.email ?? '',
-        photoUrl:
-            hiveModel.photoUrl ?? '', // For canonical User's optional photoUrl
-        userName:
-            hiveModel.userName ?? '', // For canonical User's optional userName
-        followers: hiveModel.followers ?? [],
-        following: hiveModel.following ?? [],
-        status: hiveModel.status ?? '',
+        email: hiveModel.email,
+        photoUrl: hiveModel.photoUrl, // For canonical User's optional photoUrl
+        userName: hiveModel.userName, // For canonical User's optional userName
+        followers: hiveModel.followers,
+        following: hiveModel.following,
+        status: hiveModel.status,
         // UserModel specific fields
-        bio: hiveModel.bio ?? '',
-        isMfaEnabled: hiveModel.isMfaEnabled ?? false,
-        isEmailVerified: hiveModel.isEmailVerified ?? false,
+        bio: hiveModel.bio,
+        isMfaEnabled: hiveModel.isMfaEnabled,
+        isEmailVerified: hiveModel.isEmailVerified,
       );
     } catch (e) {
       log('Error getting user by ID: $e');
@@ -169,18 +168,18 @@ class UserLocalDataSourceImpl implements UserLocalDataSource {
                 hiveModel.userName, // Map to canonical User's required username
             profilePic: hiveModel
                 .photoUrl, // Map to canonical User's required profilePic
-            email: hiveModel.email ?? '',
-            photoUrl: hiveModel.photoUrl ??
-                '', // For canonical User's optional photoUrl
-            userName: hiveModel.userName ??
-                '', // For canonical User's optional userName
-            followers: hiveModel.followers ?? [],
-            following: hiveModel.following ?? [],
-            status: hiveModel.status ?? '',
+            email: hiveModel.email,
+            photoUrl:
+                hiveModel.photoUrl, // For canonical User's optional photoUrl
+            userName:
+                hiveModel.userName, // For canonical User's optional userName
+            followers: hiveModel.followers,
+            following: hiveModel.following,
+            status: hiveModel.status,
             // UserModel specific fields
-            bio: hiveModel.bio ?? '',
-            isMfaEnabled: hiveModel.isMfaEnabled ?? false,
-            isEmailVerified: hiveModel.isEmailVerified ?? false,
+            bio: hiveModel.bio,
+            isMfaEnabled: hiveModel.isMfaEnabled,
+            isEmailVerified: hiveModel.isEmailVerified,
           ));
         }
       }

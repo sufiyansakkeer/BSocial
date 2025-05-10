@@ -55,7 +55,8 @@ class ChatBubble extends StatelessWidget {
             borderRadius: BorderRadius.circular(UiConstants.borderRadiusMedium),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black
+                    .withAlpha(13), // 0.05 * 255 = 12.75, rounded to 13
                 blurRadius: 3,
                 offset: const Offset(0, 1),
               ),
