@@ -12,6 +12,7 @@ class MessageModel extends Message {
     required super.timestamp,
     required super.isRead,
     super.roomId = '',
+    super.status = MessageStatus.sent,
   });
 
   /// Create model from Firestore snapshot
@@ -29,6 +30,7 @@ class MessageModel extends Message {
         timestamp: (json['timestamp'] as Timestamp).toDate(),
         isRead: json['isRead'] ?? false,
         roomId: json['roomId'] ?? '',
+        status: _parseStatus(json['status']),
       );
 
   /// Convert model to JSON
@@ -40,5 +42,33 @@ class MessageModel extends Message {
         'timestamp': timestamp,
         'isRead': isRead,
         'roomId': roomId,
+        'status': status.index,
       };
+
+  /// Parse status from JSON
+  static MessageStatus _parseStatus(dynamic statusValue) {
+    if (statusValue == null) {
+      return MessageStatus.sent;
+    }
+
+    if (statusValue is int &&
+        statusValue >= 0 &&
+        statusValue < MessageStatus.values.length) {
+      return MessageStatus.values[statusValue];
+    }
+
+    return MessageStatus.sent;
+  }
+
+  /// Convert model to entity
+  Message toEntity(String? currentRoomId) => Message(
+        messageId: messageId,
+        senderId: senderId,
+        receiverId: receiverId,
+        content: content,
+        timestamp: timestamp,
+        isRead: isRead,
+        roomId: roomId.isNotEmpty ? roomId : currentRoomId ?? '',
+        status: status,
+      );
 }

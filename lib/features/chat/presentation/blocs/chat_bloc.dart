@@ -44,28 +44,28 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   /// Get chat rooms use case
   final GetChatRoomsUseCase getChatRoomsUseCase;
-  
+
   /// Create chat room use case
   final CreateChatRoomUseCase createChatRoomUseCase;
-  
+
   /// Get chat room by ID use case
   final GetChatRoomByIdUseCase getChatRoomByIdUseCase;
-  
+
   /// Get chat room by participants use case
   final GetChatRoomByParticipantsUseCase getChatRoomByParticipantsUseCase;
-  
+
   /// Send message use case
   final SendMessageUseCase sendMessageUseCase;
-  
+
   /// Get messages use case
   final GetMessagesUseCase getMessagesUseCase;
-  
+
   /// Mark messages as read use case
   final MarkMessagesAsReadUseCase markMessagesAsReadUseCase;
-  
+
   /// Delete message use case
   final DeleteMessageUseCase deleteMessageUseCase;
-  
+
   /// Delete chat room use case
   final DeleteChatRoomUseCase deleteChatRoomUseCase;
 
@@ -153,12 +153,24 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       (failure) => emit(ChatError(message: failure.message)),
       (message) {
         if (state is MessagesLoaded) {
-          final currentMessages = (state as MessagesLoaded).messages;
+          // If we already have messages loaded, just add the new message to the list
+          final currentState = state as MessagesLoaded;
+          final updatedMessages = [message, ...currentState.messages];
+
+          // Also update the chat room's last message info
+          final updatedChatRoom = currentState.chatRoom.copyWith(
+            lastMessage: message.content,
+            lastMessageTime: message.timestamp,
+            lastMessageSenderId: message.senderId,
+          );
+
           emit(MessagesLoaded(
-            messages: [message, ...currentMessages],
-            chatRoom: (state as MessagesLoaded).chatRoom,
+            messages: updatedMessages,
+            chatRoom: updatedChatRoom,
           ));
         } else {
+          // If we don't have messages loaded yet, emit MessageSent
+          // and let the UI handle reloading messages
           emit(MessageSent(message: message));
         }
       },

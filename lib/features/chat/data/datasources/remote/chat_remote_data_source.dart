@@ -68,13 +68,24 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   @override
   Future<ChatRoomModel> createChatRoom(List<String> participants) async {
     try {
-      // Generate a unique room ID
-      final roomId = const Uuid().v1();
+      // First, check if a chat room already exists with these participants
+      final existingRoom = await getChatRoomByParticipants(participants);
+      if (existingRoom != null) {
+        return existingRoom;
+      }
+
+      // Sort participants to ensure consistent order
+      final sortedParticipants = [...participants]..sort();
+
+      // Generate a deterministic room ID based on participants
+      // This ensures only one chat room exists between any two users
+      final roomId = sortedParticipants.join('_');
 
       // Create chat room model
       final chatRoom = ChatRoomModel(
         roomId: roomId,
-        participants: participants,
+        participants:
+            sortedParticipants, // Use sorted participants for consistency
         lastMessageTime: DateTime.now(),
         lastMessage: '',
         lastMessageSenderId: '',
@@ -117,18 +128,32 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       // Sort participants to ensure consistent order
       final sortedParticipants = [...participants]..sort();
 
-      // Query for chat rooms with exactly these participants
-      final snapshot = await _firestore
+      // Generate the deterministic room ID
+      final roomId = sortedParticipants.join('_');
+
+      // Try to get the chat room directly by its ID
+      final docSnapshot = await _firestore
+          .collection(AppConstants.chatsCollection)
+          .doc(roomId)
+          .get();
+
+      if (docSnapshot.exists) {
+        return ChatRoomModel.fromSnapshot(docSnapshot);
+      }
+
+      // As a fallback, query for chat rooms with exactly these participants
+      // This is useful for backward compatibility with existing chat rooms
+      final querySnapshot = await _firestore
           .collection(AppConstants.chatsCollection)
           .where('participants', isEqualTo: sortedParticipants)
           .limit(1)
           .get();
 
-      if (snapshot.docs.isEmpty) {
+      if (querySnapshot.docs.isEmpty) {
         return null;
       }
 
-      return ChatRoomModel.fromSnapshot(snapshot.docs.first);
+      return ChatRoomModel.fromSnapshot(querySnapshot.docs.first);
     } catch (e) {
       throw ServerException(
           message: 'Failed to get chat room by participants: $e');

@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import '../../../domain/entities/message.dart';
+import '../../../features/chat/domain/entities/message.dart';
 
 part 'message_hive_model.g.dart';
 
@@ -13,6 +13,7 @@ class MessageHiveModel extends HiveObject {
     required this.timestamp,
     required this.isRead,
     required this.lastUpdated,
+    required this.roomId,
   });
 
   // Convert from domain entity to Hive model
@@ -23,6 +24,7 @@ class MessageHiveModel extends HiveObject {
         content: message.content,
         timestamp: message.timestamp,
         isRead: message.isRead,
+        roomId: message.roomId,
         lastUpdated: DateTime.now(),
       );
   @HiveField(0)
@@ -46,6 +48,9 @@ class MessageHiveModel extends HiveObject {
   @HiveField(6)
   final DateTime lastUpdated;
 
+  @HiveField(7)
+  final String roomId;
+
   // Convert to domain entity
   Message toEntity() => Message(
         messageId: messageId,
@@ -54,5 +59,6 @@ class MessageHiveModel extends HiveObject {
         content: content,
         timestamp: timestamp,
         isRead: isRead,
+        roomId: roomId,
       );
 }

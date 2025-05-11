@@ -1,5 +1,5 @@
 import '../../../core/utils/typedefs.dart';
-import '../../entities/message.dart';
+import '../../../features/chat/domain/entities/message.dart';
 import '../../repositories/chat_repository.dart';
 
 class GetMessagesUseCase {

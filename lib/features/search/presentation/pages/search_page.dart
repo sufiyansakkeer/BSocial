@@ -4,8 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/design_system.dart';
+import '../../../../core/widgets/animations/bs_animated_container.dart';
+import '../../../../core/widgets/animations/bs_staggered_list_view.dart';
+import '../../../../core/widgets/buttons/bs_button.dart';
+import '../../../../core/widgets/inputs/bs_text_field.dart';
 import '../blocs/search_bloc.dart';
 import '../widgets/recent_search_item.dart';
+import '../widgets/search_skeleton_loader.dart';
 import '../widgets/user_search_item.dart';
 
 /// Page for searching users
@@ -74,18 +80,17 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: TextField(
+          title: BSTextField(
             controller: _searchController,
-            focusNode: _searchFocusNode,
-            decoration: InputDecoration(
-              hintText: 'Search for users...',
-              border: InputBorder.none,
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.clear),
-                onPressed: _clearSearch,
-              ),
+            hintText: 'Search for users...',
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: IconButton(
+              icon: const Icon(Icons.clear),
+              onPressed: _clearSearch,
+              style: DesignSystem.iconButton(context),
             ),
             onChanged: _search,
+            borderRadius: BorderRadius.circular(20),
           ),
         ),
         body: BlocBuilder<SearchBloc, SearchState>(
@@ -93,9 +98,7 @@ class _SearchPageState extends State<SearchPage> {
             if (state is SearchInitial) {
               return _buildRecentSearches(state);
             } else if (state is SearchLoading) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const SearchSkeletonLoader();
             } else if (state is SearchResults) {
               if (state.users.isEmpty) {
                 return Center(
@@ -103,7 +106,7 @@ class _SearchPageState extends State<SearchPage> {
                 );
               }
 
-              return ListView.builder(
+              return BSStaggeredListView(
                 itemCount: state.users.length,
                 itemBuilder: (context, index) {
                   final user = state.users[index];
@@ -115,6 +118,8 @@ class _SearchPageState extends State<SearchPage> {
                     },
                   );
                 },
+                slideDirection: BSSlideDirection.fromLeft,
+                initialDelay: const Duration(milliseconds: 50),
               );
             } else if (state is SearchError) {
               return Center(
@@ -129,9 +134,9 @@ class _SearchPageState extends State<SearchPage> {
                     const SizedBox(height: 16),
                     Text(state.message),
                     const SizedBox(height: 16),
-                    ElevatedButton(
+                    BSButton(
+                      label: 'Try Again',
                       onPressed: () => _search(_searchController.text),
-                      child: const Text('Try Again'),
                     ),
                   ],
                 ),
@@ -165,15 +170,16 @@ class _SearchPageState extends State<SearchPage> {
                 'Recent Searches',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
-              TextButton(
+              BSButton(
+                label: 'Clear All',
                 onPressed: _clearRecentSearches,
-                child: const Text('Clear All'),
+                type: BSButtonType.text,
               ),
             ],
           ),
         ),
         Expanded(
-          child: ListView.builder(
+          child: BSStaggeredListView(
             itemCount: state.recentSearches.length,
             itemBuilder: (context, index) {
               final search = state.recentSearches[index];
@@ -183,6 +189,7 @@ class _SearchPageState extends State<SearchPage> {
                 onDelete: _clearRecentSearches,
               );
             },
+            initialDelay: const Duration(milliseconds: 50),
           ),
         ),
       ],

@@ -12,12 +12,15 @@ import '../../features/auth/presentation/pages/profile_page.dart'
 import '../../features/auth/presentation/pages/signup_page.dart';
 import '../../features/auth/presentation/widgets/auth_wrapper.dart';
 import '../../features/chat/presentation/pages/chat_list_page.dart';
-import '../../features/chat/presentation/pages/chat_page.dart';
+import '../../features/chat/presentation/pages/new_chat_page.dart';
+import '../../features/chat/presentation/pages/streaming_chat_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/post/presentation/pages/add_post_page.dart';
 import '../../features/post/presentation/pages/post_detail_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/search/presentation/pages/search_page.dart';
+import '../../features/ui_showcase/presentation/pages/ui_showcase_page.dart';
+import '../../features/user/presentation/pages/user_list_page.dart';
 import '../services/logger_service.dart';
 
 /// Custom GoRouter observer for logging navigation events
@@ -117,6 +120,36 @@ GoRouter createAppRouter() => GoRouter(
                         userId: userId,
                         isCurrentUser: isCurrentUser)); // Wrap with AuthWrapper
               },
+              routes: [
+                // Followers route
+                GoRoute(
+                  path: 'followers',
+                  name: 'followers',
+                  builder: (context, state) {
+                    final userId = state.pathParameters['userId'] ?? '';
+                    return AuthWrapper(
+                      child: UserListPage(
+                        userId: userId,
+                        listType: UserListType.followers,
+                      ),
+                    );
+                  },
+                ),
+                // Following route
+                GoRoute(
+                  path: 'following',
+                  name: 'following',
+                  builder: (context, state) {
+                    final userId = state.pathParameters['userId'] ?? '';
+                    return AuthWrapper(
+                      child: UserListPage(
+                        userId: userId,
+                        listType: UserListType.following,
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
             // Search route
             GoRoute(
@@ -132,6 +165,14 @@ GoRouter createAppRouter() => GoRouter(
               builder: (context, state) => const AuthWrapper(
                   child: ChatListPage()), // Wrap with AuthWrapper
               routes: [
+                // New chat route
+                GoRoute(
+                  path: 'new',
+                  name: 'new-chat',
+                  builder: (context, state) => const AuthWrapper(
+                    child: NewChatPage(),
+                  ),
+                ),
                 // Chat detail route
                 GoRoute(
                   path: ':roomId',
@@ -139,11 +180,17 @@ GoRouter createAppRouter() => GoRouter(
                   builder: (context, state) {
                     final roomId = state.pathParameters['roomId'] ?? '';
                     return AuthWrapper(
-                      child: ChatPage(roomId: roomId),
+                      child: StreamingChatPage(roomId: roomId),
                     ); // Wrap with AuthWrapper
                   },
                 ),
               ],
+            ),
+            // UI Showcase route
+            GoRoute(
+              path: 'ui-showcase',
+              name: 'ui-showcase',
+              builder: (context, state) => const UIShowcasePage(),
             ),
           ],
         ),

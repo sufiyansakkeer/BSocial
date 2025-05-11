@@ -46,3 +46,51 @@ class UpdateProfileEvent extends ProfileEvent {
   @override
   List<Object?> get props => [userId, userName, bio, profilePic];
 }
+
+/// Event to update the profile state directly
+class UpdateProfileStateEvent extends ProfileEvent {
+  /// Constructor
+  const UpdateProfileStateEvent({required this.user});
+
+  /// Updated user
+  final User user;
+
+  @override
+  List<Object?> get props => [user];
+}
+
+/// Event to follow a user
+class FollowUserEvent extends ProfileEvent {
+  /// Constructor
+  const FollowUserEvent({
+    required this.profileUser,
+    required this.currentUserId,
+  });
+
+  /// Profile user to follow
+  final User profileUser;
+
+  /// Current user ID
+  final String currentUserId;
+
+  @override
+  List<Object?> get props => [profileUser, currentUserId];
+}
+
+/// Event to unfollow a user
+class UnfollowUserEvent extends ProfileEvent {
+  /// Constructor
+  const UnfollowUserEvent({
+    required this.profileUser,
+    required this.currentUserId,
+  });
+
+  /// Profile user to unfollow
+  final User profileUser;
+
+  /// Current user ID
+  final String currentUserId;
+
+  @override
+  List<Object?> get props => [profileUser, currentUserId];
+}

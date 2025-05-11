@@ -25,6 +25,17 @@ import '../../features/search/data/datasources/local/recent_searches_local_data_
 import '../../features/search/data/models/recent_search_model.dart';
 import '../../features/search/domain/usecases/search_users.dart';
 import '../../features/search/presentation/blocs/search_bloc.dart';
+import '../../features/user/data/repositories/auth_user_repository_adapter.dart';
+import '../../features/user/domain/repositories/user_repository.dart';
+import '../../features/user/domain/usecases/follow_user.dart';
+import '../../features/user/domain/usecases/get_followers.dart';
+import '../../features/user/domain/usecases/get_following.dart';
+import '../../features/user/domain/usecases/get_user_by_id.dart';
+import '../../features/user/domain/usecases/search_users.dart' as user_search;
+import '../../features/user/domain/usecases/unfollow_user.dart';
+import '../../features/user/domain/usecases/update_user_profile.dart'
+    as user_profile;
+import '../../features/user/presentation/blocs/user_bloc.dart';
 
 /// Empty implementation of [RecentSearchesLocalDataSource] for initialization
 class _EmptyRecentSearchesDataSource implements RecentSearchesLocalDataSource {
@@ -110,10 +121,20 @@ class FeatureBlocProviders {
 
         // Profile BLoC
         BlocProvider<ProfileBloc>(
-          create: (context) => ProfileBloc(
-            getUserProfileUseCase: GetUserProfileUseCase(_authRepository),
-            updateUserProfileUseCase: UpdateUserProfileUseCase(_authRepository),
-          ),
+          create: (context) {
+            // Create an adapter to use AuthRepository as UserRepository
+            final userRepository = AuthUserRepositoryAdapter(
+              authRepository: _authRepository,
+            );
+
+            return ProfileBloc(
+              getUserProfileUseCase: GetUserProfileUseCase(_authRepository),
+              updateUserProfileUseCase:
+                  UpdateUserProfileUseCase(_authRepository),
+              followUserUseCase: FollowUserUseCase(userRepository),
+              unfollowUserUseCase: UnfollowUserUseCase(userRepository),
+            );
+          },
         ),
 
         // Search BLoC
@@ -136,6 +157,28 @@ class FeatureBlocProviders {
         // Home BLoC
         BlocProvider<HomeBloc>(
           create: (context) => HomeBloc(),
+        ),
+
+        // User BLoC
+        BlocProvider<UserBloc>(
+          create: (context) {
+            // Create an adapter to use AuthRepository as UserRepository
+            final userRepository = AuthUserRepositoryAdapter(
+              authRepository: _authRepository,
+            );
+
+            return UserBloc(
+              getUserByIdUseCase: GetUserByIdUseCase(userRepository),
+              searchUsersUseCase:
+                  user_search.SearchUsersUseCase(userRepository),
+              followUserUseCase: FollowUserUseCase(userRepository),
+              unfollowUserUseCase: UnfollowUserUseCase(userRepository),
+              updateUserProfileUseCase:
+                  user_profile.UpdateUserProfileUseCase(userRepository),
+              getFollowersUseCase: GetFollowersUseCase(userRepository),
+              getFollowingUseCase: GetFollowingUseCase(userRepository),
+            );
+          },
         ),
       ];
 }

@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/errors/exceptions.dart';
 import '../../models/chat_room_model.dart';
-import '../../models/message_model.dart';
+import '../../../features/chat/data/models/message_model.dart';
 
 abstract class ChatRemoteDataSource {
   // Get all chat rooms for a user

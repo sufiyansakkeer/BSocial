@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/animations/bs_animated_container.dart';
 import '../../../../features/auth/domain/entities/user.dart';
 import '../../../../features/post/presentation/blocs/post_bloc.dart';
 
@@ -9,11 +11,19 @@ class ProfileStats extends StatelessWidget {
   /// Constructor
   const ProfileStats({
     required this.user,
+    this.onFollowersPressed,
+    this.onFollowingPressed,
     super.key,
   });
 
   /// User
   final User user;
+
+  /// Callback when followers count is pressed
+  final VoidCallback? onFollowersPressed;
+
+  /// Callback when following count is pressed
+  final VoidCallback? onFollowingPressed;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -28,15 +38,52 @@ class ProfileStats extends StatelessWidget {
               } else if (state is PostLoading) {
                 postCount = '-';
               }
-              return _buildStatColumn('Posts', postCount);
+              return BSAnimatedContainer(
+                animationType: BSAnimationType.fadeScale,
+                duration: const Duration(milliseconds: 400),
+                delay: const Duration(milliseconds: 200),
+                child: _buildStatColumn('Posts', postCount),
+              );
             },
           ),
 
           // Followers count
-          _buildStatColumn('Followers', user.followers.length.toString()),
+          BSAnimatedContainer(
+            key: ValueKey('followers-${user.followers.length}'),
+            animationType: BSAnimationType.fadeScale,
+            duration: const Duration(milliseconds: 400),
+            delay: const Duration(milliseconds: 300),
+            child: GestureDetector(
+              onTap: () {
+                if (onFollowersPressed != null) {
+                  onFollowersPressed!();
+                } else {
+                  context.go('/profile/${user.uid}/followers');
+                }
+              },
+              child: _buildStatColumn(
+                  'Followers', user.followers.length.toString()),
+            ),
+          ),
 
           // Following count
-          _buildStatColumn('Following', user.following.length.toString()),
+          BSAnimatedContainer(
+            key: ValueKey('following-${user.following.length}'),
+            animationType: BSAnimationType.fadeScale,
+            duration: const Duration(milliseconds: 400),
+            delay: const Duration(milliseconds: 400),
+            child: GestureDetector(
+              onTap: () {
+                if (onFollowingPressed != null) {
+                  onFollowingPressed!();
+                } else {
+                  context.go('/profile/${user.uid}/following');
+                }
+              },
+              child: _buildStatColumn(
+                  'Following', user.following.length.toString()),
+            ),
+          ),
         ],
       );
 
@@ -51,11 +98,22 @@ class ProfileStats extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-            ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              if (title == 'Followers' || title == 'Following')
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 12,
+                  color: Colors.grey,
+                ),
+            ],
           ),
         ],
       );

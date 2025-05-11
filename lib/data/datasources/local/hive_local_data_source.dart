@@ -3,14 +3,14 @@ import 'package:hive/hive.dart';
 import '../../../core/errors/exceptions.dart';
 import '../../../domain/entities/chat_room.dart';
 import '../../../domain/entities/comment.dart';
-import '../../../domain/entities/message.dart';
+import '../../../features/chat/domain/entities/message.dart'; // Corrected import
 import '../../../domain/entities/post.dart';
 import '../../../features/user/domain/entities/user.dart';
-import '../../models/hive/chat_room_hive_model.dart';
-import '../../models/hive/comment_hive_model.dart';
-import '../../models/hive/message_hive_model.dart';
-import '../../models/hive/post_hive_model.dart';
-import '../../models/hive/user_hive_model.dart';
+import '../../models/hive/chat_room_hive_model.dart'; // This might need to be updated
+import '../../models/hive/comment_hive_model.dart'; // This might need to be updated
+import '../../../features/chat/data/models/hive/message_hive_model.dart'; // Corrected import
+import '../../models/hive/post_hive_model.dart'; // This might need to be updated
+import '../../models/hive/user_hive_model.dart'; // This might need to be updated
 
 abstract class HiveLocalDataSource {
   // User operations

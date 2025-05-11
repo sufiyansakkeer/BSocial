@@ -2,8 +2,9 @@ import 'dart:developer';
 import 'package:hive/hive.dart';
 
 import '../../../../../core/errors/exceptions.dart';
+import '../../../../../domain/entities/chat_room.dart'; // Import for the ChatRoom entity used by ChatRoomHiveModel
 import '../../models/chat_room_model.dart';
-import '../../models/hive/chat_room_hive_model.dart';
+import '../../../../../data/models/hive/chat_room_hive_model.dart'; // Updated import path
 import '../../models/hive/message_hive_model.dart';
 import '../../models/message_model.dart';
 
@@ -46,7 +47,8 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
   ChatLocalDataSourceImpl();
 
   /// Box name for chat rooms
-  static const String _chatRoomsBoxName = 'chat_rooms';
+  static const String _chatRoomsBoxName =
+      'chatRooms'; // Updated to match HiveService
 
   /// Box name for messages
   static const String _messagesBoxName = 'messages';
@@ -63,7 +65,16 @@ class ChatLocalDataSourceImpl implements ChatLocalDataSource {
   Future<void> cacheChatRoom(ChatRoomModel chatRoom) async {
     try {
       final box = await _chatRoomsBox;
-      final hiveModel = ChatRoomHiveModel.fromEntity(chatRoom);
+      // Convert ChatRoomModel to ChatRoom before creating the HiveModel
+      final hiveModel = ChatRoomHiveModel.fromEntity(
+        ChatRoom(
+          roomId: chatRoom.roomId,
+          participants: chatRoom.participants,
+          lastMessageTime: chatRoom.lastMessageTime,
+          lastMessage: chatRoom.lastMessage,
+          lastMessageSenderId: chatRoom.lastMessageSenderId,
+        ),
+      );
       await box.put(chatRoom.roomId, hiveModel);
       log('Chat room cached: ${chatRoom.roomId}', name: 'cacheChatRoom');
     } catch (e) {

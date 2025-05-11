@@ -5,10 +5,16 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/design_system.dart';
 import '../../../../core/utils/ui_constants.dart';
+import '../../../../core/widgets/animations/bs_animated_container.dart';
+import '../../../../core/widgets/avatars/bs_avatar.dart';
+import '../../../../core/widgets/buttons/bs_button.dart';
+import '../../../../core/widgets/cards/bs_card.dart';
 import '../../../../features/auth/presentation/blocs/auth_bloc.dart';
 import '../../domain/entities/post.dart';
 import '../blocs/post_bloc.dart';
+import 'post_card_like_animation.dart';
 
 /// A card widget that displays a post
 class PostCard extends StatefulWidget {
@@ -64,236 +70,50 @@ class _PostCardState extends State<PostCard>
   }
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+  Widget build(BuildContext context) => BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, authState) {
+          final currentUserId =
+              authState is Authenticated ? authState.user.uid : null;
+          final isLiked = widget.post.likes.contains(currentUserId);
 
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, authState) {
-        final currentUserId =
-            authState is Authenticated ? authState.user.uid : null;
-        final isLiked = widget.post.likes.contains(currentUserId);
-
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          elevation: 2,
-          shape: RoundedRectangleBorder(
+          return BSCard(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             borderRadius: BorderRadius.circular(UiConstants.borderRadiusLarge),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Post Header
-              Padding(
-                padding: UiConstants.paddingH16V8,
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundImage: NetworkImage(widget.post.profImage),
-                    ),
-                    UiConstants.kWidth12,
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.post.username,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          Text(
-                            DateFormat.yMMMd()
-                                .format(widget.post.datePublished),
-                            style: TextStyle(
-                              color: theme.colorScheme.onSurface.withAlpha(150),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (widget.post.uid == currentUserId)
-                      IconButton(
-                        onPressed: () => _showDeleteDialog(context),
-                        icon: const Icon(Icons.more_vert),
-                      ),
-                  ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _PostHeaderWidget(
+                  post: widget.post,
+                  currentUserId: currentUserId,
+                  onDeletePressed: () => _showDeleteDialog(context),
                 ),
-              ),
-
-              // Post Image
-              GestureDetector(
-                onDoubleTap: () {
-                  if (currentUserId != null) {
-                    HapticFeedback.mediumImpact();
-                    _likePost(context, currentUserId);
-                    _likeAnimationController.forward();
-                  }
-                },
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Image with RepaintBoundary for better performance
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.4,
-                      width: double.infinity,
-                      child: RepaintBoundary(
-                        child: Image.network(
-                          widget.post.postUrl,
-                          fit: BoxFit.cover,
-                          cacheWidth: MediaQuery.of(context).size.width.toInt(),
-                          gaplessPlayback: true,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
-                            }
-                            return Container(
-                              color: theme.colorScheme.surface,
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 3,
-                                  value: loadingProgress.expectedTotalBytes !=
-                                          null
-                                      ? loadingProgress.cumulativeBytesLoaded /
-                                          loadingProgress.expectedTotalBytes!
-                                      : null,
-                                ),
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                            color: theme.colorScheme.surface,
-                            child: const Center(
-                              child: Icon(
-                                Icons.error_outline,
-                                color: Colors.red,
-                                size: 48,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    // Like animation overlay
-                    ScaleTransition(
-                      scale: _likeAnimation,
-                      child: AnimatedOpacity(
-                        opacity: _likeAnimationController.value,
-                        duration: const Duration(milliseconds: 200),
-                        child: const Icon(
-                          Icons.favorite,
-                          color: Colors.white,
-                          size: 100,
-                        ),
-                      ),
-                    ),
-                  ],
+                _PostImageWidget(
+                  postUrl: widget.post.postUrl,
+                  onDoubleTap: () {
+                    if (currentUserId != null) {
+                      HapticFeedback.mediumImpact();
+                      _likePost(context, currentUserId);
+                      _likeAnimationController.forward();
+                    }
+                  },
+                  likeAnimationController: _likeAnimationController,
+                  likeAnimation: _likeAnimation,
                 ),
-              ),
-
-              // Post Actions
-              Padding(
-                padding: UiConstants.paddingH8,
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: currentUserId != null
-                          ? () => _likePost(context, currentUserId)
-                          : null,
-                      icon: Icon(
-                        isLiked ? Icons.favorite : Icons.favorite_border,
-                        color: isLiked ? AppColors.accentPink : null,
-                        size: 28,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => _navigateToComments(context),
-                      icon: const Icon(
-                        Icons.chat_bubble_outline,
-                        size: 24,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Sharing coming soon!'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.share_outlined,
-                        size: 24,
-                      ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Bookmarks coming soon!'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.bookmark_border,
-                        size: 24,
-                      ),
-                    ),
-                  ],
+                _PostActionsWidget(
+                  isLiked: isLiked,
+                  onLikePressed: currentUserId != null
+                      ? () => _likePost(context, currentUserId)
+                      : null,
+                  onCommentPressed: () => _navigateToComments(context),
                 ),
-              ),
-
-              // Like Count and Description
-              Padding(
-                padding: UiConstants.paddingH16,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${widget.post.likes.length} likes',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    UiConstants.kHeight8,
-                    RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          color: theme.colorScheme.onSurface,
-                          fontSize: 14,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: widget.post.username,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const TextSpan(text: ' '),
-                          TextSpan(text: widget.post.description),
-                        ],
-                      ),
-                    ),
-                    UiConstants.kHeight16,
-                  ],
+                _PostEngagementWidget(
+                  post: widget.post,
                 ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+              ],
+            ),
+          );
+        },
+      );
 
   void _likePost(BuildContext context, String currentUserId) {
     if (widget.post.likes.contains(currentUserId)) {
@@ -329,22 +149,267 @@ class _PostCardState extends State<PostCard>
         title: const Text('Delete Post'),
         content: const Text('Are you sure you want to delete this post?'),
         actions: [
-          TextButton(
+          BSButton(
+            label: 'Cancel',
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            type: BSButtonType.text,
           ),
-          TextButton(
+          BSButton(
+            label: 'Delete',
             onPressed: () {
               context.read<PostBloc>().add(DeletePostEvent(
                     postId: widget.post.postId,
                   ));
               Navigator.of(context).pop();
             },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
+            type: BSButtonType.text,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// --- Separated Widgets ---
+
+class _PostHeaderWidget extends StatelessWidget {
+  const _PostHeaderWidget({
+    required this.post,
+    required this.currentUserId,
+    required this.onDeletePressed,
+  });
+
+  final Post post;
+  final String? currentUserId;
+  final VoidCallback onDeletePressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: UiConstants.paddingH16V8,
+      child: Row(
+        children: [
+          BSAvatar(
+            imageUrl: post.profImage,
+          ),
+          UiConstants.kWidth12,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  post.username,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  DateFormat.yMMMd().format(post.datePublished),
+                  style: TextStyle(
+                    color: theme.colorScheme.onSurface.withAlpha(150),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
             ),
           ),
+          if (post.uid == currentUserId)
+            IconButton(
+              onPressed: onDeletePressed,
+              icon: const Icon(Icons.more_vert),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PostImageWidget extends StatelessWidget {
+  const _PostImageWidget({
+    required this.postUrl,
+    required this.onDoubleTap,
+    required this.likeAnimationController,
+    required this.likeAnimation,
+  });
+
+  final String postUrl;
+  final VoidCallback onDoubleTap;
+  final AnimationController likeAnimationController;
+  final Animation<double> likeAnimation;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return GestureDetector(
+      onDoubleTap: onDoubleTap,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.4,
+            width: double.infinity,
+            child: RepaintBoundary(
+              child: Image.network(
+                postUrl,
+                fit: BoxFit.cover,
+                cacheWidth: MediaQuery.of(context).size.width.toInt(),
+                gaplessPlayback: true,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  }
+                  return Container(
+                    color: theme.colorScheme.surface,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    ),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: theme.colorScheme.surface,
+                  child: const Center(
+                    child: Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 48,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          PostLikeAnimation(
+            animation: likeAnimation,
+            opacity: likeAnimationController.value,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PostActionsWidget extends StatelessWidget {
+  const _PostActionsWidget({
+    required this.isLiked,
+    required this.onLikePressed,
+    required this.onCommentPressed,
+  });
+
+  final bool isLiked;
+  final VoidCallback? onLikePressed;
+  final VoidCallback onCommentPressed;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: UiConstants.paddingH8,
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: onLikePressed,
+              style: DesignSystem.iconButton(context),
+              icon: Icon(
+                isLiked ? Icons.favorite : Icons.favorite_border,
+                color: isLiked ? AppColors.accentPink : null,
+                size: 28,
+              ),
+            ),
+            IconButton(
+              onPressed: onCommentPressed,
+              style: DesignSystem.iconButton(context),
+              icon: const Icon(
+                Icons.chat_bubble_outline,
+                size: 24,
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Sharing coming soon!'),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+              style: DesignSystem.iconButton(context),
+              icon: const Icon(
+                Icons.share_outlined,
+                size: 24,
+              ),
+            ),
+            const Spacer(),
+            IconButton(
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Bookmarks coming soon!'),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+              style: DesignSystem.iconButton(context),
+              icon: const Icon(
+                Icons.bookmark_border,
+                size: 24,
+              ),
+            ),
+          ],
+        ),
+      );
+}
+
+class _PostEngagementWidget extends StatelessWidget {
+  const _PostEngagementWidget({
+    required this.post,
+  });
+
+  final Post post;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: UiConstants.paddingH16,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${post.likes.length} likes',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          UiConstants.kHeight8,
+          RichText(
+            text: TextSpan(
+              style: TextStyle(
+                color: theme.colorScheme.onSurface,
+                fontSize: 14,
+              ),
+              children: [
+                TextSpan(
+                  text: post.username,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const TextSpan(text: ' '),
+                TextSpan(text: post.description),
+              ],
+            ),
+          ),
+          UiConstants.kHeight16,
         ],
       ),
     );

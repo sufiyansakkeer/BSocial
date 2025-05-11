@@ -9,6 +9,7 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 import '../../../../../core/constants/app_constants.dart';
 import '../../../../../core/datasources/local/storage_local_data_source.dart';
 import '../../../../../core/errors/exceptions.dart';
+import '../../../../../core/utils/retry_util.dart';
 import '../../../domain/entities/user.dart';
 import '../../../domain/entities/user_auth.dart';
 import '../../models/user_auth_model.dart';
@@ -384,25 +385,38 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw AuthException(message: 'No user is currently signed in');
       }
 
-      final userDoc = await _firestore
-          .collection(AppConstants.usersCollection)
-          .doc(currentUser.uid)
-          .get();
+      // Use retry utility with exponential backoff for Firebase operations
+      return await RetryUtil.retry(
+        operation: () async {
+          final userDoc = await _firestore
+              .collection(AppConstants.usersCollection)
+              .doc(currentUser.uid)
+              .get();
 
-      if (!userDoc.exists) {
-        throw AuthException(message: 'User data not found');
-      }
+          if (!userDoc.exists) {
+            throw AuthException(message: 'User data not found');
+          }
 
-      return UserAuthModel(
-        email: userDoc['email'] ?? '',
-        uid: userDoc['uid'] ?? '',
-        photoUrl: userDoc['photoUrl'] ?? '',
-        userName: userDoc['userName'] ?? '',
-        followers: List<String>.from(userDoc['followers'] ?? []),
-        following: List<String>.from(userDoc['following'] ?? []),
-        status: userDoc['status'] ?? 'offline',
+          return UserAuthModel(
+            email: userDoc['email'] ?? '',
+            uid: userDoc['uid'] ?? '',
+            photoUrl: userDoc['photoUrl'] ?? '',
+            userName: userDoc['userName'] ?? '',
+            followers: List<String>.from(userDoc['followers'] ?? []),
+            following: List<String>.from(userDoc['following'] ?? []),
+            status: userDoc['status'] ?? 'offline',
+          );
+        },
+        onRetry: (e, attempt, delayMs) {
+          log('Retrying getCurrentUser (attempt $attempt): $e',
+              name: 'getCurrentUser');
+        },
       );
+    } on AuthException {
+      // If it's already an AuthException, just rethrow it
+      rethrow;
     } catch (e) {
+      // For other exceptions, handle them with the standard handler
       return _handleException(e, 'get current user');
     }
   }
@@ -692,30 +706,43 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<User> getUserById(String userId) async {
     try {
-      final docSnapshot = await _firestore
-          .collection(AppConstants.usersCollection)
-          .doc(userId)
-          .get();
+      // Use retry utility with exponential backoff for Firebase operations
+      return await RetryUtil.retry(
+        operation: () async {
+          final docSnapshot = await _firestore
+              .collection(AppConstants.usersCollection)
+              .doc(userId)
+              .get();
 
-      if (!docSnapshot.exists) {
-        throw AuthException(message: 'User not found');
-      }
+          if (!docSnapshot.exists) {
+            throw AuthException(message: 'User not found');
+          }
 
-      final userData = docSnapshot.data() as Map<String, dynamic>;
+          final userData = docSnapshot.data() as Map<String, dynamic>;
 
-      return User(
-        uid: userId,
-        email: userData['email'] as String,
-        userName: userData['userName'] as String,
-        photoUrl: userData['photoUrl'] as String,
-        bio: userData['bio'] as String? ?? '',
-        followers: List<String>.from(userData['followers'] as List? ?? []),
-        following: List<String>.from(userData['following'] as List? ?? []),
-        status: userData['status'] as String? ?? 'Available',
-        isMfaEnabled: userData['isMfaEnabled'] as bool? ?? false,
-        isEmailVerified: userData['isEmailVerified'] as bool? ?? false,
+          return User(
+            uid: userId,
+            email: userData['email'] as String,
+            userName: userData['userName'] as String,
+            photoUrl: userData['photoUrl'] as String,
+            bio: userData['bio'] as String? ?? '',
+            followers: List<String>.from(userData['followers'] as List? ?? []),
+            following: List<String>.from(userData['following'] as List? ?? []),
+            status: userData['status'] as String? ?? 'Available',
+            isMfaEnabled: userData['isMfaEnabled'] as bool? ?? false,
+            isEmailVerified: userData['isEmailVerified'] as bool? ?? false,
+          );
+        },
+        onRetry: (e, attempt, delayMs) {
+          log('Retrying getUserById for user $userId (attempt $attempt): $e',
+              name: 'getUserById');
+        },
       );
+    } on AuthException {
+      // If it's already an AuthException, just rethrow it
+      rethrow;
     } catch (e) {
+      // For other exceptions, handle them with the standard handler
       return _handleException(e, 'get user by ID');
     }
   }

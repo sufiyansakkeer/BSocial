@@ -66,7 +66,8 @@ class SnackbarUtils {
               child: Text(
                 content,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: Colors
+                      .white, // White is appropriate here for contrast on colored backgrounds
                   fontSize: 14,
                 ),
               ),

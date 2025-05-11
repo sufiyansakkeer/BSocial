@@ -1,6 +1,6 @@
 import '../../core/utils/typedefs.dart';
 import '../entities/chat_room.dart';
-import '../entities/message.dart';
+import '../../features/chat/domain/entities/message.dart'; // Corrected import
 
 // Chat repository interface
 abstract class ChatRepository {

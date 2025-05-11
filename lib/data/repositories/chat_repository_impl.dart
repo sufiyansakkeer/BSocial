@@ -5,7 +5,7 @@ import '../../core/errors/failures.dart';
 import '../../core/network/network_info.dart';
 import '../../core/utils/typedefs.dart';
 import '../../domain/entities/chat_room.dart';
-import '../../domain/entities/message.dart';
+import '../../features/chat/domain/entities/message.dart';
 import '../../domain/repositories/chat_repository.dart';
 import '../datasources/remote/chat_remote_data_source.dart';
 

@@ -180,6 +180,34 @@ class AnimationUtils {
         highlightColor: highlightColor,
         child: child,
       );
+
+  /// Bounce animation
+  static Widget bounce({
+    required Widget child,
+    Duration duration = const Duration(milliseconds: 1000),
+    double height = 20.0,
+    bool repeat = true,
+  }) =>
+      BounceEffect(
+        duration: duration,
+        height: height,
+        repeat: repeat,
+        child: child,
+      );
+
+  /// Shake animation
+  static Widget shake({
+    required Widget child,
+    Duration duration = const Duration(milliseconds: 700),
+    double offset = 10.0,
+    bool repeat = false,
+  }) =>
+      ShakeEffect(
+        duration: duration,
+        offset: offset,
+        repeat: repeat,
+        child: child,
+      );
 }
 
 /// Shimmer effect widget
@@ -303,6 +331,125 @@ class PageTransitions {
       transitionDuration: duration,
     );
   }
+}
+
+/// Bounce effect widget
+class BounceEffect extends StatefulWidget {
+  const BounceEffect({
+    required this.child,
+    required this.duration,
+    required this.height,
+    required this.repeat,
+    super.key,
+  });
+  final Widget child;
+  final Duration duration;
+  final double height;
+  final bool repeat;
+
+  @override
+  State<BounceEffect> createState() => _BounceEffectState();
+}
+
+class _BounceEffectState extends State<BounceEffect>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: widget.duration,
+    );
+
+    _animation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.elasticOut),
+    );
+
+    if (widget.repeat) {
+      _controller.repeat(reverse: true);
+    } else {
+      _controller.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) => Transform.translate(
+          offset: Offset(0, -widget.height * _animation.value),
+          child: widget.child,
+        ),
+      );
+}
+
+/// Shake effect widget
+class ShakeEffect extends StatefulWidget {
+  const ShakeEffect({
+    required this.child,
+    required this.duration,
+    required this.offset,
+    required this.repeat,
+    super.key,
+  });
+  final Widget child;
+  final Duration duration;
+  final double offset;
+  final bool repeat;
+
+  @override
+  State<ShakeEffect> createState() => _ShakeEffectState();
+}
+
+class _ShakeEffectState extends State<ShakeEffect>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: widget.duration,
+    );
+
+    _animation = Tween<double>(begin: -1, end: 1).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.elasticIn,
+      ),
+    );
+
+    if (widget.repeat) {
+      _controller.repeat(reverse: true);
+    } else {
+      _controller.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: _animation,
+        builder: (context, child) => Transform.translate(
+          offset: Offset(widget.offset * _animation.value, 0),
+          child: widget.child,
+        ),
+      );
 }
 
 /// Slide direction enum

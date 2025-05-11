@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/utils/ui_constants.dart';
+import '../../../../core/widgets/animations/bs_animated_container.dart';
+import '../../../../core/widgets/animations/bs_staggered_list_view.dart';
 import '../../../../features/auth/presentation/blocs/auth_bloc.dart';
 import '../../../../features/post/presentation/blocs/post_bloc.dart';
 import '../../../../features/post/presentation/pages/add_post_page.dart';
 import '../../../../features/post/presentation/widgets/post_card.dart';
+import '../../../../features/post/presentation/widgets/post_skeleton_loader.dart';
 import '../../../../features/profile/presentation/pages/profile_page.dart';
 import '../../../../features/search/presentation/pages/search_page.dart';
 
@@ -94,6 +98,11 @@ class _HomePageState extends State<HomePage> {
               onPressed: () => context.go('/chats'),
             ),
             IconButton(
+              icon: const Icon(Icons.palette),
+              tooltip: 'UI Showcase',
+              onPressed: () => context.go('/ui-showcase'),
+            ),
+            IconButton(
               icon: const Icon(Icons.notifications),
               onPressed: () {
                 // TODO: Implement notifications
@@ -157,9 +166,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildFeedScreen() => BlocBuilder<PostBloc, PostState>(
         builder: (context, state) {
           if (state is PostLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const PostSkeletonLoader();
           } else if (state is PostsLoaded) {
             if (state.posts.isEmpty) {
               return const Center(
@@ -167,17 +174,19 @@ class _HomePageState extends State<HomePage> {
               );
             }
 
-            return RefreshIndicator(
+            return BSStaggeredListView(
+              itemCount: state.posts.length,
+              itemBuilder: (context, index) {
+                final post = state.posts[index];
+                return PostCard(post: post);
+              },
               onRefresh: () async {
                 context.read<PostBloc>().add(LoadPostsEvent());
               },
-              child: ListView.builder(
-                itemCount: state.posts.length,
-                itemBuilder: (context, index) {
-                  final post = state.posts[index];
-                  return PostCard(post: post);
-                },
-              ),
+              itemDuration: const Duration(milliseconds: 400),
+              staggerDuration: const Duration(milliseconds: 80),
+              initialDelay: const Duration(milliseconds: 100),
+              padding: const EdgeInsets.only(bottom: 16),
             );
           } else if (state is PostError) {
             return Center(

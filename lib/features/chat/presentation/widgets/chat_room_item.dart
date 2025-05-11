@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/ui_constants.dart';
 import '../../../../features/auth/presentation/blocs/auth_bloc.dart';
 import '../../domain/entities/chat_room.dart';
+import 'chat_user_info.dart';
 
 /// Widget that displays a chat room item in a list
 class ChatRoomItem extends StatelessWidget {
@@ -12,6 +14,7 @@ class ChatRoomItem extends StatelessWidget {
   const ChatRoomItem({
     required this.chatRoom,
     required this.onTap,
+    this.hasUnreadMessages = false,
     super.key,
   });
 
@@ -20,6 +23,9 @@ class ChatRoomItem extends StatelessWidget {
 
   /// Callback when the item is tapped
   final VoidCallback onTap;
+
+  /// Whether the chat room has unread messages
+  final bool hasUnreadMessages;
 
   @override
   Widget build(BuildContext context) {
@@ -60,18 +66,10 @@ class ChatRoomItem extends StatelessWidget {
         padding: UiConstants.paddingH16V12,
         child: Row(
           children: [
-            // Profile picture
-            CircleAvatar(
-              radius: 28,
-              backgroundColor: theme.colorScheme.primary,
-              child: Text(
-                otherUserId.substring(0, 1).toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
+            // User avatar
+            ChatUserInfo(
+              userId: otherUserId,
+              showName: false,
             ),
             UiConstants.kWidth12,
             // Chat info
@@ -79,24 +77,28 @@ class ChatRoomItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    otherUserId,
-                    style: const TextStyle(
+                  // User name
+                  ChatUserInfo(
+                    userId: otherUserId,
+                    showAvatar: false,
+                    textStyle: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                   UiConstants.kHeight4,
                   Row(
                     children: [
                       if (isLastMessageFromMe)
-                        const Padding(
-                          padding: EdgeInsets.only(right: 4),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 4),
                           child: Text(
                             'You: ',
                             style: TextStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: 14,
+                              color: theme.colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -104,7 +106,8 @@ class ChatRoomItem extends StatelessWidget {
                         child: Text(
                           chatRoom.lastMessage,
                           style: TextStyle(
-                            color: theme.colorScheme.onSurface.withAlpha(180),
+                            color: theme.colorScheme.onSurface
+                                .withAlpha(179), // 0.7 * 255 = 179
                             fontSize: 14,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -124,12 +127,31 @@ class ChatRoomItem extends StatelessWidget {
                 Text(
                   timeString,
                   style: TextStyle(
-                    color: theme.colorScheme.onSurface.withAlpha(150),
+                    color: theme.colorScheme.onSurface
+                        .withAlpha(153), // 0.6 * 255 = 153
                     fontSize: 12,
                   ),
                 ),
                 UiConstants.kHeight4,
-                // TODO: Add unread message indicator
+                if (hasUnreadMessages)
+                  Container(
+                    width: 18,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Center(
+                      child: Text(
+                        '1',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ],

@@ -24,13 +24,14 @@ class MessageHiveModelAdapter extends TypeAdapter<MessageHiveModel> {
       timestamp: fields[4] as DateTime,
       isRead: fields[5] as bool,
       lastUpdated: fields[6] as DateTime,
+      roomId: fields[7] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, MessageHiveModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.messageId)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class MessageHiveModelAdapter extends TypeAdapter<MessageHiveModel> {
       ..writeByte(5)
       ..write(obj.isRead)
       ..writeByte(6)
-      ..write(obj.lastUpdated);
+      ..write(obj.lastUpdated)
+      ..writeByte(7)
+      ..write(obj.roomId);
   }
 
   @override

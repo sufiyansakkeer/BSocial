@@ -5,7 +5,8 @@ import '../../core/errors/failures.dart';
 import '../../core/network/network_info.dart';
 import '../../core/utils/typedefs.dart';
 import '../../domain/entities/chat_room.dart';
-import '../../domain/entities/message.dart';
+import '../../features/chat/domain/entities/message.dart';
+import '../../features/chat/data/models/message_model.dart';
 import '../../domain/repositories/chat_repository.dart';
 import '../datasources/local/hive_local_data_source.dart';
 import '../datasources/remote/chat_remote_data_source.dart';
@@ -28,13 +29,11 @@ class CachedChatRepositoryImpl implements ChatRepository {
     if (await networkInfo.isConnected) {
       try {
         final chatRoom = await remoteDataSource.createChatRoom(participants);
-
         try {
           await localDataSource.cacheChatRoom(chatRoom);
         } on Exception catch (e) {
           log('Error caching chat room: $e', name: 'createChatRoom');
         }
-
         return Right(chatRoom);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
@@ -51,14 +50,12 @@ class CachedChatRepositoryImpl implements ChatRepository {
     if (await networkInfo.isConnected) {
       try {
         await remoteDataSource.deleteChatRoom(roomId);
-
         try {
           await localDataSource.deleteChatRoom(roomId);
         } on Exception catch (e) {
           log('Error deleting chat room from cache: $e',
               name: 'deleteChatRoom');
         }
-
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
@@ -75,13 +72,11 @@ class CachedChatRepositoryImpl implements ChatRepository {
     if (await networkInfo.isConnected) {
       try {
         await remoteDataSource.deleteMessage(messageId, roomId);
-
         try {
           await localDataSource.deleteMessage(messageId);
         } on Exception catch (e) {
           log('Error deleting message from cache: $e', name: 'deleteMessage');
         }
-
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
@@ -98,13 +93,11 @@ class CachedChatRepositoryImpl implements ChatRepository {
     if (await networkInfo.isConnected) {
       try {
         final remoteChatRoom = await remoteDataSource.getChatRoomById(roomId);
-
         try {
           await localDataSource.cacheChatRoom(remoteChatRoom);
         } on Exception catch (e) {
           log('Error caching chat room: $e', name: 'getChatRoomById');
         }
-
         return Right(remoteChatRoom);
       } on ServerException catch (e) {
         try {
@@ -154,13 +147,11 @@ class CachedChatRepositoryImpl implements ChatRepository {
 
   @override
   ResultFuture<ChatRoom?> getChatRoomByParticipants(
-    List<String> participants,
-  ) async {
+      List<String> participants) async {
     if (await networkInfo.isConnected) {
       try {
         final remoteChatRoom =
             await remoteDataSource.getChatRoomByParticipants(participants);
-
         if (remoteChatRoom != null) {
           try {
             await localDataSource.cacheChatRoom(remoteChatRoom);
@@ -169,15 +160,12 @@ class CachedChatRepositoryImpl implements ChatRepository {
                 name: 'getChatRoomByParticipants');
           }
         }
-
         return Right(remoteChatRoom);
       } on ServerException catch (e) {
         try {
           final userId = participants.first;
-          final localChatRooms = await localDataSource.getChatRoomsByUserId(
-            userId,
-          );
-
+          final localChatRooms =
+              await localDataSource.getChatRoomsByUserId(userId);
           for (final room in localChatRooms) {
             if (room.participants.length == participants.length &&
                 room.participants.every((p) => participants.contains(p))) {
@@ -190,7 +178,6 @@ class CachedChatRepositoryImpl implements ChatRepository {
           log('Error getting chat rooms from cache: $cacheE',
               name: 'getChatRoomByParticipants');
         }
-
         return Left(ServerFailure(message: e.message));
       } on Exception catch (e) {
         return Left(ServerFailure(message: e.toString()));
@@ -200,7 +187,6 @@ class CachedChatRepositoryImpl implements ChatRepository {
         final userId = participants.first;
         final localChatRooms =
             await localDataSource.getChatRoomsByUserId(userId);
-
         for (final room in localChatRooms) {
           if (room.participants.length == participants.length &&
               room.participants.every((p) => participants.contains(p))) {
@@ -209,7 +195,6 @@ class CachedChatRepositoryImpl implements ChatRepository {
             return Right(room);
           }
         }
-
         return const Right(null);
       } on CacheException catch (e) {
         return Left(CacheFailure(message: e.message));
@@ -224,7 +209,6 @@ class CachedChatRepositoryImpl implements ChatRepository {
     if (await networkInfo.isConnected) {
       try {
         final remoteChatRooms = await remoteDataSource.getChatRooms(userId);
-
         try {
           for (final chatRoom in remoteChatRooms) {
             await localDataSource.cacheChatRoom(chatRoom);
@@ -232,7 +216,6 @@ class CachedChatRepositoryImpl implements ChatRepository {
         } on Exception catch (e) {
           log('Error caching chat rooms: $e', name: 'getChatRooms');
         }
-
         return Right(remoteChatRooms);
       } on ServerException catch (e) {
         try {
@@ -287,25 +270,18 @@ class CachedChatRepositoryImpl implements ChatRepository {
   ResultFuture<List<Message>> getMessages(String roomId) async {
     if (await networkInfo.isConnected) {
       try {
-        final remoteMessages = await remoteDataSource.getMessages(roomId);
+        final List<MessageModel> remoteMessageModels =
+            await remoteDataSource.getMessages(roomId);
+        final remoteMessages =
+            remoteMessageModels.map((model) => model.toEntity(roomId)).toList();
 
         try {
           for (final message in remoteMessages) {
-            final messageWithRoomId = Message(
-              messageId: message.messageId,
-              senderId: message.senderId,
-              receiverId: message.receiverId,
-              content: message.content,
-              timestamp: message.timestamp,
-              isRead: message.isRead,
-              roomId: roomId,
-            );
-            await localDataSource.cacheMessage(messageWithRoomId);
+            await localDataSource.cacheMessage(message);
           }
         } on Exception catch (e) {
           log('Error caching messages: $e', name: 'getMessages');
         }
-
         return Right(remoteMessages);
       } on ServerException catch (e) {
         try {
@@ -361,14 +337,12 @@ class CachedChatRepositoryImpl implements ChatRepository {
     if (await networkInfo.isConnected) {
       try {
         await remoteDataSource.markMessagesAsRead(roomId, userId);
-
         try {
           await localDataSource.markMessagesAsRead(roomId, userId);
         } on Exception catch (e) {
           log('Error marking messages as read in cache: $e',
               name: 'markMessagesAsRead');
         }
-
         return const Right(null);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
@@ -396,28 +370,18 @@ class CachedChatRepositoryImpl implements ChatRepository {
   }) async {
     if (await networkInfo.isConnected) {
       try {
-        final message = await remoteDataSource.sendMessage(
+        final MessageModel messageModel = await remoteDataSource.sendMessage(
           roomId: roomId,
           senderId: senderId,
           receiverId: receiverId,
           content: content,
         );
-
+        final message = messageModel.toEntity(roomId);
         try {
-          final messageWithRoomId = Message(
-            messageId: message.messageId,
-            senderId: message.senderId,
-            receiverId: message.receiverId,
-            content: message.content,
-            timestamp: message.timestamp,
-            isRead: message.isRead,
-            roomId: roomId,
-          );
-          await localDataSource.cacheMessage(messageWithRoomId);
+          await localDataSource.cacheMessage(message);
         } on Exception catch (e) {
           log('Error caching message: $e', name: 'sendMessage');
         }
-
         return Right(message);
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));

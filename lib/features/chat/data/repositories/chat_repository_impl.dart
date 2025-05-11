@@ -175,7 +175,7 @@ class ChatRepositoryImpl implements ChatRepository {
           log('Error caching message: $e', name: 'sendMessage');
         }
 
-        return Right(message);
+        return Right(message.toEntity(message.roomId));
       } on ServerException catch (e) {
         return Left(ServerFailure(message: e.message));
       } on Exception catch (e) {
@@ -200,11 +200,12 @@ class ChatRepositoryImpl implements ChatRepository {
           }
         }
 
-        return Right(messages);
+        return Right(messages.map((model) => model.toEntity(roomId)).toList());
       } on ServerException catch (e) {
         try {
           final localMessages = await localDataSource.getMessages(roomId);
-          return Right(localMessages);
+          return Right(
+              localMessages.map((model) => model.toEntity(roomId)).toList());
         } on CacheException catch (_) {
           return Left(ServerFailure(message: e.message));
         }
@@ -214,7 +215,8 @@ class ChatRepositoryImpl implements ChatRepository {
     } else {
       try {
         final localMessages = await localDataSource.getMessages(roomId);
-        return Right(localMessages);
+        return Right(
+            localMessages.map((model) => model.toEntity(roomId)).toList());
       } on CacheException catch (e) {
         return Left(CacheFailure(message: e.message));
       } on Exception catch (e) {

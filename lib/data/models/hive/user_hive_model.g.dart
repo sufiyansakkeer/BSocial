@@ -25,13 +25,16 @@ class UserHiveModelAdapter extends TypeAdapter<UserHiveModel> {
       following: (fields[5] as List).cast<String>(),
       lastUpdated: fields[7] as DateTime,
       status: fields[6] as String,
+      bio: fields[8] as String,
+      isMfaEnabled: fields[9] as bool,
+      isEmailVerified: fields[10] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserHiveModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.email)
       ..writeByte(1)
@@ -47,7 +50,13 @@ class UserHiveModelAdapter extends TypeAdapter<UserHiveModel> {
       ..writeByte(6)
       ..write(obj.status)
       ..writeByte(7)
-      ..write(obj.lastUpdated);
+      ..write(obj.lastUpdated)
+      ..writeByte(8)
+      ..write(obj.bio)
+      ..writeByte(9)
+      ..write(obj.isMfaEnabled)
+      ..writeByte(10)
+      ..write(obj.isEmailVerified);
   }
 
   @override

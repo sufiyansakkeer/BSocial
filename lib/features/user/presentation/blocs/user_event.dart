@@ -57,6 +57,30 @@ class UnfollowUserEvent extends UserEvent {
   List<Object?> get props => [userId];
 }
 
+/// Event to get followers of a user
+class GetFollowersEvent extends UserEvent {
+  /// Constructor
+  const GetFollowersEvent({required this.userId});
+
+  /// User ID to get followers for
+  final String userId;
+
+  @override
+  List<Object?> get props => [userId];
+}
+
+/// Event to get users followed by a user
+class GetFollowingEvent extends UserEvent {
+  /// Constructor
+  const GetFollowingEvent({required this.userId});
+
+  /// User ID to get following for
+  final String userId;
+
+  @override
+  List<Object?> get props => [userId];
+}
+
 /// Event to update user profile
 class UpdateUserProfileEvent extends UserEvent {
   /// Constructor
@@ -70,16 +94,16 @@ class UpdateUserProfileEvent extends UserEvent {
 
   /// User ID
   final String userId;
-  
+
   /// New username
   final String? userName;
-  
+
   /// New photo URL
   final String? photoUrl;
-  
+
   /// New status
   final String? status;
-  
+
   /// New bio
   final String? bio;
 

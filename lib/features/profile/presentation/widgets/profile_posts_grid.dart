@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/animations/bs_animated_container.dart';
+import '../../../../core/widgets/animations/bs_staggered_grid_view.dart';
 import '../../../../features/post/presentation/blocs/post_bloc.dart';
+import 'profile_posts_skeleton.dart';
 
 /// Widget that displays a grid of user posts
 class ProfilePostsGrid extends StatelessWidget {
@@ -19,9 +22,7 @@ class ProfilePostsGrid extends StatelessWidget {
   Widget build(BuildContext context) => BlocBuilder<PostBloc, PostState>(
         builder: (context, state) {
           if (state is PostLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const ProfilePostsSkeleton();
           } else if (state is UserPostsLoaded) {
             if (state.posts.isEmpty) {
               return const Center(
@@ -29,13 +30,10 @@ class ProfilePostsGrid extends StatelessWidget {
               );
             }
 
-            return GridView.builder(
+            return BSStaggeredGridView(
               padding: const EdgeInsets.all(2),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 2,
-                mainAxisSpacing: 2,
-              ),
+              crossAxisSpacing: 2,
+              mainAxisSpacing: 2,
               itemCount: state.posts.length,
               itemBuilder: (context, index) {
                 final post = state.posts[index];
@@ -68,6 +66,8 @@ class ProfilePostsGrid extends StatelessWidget {
                   ),
                 );
               },
+              staggerDuration: const Duration(milliseconds: 40),
+              initialDelay: const Duration(milliseconds: 100),
             );
           } else if (state is PostError) {
             return Center(

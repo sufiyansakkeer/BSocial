@@ -4,7 +4,7 @@ part of 'user_bloc.dart';
 abstract class UserState extends Equatable {
   /// Constructor
   const UserState();
-  
+
   @override
   List<Object?> get props => [];
 }
@@ -24,13 +24,19 @@ class UserActionLoading extends UserState {}
 /// State when a user is loaded
 class UserLoaded extends UserState {
   /// Constructor
-  const UserLoaded({required this.user});
+  const UserLoaded({
+    required this.user,
+    this.currentUserId,
+  });
 
   /// Loaded user
   final User user;
 
+  /// Current user ID (for determining follow status)
+  final String? currentUserId;
+
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [user, currentUserId];
 }
 
 /// State when users are loaded
@@ -43,6 +49,42 @@ class UsersLoaded extends UserState {
 
   @override
   List<Object?> get props => [users];
+}
+
+/// State when followers are loaded
+class FollowersLoaded extends UserState {
+  /// Constructor
+  const FollowersLoaded({
+    required this.followers,
+    this.currentUserId,
+  });
+
+  /// Followers
+  final List<User> followers;
+
+  /// Current user ID (for determining follow status)
+  final String? currentUserId;
+
+  @override
+  List<Object?> get props => [followers, currentUserId];
+}
+
+/// State when following users are loaded
+class FollowingLoaded extends UserState {
+  /// Constructor
+  const FollowingLoaded({
+    required this.following,
+    this.currentUserId,
+  });
+
+  /// Following users
+  final List<User> following;
+
+  /// Current user ID (for determining follow status)
+  final String? currentUserId;
+
+  @override
+  List<Object?> get props => [following, currentUserId];
 }
 
 /// State when a user action is successful

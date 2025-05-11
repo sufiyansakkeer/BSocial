@@ -3,11 +3,11 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 // Import models from their current locations
 // We're using the old models since the refactoring is not complete
-import '../../data/models/hive/chat_room_hive_model.dart';
-import '../../data/models/hive/comment_hive_model.dart';
-import '../../data/models/hive/message_hive_model.dart';
-import '../../data/models/hive/post_hive_model.dart';
-import '../../data/models/hive/user_hive_model.dart';
+import '../../data/models/hive/chat_room_hive_model.dart'; // This might need to be updated if ChatRoomHiveModel was also duplicated
+import '../../data/models/hive/comment_hive_model.dart'; // This might need to be updated if CommentHiveModel was also duplicated
+import '../../features/chat/data/models/hive/message_hive_model.dart'; // Corrected import
+import '../../data/models/hive/post_hive_model.dart'; // This might need to be updated if PostHiveModel was also duplicated
+import '../../data/models/hive/user_hive_model.dart'; // This might need to be updated if UserHiveModel was also duplicated
 
 /// Utility for Hive database operations
 class HiveService {
