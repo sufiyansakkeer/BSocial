@@ -9,7 +9,7 @@ import '../../features/auth/data/datasources/remote/auth_remote_data_source_impl
 import '../../features/auth/data/datasources/remote/mock_auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/chat/data/datasources/local/chat_local_data_source.dart';
-import '../../features/chat/data/datasources/remote/chat_remote_data_source.dart';
+import '../../features/chat/data/datasources/remote/chat_remote_data_source_impl_fixed.dart';
 import '../../features/chat/data/datasources/remote/mock_chat_remote_data_source.dart';
 import '../../features/chat/data/repositories/chat_repository_impl.dart';
 import '../../features/post/data/datasources/local/post_local_data_source.dart';

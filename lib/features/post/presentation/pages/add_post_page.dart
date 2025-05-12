@@ -111,7 +111,7 @@ class _AddPostPageState extends State<AddPostPage> {
         ),
         body: BlocConsumer<PostBloc, PostState>(
           listener: (context, state) {
-            if (state is PostLoading) {
+            if (state.status == PostStatus.loading) {
               setState(() {
                 _isLoading = true;
               });
@@ -121,7 +121,7 @@ class _AddPostPageState extends State<AddPostPage> {
               });
             }
 
-            if (state is PostCreated) {
+            if (state.status == PostStatus.postCreated) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Post created successfully'),
@@ -129,10 +129,10 @@ class _AddPostPageState extends State<AddPostPage> {
                 ),
               );
               context.go('/');
-            } else if (state is PostError) {
+            } else if (state.status == PostStatus.error) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(state.message),
+                  content: Text(state.errorMessage ?? 'An error occurred'),
                   backgroundColor: Colors.red,
                 ),
               );

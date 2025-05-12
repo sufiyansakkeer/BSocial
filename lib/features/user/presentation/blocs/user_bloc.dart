@@ -85,17 +85,25 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   ) async {
     emit(UserActionLoading());
     final result = await followUserUseCase(event.userId);
-    result.fold(
-      (failure) => emit(UserError(message: failure.message)),
+
+    await result.fold(
+      (failure) async {
+        emit(UserError(message: failure.message));
+      },
       (_) async {
         emit(const UserActionSuccess(message: 'User followed successfully'));
 
-        // Refresh user data after successful follow
-        final userResult = await getUserByIdUseCase(event.userId);
-        userResult.fold(
-          (failure) => emit(UserError(message: failure.message)),
-          (user) => emit(UserLoaded(user: user)),
-        );
+        // Check if the emitter is still active before proceeding
+        if (!emit.isDone) {
+          // Refresh user data after successful follow
+          final userResult = await getUserByIdUseCase(event.userId);
+          if (!emit.isDone) {
+            userResult.fold(
+              (failure) => emit(UserError(message: failure.message)),
+              (user) => emit(UserLoaded(user: user)),
+            );
+          }
+        }
       },
     );
   }
@@ -106,17 +114,25 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   ) async {
     emit(UserActionLoading());
     final result = await unfollowUserUseCase(event.userId);
-    result.fold(
-      (failure) => emit(UserError(message: failure.message)),
+
+    await result.fold(
+      (failure) async {
+        emit(UserError(message: failure.message));
+      },
       (_) async {
         emit(const UserActionSuccess(message: 'User unfollowed successfully'));
 
-        // Refresh user data after successful unfollow
-        final userResult = await getUserByIdUseCase(event.userId);
-        userResult.fold(
-          (failure) => emit(UserError(message: failure.message)),
-          (user) => emit(UserLoaded(user: user)),
-        );
+        // Check if the emitter is still active before proceeding
+        if (!emit.isDone) {
+          // Refresh user data after successful unfollow
+          final userResult = await getUserByIdUseCase(event.userId);
+          if (!emit.isDone) {
+            userResult.fold(
+              (failure) => emit(UserError(message: failure.message)),
+              (user) => emit(UserLoaded(user: user)),
+            );
+          }
+        }
       },
     );
   }

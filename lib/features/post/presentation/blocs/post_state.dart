@@ -1,112 +1,130 @@
 part of 'post_bloc.dart';
 
-/// Base class for all post states
-abstract class PostState extends Equatable {
-  /// Constructor
-  const PostState();
+/// Enum representing the status of the post state
+enum PostStatus {
+  /// Initial state
+  initial,
 
-  @override
-  List<Object?> get props => [];
+  /// Loading state
+  loading,
+
+  /// Loading comments state
+  loadingComments,
+
+  /// Loading a single comment state
+  loadingComment,
+
+  /// Posts loaded state
+  postsLoaded,
+
+  /// User posts loaded state
+  userPostsLoaded,
+
+  /// Post created state
+  postCreated,
+
+  /// Post deleted state
+  postDeleted,
+
+  /// Comments loaded state
+  commentsLoaded,
+
+  /// Comment added state
+  commentAdded,
+
+  /// Comment deleted state
+  commentDeleted,
+
+  /// Selected post loaded state
+  selectedPostLoaded,
+
+  /// Background refreshing state - showing cached data while refreshing
+  refreshing,
+
+  /// Error state
+  error
 }
 
-/// Initial post state
-class PostInitial extends PostState {}
-
-/// Loading post state
-class PostLoading extends PostState {}
-
-/// Posts loaded state
-class PostsLoaded extends PostState {
+/// Unified post state class
+class PostState extends Equatable {
   /// Constructor
-  const PostsLoaded({required this.posts});
+  const PostState({
+    this.status = PostStatus.initial,
+    this.posts = const [],
+    this.post,
+    this.comments = const [],
+    this.comment,
+    this.errorMessage,
+    this.isUserPosts = false,
+  });
+
+  /// Status of the post state
+  final PostStatus status;
 
   /// List of posts
   final List<Post> posts;
 
-  @override
-  List<Object> get props => [posts];
-}
-
-/// User posts loaded state
-class UserPostsLoaded extends PostState {
-  /// Constructor
-  const UserPostsLoaded({required this.posts});
-
-  /// List of posts
-  final List<Post> posts;
-
-  @override
-  List<Object> get props => [posts];
-}
-
-/// Post created state
-class PostCreated extends PostState {
-  /// Constructor
-  const PostCreated({required this.post});
-
-  /// Created post
-  final Post post;
-
-  @override
-  List<Object> get props => [post];
-}
-
-/// Post deleted state
-class PostDeleted extends PostState {}
-
-/// Comments loading state
-class CommentsLoading extends PostState {}
-
-/// Comment loading state
-class CommentLoading extends PostState {}
-
-/// Comments loaded state
-class CommentsLoaded extends PostState {
-  /// Constructor
-  const CommentsLoaded({required this.comments});
+  /// Single post (for creation, selection, etc.)
+  final Post? post;
 
   /// List of comments
   final List<Comment> comments;
 
-  @override
-  List<Object> get props => [comments];
-}
-
-/// Comment added state
-class CommentAdded extends PostState {
-  /// Constructor
-  const CommentAdded({required this.comment});
-
-  /// Added comment
-  final Comment comment;
-
-  @override
-  List<Object> get props => [comment];
-}
-
-/// Comment deleted state
-class CommentDeleted extends PostState {}
-
-/// Post error state
-class PostError extends PostState {
-  /// Constructor
-  const PostError({required this.message});
+  /// Single comment (for addition, etc.)
+  final Comment? comment;
 
   /// Error message
-  final String message;
+  final String? errorMessage;
+
+  /// Flag to indicate if posts are user posts
+  final bool isUserPosts;
+
+  /// Create a copy of this state with the given fields replaced
+  PostState copyWith({
+    PostStatus? status,
+    List<Post>? posts,
+    Post? post,
+    List<Comment>? comments,
+    Comment? comment,
+    String? errorMessage,
+    bool? isUserPosts,
+  }) =>
+      PostState(
+        status: status ?? this.status,
+        posts: posts ?? this.posts,
+        post: post ?? this.post,
+        comments: comments ?? this.comments,
+        comment: comment ?? this.comment,
+        errorMessage: errorMessage ?? this.errorMessage,
+        isUserPosts: isUserPosts ?? this.isUserPosts,
+      );
 
   @override
-  List<Object> get props => [message];
-}
+  List<Object?> get props => [
+        status,
+        posts,
+        post,
+        comments,
+        comment,
+        errorMessage,
+        isUserPosts,
+      ];
 
-/// Selected post loaded state
-class SelectedPostLoaded extends PostState {
-  /// Constructor
-  const SelectedPostLoaded({required this.post});
+  /// Helper method to check if the state is in loading status
+  bool get isLoading =>
+      status == PostStatus.loading ||
+      status == PostStatus.loadingComments ||
+      status == PostStatus.loadingComment;
 
-  /// Selected post
-  final Post post;
+  /// Helper method to check if the state is refreshing in the background
+  bool get isRefreshing => status == PostStatus.refreshing;
 
-  @override
-  List<Object> get props => [post];
+  /// Helper method to check if the state has an error
+  bool get hasError => status == PostStatus.error;
+
+  /// Helper method to check if the state has loaded data (either from cache or remote)
+  bool get hasLoadedData =>
+      status == PostStatus.postsLoaded ||
+      status == PostStatus.userPostsLoaded ||
+      status == PostStatus.refreshing;
 }

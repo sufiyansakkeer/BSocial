@@ -2,9 +2,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/ui_constants.dart';
 import '../../../../core/widgets/animations/bs_animated_container.dart';
 import '../../../../core/widgets/animations/bs_staggered_list_view.dart';
 import '../../../../features/auth/presentation/blocs/auth_bloc.dart';

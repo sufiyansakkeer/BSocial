@@ -3,11 +3,11 @@ import 'dart:developer' as dev;
 
 import 'package:async/async.dart';
 import 'package:bsocial/core/constants/app_constants.dart';
+import 'package:bsocial/core/services/cache_manager.dart';
 import 'package:bsocial/features/chat/data/models/message_model.dart';
 import 'package:bsocial/features/chat/domain/entities/message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart';
 
 /// A class that provides a stream of messages for a chat room
 class MessageStream {
@@ -24,7 +24,8 @@ class MessageStream {
   final FirebaseFirestore _firestore;
   final Connectivity _connectivity;
 
-  // Cache for pending messages that need to be sent when connectivity is restored
+  // Cache for pending messages that need to be sent when
+  // connectivity is restored
   final List<Map<String, dynamic>> _pendingMessages = [];
 
   // Flag to track connectivity status
@@ -100,15 +101,53 @@ class MessageStream {
     // Initialize hasMoreMessages for this room if not already set
     _hasMoreMessages.putIfAbsent(roomId, () => true);
 
+    // Check if we have cached messages for this room
+    final cachedMessages = _messageCache[roomId];
+
+    // Create a stream controller to emit messages
+    final controller = StreamController<List<MessageModel>>.broadcast();
+
+    // If we have cached messages, emit them immediately
+    if (cachedMessages != null && cachedMessages.isNotEmpty) {
+      controller.add(cachedMessages);
+
+      // Mark the chat room as visited
+      CacheManager().markScreenVisited('chat_$roomId');
+
+      // Check if we need to refresh in the background
+      CacheManager()
+          .hasValidCache('chat_messages_$roomId',
+              maxAge: const Duration(minutes: 5))
+          .then((hasValidCache) {
+        if (!hasValidCache) {
+          // If cache is expired, refresh in the background
+          _refreshMessagesInBackground(roomId, controller);
+        }
+      });
+    } else {
+      // No cache, show loading state and fetch from Firestore
+      _fetchMessagesFromFirestore(roomId, controller);
+    }
+
     // Create a merged stream that combines Firestore updates with local updates
-    final firestoreStream = _firestore
+    final localUpdates = _localMessagesController.stream
+        .where((messages) => messages.any((msg) => msg.roomId == roomId));
+
+    // Merge the controller stream with local updates
+    return StreamGroup.merge([controller.stream, localUpdates]);
+  }
+
+  /// Fetch messages from Firestore and update the controller
+  void _fetchMessagesFromFirestore(
+      String roomId, StreamController<List<MessageModel>> controller) {
+    _firestore
         .collection(AppConstants.chatsCollection)
         .doc(roomId)
         .collection(AppConstants.messagesCollection)
         .orderBy('timestamp', descending: true)
         .limit(_defaultPageSize) // Initial page size
-        .snapshots()
-        .map((snapshot) {
+        .get()
+        .then((snapshot) {
       final messages = snapshot.docs.map(MessageModel.fromSnapshot).toList();
 
       // Store the last visible document for pagination if we have results
@@ -123,19 +162,116 @@ class MessageStream {
       // Update cache
       _messageCache[roomId] = messages;
 
-      return messages;
-    });
+      // Mark cache as refreshed
+      CacheManager().markCacheRefreshed('chat_messages_$roomId');
 
-    // Return a merged stream that combines Firestore and local updates
-    return StreamGroup.merge([
-      firestoreStream,
-      _localMessagesController.stream
-          .where((messages) => messages.any((msg) => msg.roomId == roomId))
-    ]);
+      // Emit messages to the controller
+      controller.add(messages);
+
+      // Set up the real-time listener for future updates
+      _setupRealtimeListener(roomId, controller);
+    }).catchError((error) {
+      _log('Error fetching messages: $error');
+      // If there's an error, still set up the listener for future updates
+      _setupRealtimeListener(roomId, controller);
+    });
+  }
+
+  /// Refresh messages in the background without disrupting the UI
+  void _refreshMessagesInBackground(
+      String roomId, StreamController<List<MessageModel>> controller) {
+    _firestore
+        .collection(AppConstants.chatsCollection)
+        .doc(roomId)
+        .collection(AppConstants.messagesCollection)
+        .orderBy('timestamp', descending: true)
+        .limit(_defaultPageSize) // Initial page size
+        .get()
+        .then((snapshot) {
+      final messages = snapshot.docs.map(MessageModel.fromSnapshot).toList();
+
+      // Store the last visible document for pagination if we have results
+      if (snapshot.docs.isNotEmpty) {
+        _lastVisibleDocuments[roomId] = snapshot.docs.last;
+        // If we got fewer messages than requested, there are no more to load
+        _hasMoreMessages[roomId] = snapshot.docs.length >= _defaultPageSize;
+      } else {
+        _hasMoreMessages[roomId] = false;
+      }
+
+      // Check if the messages are different from the cache
+      final cachedMessages = _messageCache[roomId] ?? [];
+      final hasChanges = _messagesHaveChanged(cachedMessages, messages);
+
+      if (hasChanges) {
+        // Update cache
+        _messageCache[roomId] = messages;
+
+        // Emit messages to the controller
+        controller.add(messages);
+      }
+
+      // Mark cache as refreshed
+      CacheManager().markCacheRefreshed('chat_messages_$roomId');
+
+      // Set up the real-time listener for future updates
+      _setupRealtimeListener(roomId, controller);
+    }).catchError((error) {
+      _log('Error refreshing messages: $error');
+      // If there's an error, still set up the listener for future updates
+      _setupRealtimeListener(roomId, controller);
+    });
+  }
+
+  /// Set up a real-time listener for new messages
+  void _setupRealtimeListener(
+      String roomId, StreamController<List<MessageModel>> controller) {
+    // Listen for real-time updates
+    _firestore
+        .collection(AppConstants.chatsCollection)
+        .doc(roomId)
+        .collection(AppConstants.messagesCollection)
+        .orderBy('timestamp', descending: true)
+        .limit(_defaultPageSize)
+        .snapshots()
+        .listen((snapshot) {
+      final messages = snapshot.docs.map(MessageModel.fromSnapshot).toList();
+
+      // Update cache
+      _messageCache[roomId] = messages;
+
+      // Emit messages to the controller
+      controller.add(messages);
+
+      // Mark cache as refreshed
+      CacheManager().markCacheRefreshed('chat_messages_$roomId');
+    }, onError: (error) {
+      _log('Error in real-time listener: $error');
+    });
+  }
+
+  /// Check if messages have changed
+  bool _messagesHaveChanged(
+      List<MessageModel> oldMessages, List<MessageModel> newMessages) {
+    if (oldMessages.length != newMessages.length) {
+      return true;
+    }
+
+    for (var i = 0; i < oldMessages.length; i++) {
+      if (oldMessages[i].messageId != newMessages[i].messageId ||
+          oldMessages[i].content != newMessages[i].content ||
+          oldMessages[i].isRead != newMessages[i].isRead ||
+          oldMessages[i].status != newMessages[i].status) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /// Load more messages for pagination
-  /// Returns a list of older messages and a boolean indicating if there are more messages to load
+  /// Returns a list of older messages and a boolean indicating if there are
+  /// more messages to load
   Future<(List<MessageModel>, bool)> loadMoreMessages(String roomId,
       {int pageSize = 20}) async {
     // If we don't have more messages or no last document, return empty list
@@ -181,7 +317,7 @@ class MessageStream {
       }
 
       return (messages, _hasMoreMessages[roomId]!);
-    } catch (e) {
+    } on Exception catch (e) {
       _log('Error loading more messages: $e');
       return (<MessageModel>[], false);
     }

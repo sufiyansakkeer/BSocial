@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:developer';
 import 'package:dartz/dartz.dart';
 import '../../core/errors/exceptions.dart';
@@ -267,11 +268,28 @@ class CachedChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  ResultFuture<List<Message>> getMessages(String roomId) async {
+  ResultFuture<List<Message>> getMessages(
+    String roomId, {
+    int limit = 20,
+    DocumentSnapshot? startAfterDocument,
+  }) async {
     if (await networkInfo.isConnected) {
       try {
-        final List<MessageModel> remoteMessageModels =
-            await remoteDataSource.getMessages(roomId);
+        // Check if we need to use pagination or not
+        List<MessageModel> remoteMessageModels;
+
+        if (startAfterDocument != null) {
+          // Use pagination if startAfterDocument is provided
+          remoteMessageModels = await remoteDataSource.getMessagesPaginated(
+            roomId,
+            limit: limit,
+            startAfterDocument: startAfterDocument,
+          );
+        } else {
+          // Use regular getMessages if no pagination is needed
+          remoteMessageModels = await remoteDataSource.getMessages(roomId);
+        }
+
         final remoteMessages =
             remoteMessageModels.map((model) => model.toEntity(roomId)).toList();
 
@@ -370,7 +388,7 @@ class CachedChatRepositoryImpl implements ChatRepository {
   }) async {
     if (await networkInfo.isConnected) {
       try {
-        final MessageModel messageModel = await remoteDataSource.sendMessage(
+        final messageModel = await remoteDataSource.sendMessage(
           roomId: roomId,
           senderId: senderId,
           receiverId: receiverId,

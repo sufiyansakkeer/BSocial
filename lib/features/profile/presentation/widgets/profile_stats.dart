@@ -33,11 +33,28 @@ class ProfileStats extends StatelessWidget {
           BlocBuilder<PostBloc, PostState>(
             builder: (context, state) {
               var postCount = '0';
-              if (state is UserPostsLoaded) {
+
+              // If we have user posts loaded and they belong to the current user
+              if (state.status == PostStatus.userPostsLoaded &&
+                  state.isUserPosts &&
+                  state.posts.isNotEmpty &&
+                  state.posts.first.uid == user.uid) {
                 postCount = state.posts.length.toString();
-              } else if (state is PostLoading) {
+              }
+              // If posts are loading
+              else if (state.status == PostStatus.loading) {
                 postCount = '-';
               }
+              // If we don't have the right posts loaded yet, trigger a load
+              else if (state.status != PostStatus.loading) {
+                // Only trigger once to avoid infinite loops
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  context
+                      .read<PostBloc>()
+                      .add(LoadUserPostsEvent(userId: user.uid));
+                });
+              }
+
               return BSAnimatedContainer(
                 animationType: BSAnimationType.fadeScale,
                 duration: const Duration(milliseconds: 400),

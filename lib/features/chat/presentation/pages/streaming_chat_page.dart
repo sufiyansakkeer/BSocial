@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as dev;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -8,7 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/ui_constants.dart';
 import '../../../../features/auth/presentation/blocs/auth_bloc.dart';
-import '../../data/datasources/remote/message_stream.dart';
+import '../../data/datasources/remote/message_stream_fixed.dart';
+import '../../data/models/message_model.dart';
 import '../../domain/entities/chat_room.dart';
 import '../../domain/entities/message.dart';
 import '../blocs/chat_bloc.dart';
@@ -36,14 +38,16 @@ class _StreamingChatPageState extends State<StreamingChatPage> {
   final ScrollController _scrollController = ScrollController();
 
   late final MessageStream _messageStream;
-  StreamSubscription<List<Message>>? _messagesSubscription;
+  StreamSubscription<List<MessageModel>>? _messagesSubscription;
   StreamSubscription<ConnectivityResult>? _connectivitySubscription;
 
   ChatRoom? _chatRoom;
-  List<Message> _messages = [];
+  List<MessageModel> _messages = [];
   final List<Message> _pendingMessages = [];
   bool _isLoading = false;
   bool _isLoadingMessages = true;
+  bool _isLoadingMoreMessages = false;
+  bool _hasMoreMessages = true;
   bool _isConnected = true;
   String? _otherUserId;
   String? _currentUserId;
@@ -52,8 +56,11 @@ class _StreamingChatPageState extends State<StreamingChatPage> {
   @override
   void initState() {
     super.initState();
+
+    // Initialize message stream with connectivity monitoring
     _messageStream = MessageStream(
       firestore: FirebaseFirestore.instance,
+      connectivity: Connectivity(),
     );
 
     // Get the current user ID
@@ -69,8 +76,22 @@ class _StreamingChatPageState extends State<StreamingChatPage> {
     _connectivitySubscription =
         Connectivity().onConnectivityChanged.listen(_updateConnectionStatus);
 
+    // Setup scroll controller for pagination
+    _scrollController.addListener(_scrollListener);
+
     // Load the chat room
     _loadChatRoom();
+  }
+
+  /// Scroll listener for pagination
+  void _scrollListener() {
+    // If we're at the bottom of the list and have more messages, load more
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent * 0.9 &&
+        !_isLoadingMoreMessages &&
+        _hasMoreMessages) {
+      _loadMoreMessages();
+    }
   }
 
   @override
@@ -176,6 +197,8 @@ class _StreamingChatPageState extends State<StreamingChatPage> {
   void _setupMessageStream() {
     setState(() {
       _isLoadingMessages = true;
+      // Reset pagination state
+      _hasMoreMessages = true;
     });
 
     try {
@@ -187,6 +210,8 @@ class _StreamingChatPageState extends State<StreamingChatPage> {
             _messages = messages;
             _isLoadingMessages = false;
             _errorMessage = null;
+            // Update hasMoreMessages based on the MessageStream state
+            _hasMoreMessages = _messageStream.hasMoreMessages(widget.roomId);
 
             // Remove pending messages that have been sent
             _pendingMessages.removeWhere((pendingMsg) => _messages.any((msg) =>
@@ -212,6 +237,67 @@ class _StreamingChatPageState extends State<StreamingChatPage> {
     }
   }
 
+  /// Load more messages for pagination
+  Future<void> _loadMoreMessages() async {
+    // Don't load more if we're already loading or don't have more messages
+    if (_isLoadingMoreMessages || !_hasMoreMessages) {
+      return;
+    }
+
+    setState(() {
+      _isLoadingMoreMessages = true;
+    });
+
+    try {
+      // Load more messages
+      final (moreMessages, hasMore) =
+          await _messageStream.loadMoreMessages(widget.roomId);
+
+      if (mounted) {
+        setState(() {
+          // We don't need to add messages here since they're already added
+          // to the cache and will be reflected in the stream
+
+          _hasMoreMessages = hasMore;
+          _isLoadingMoreMessages = false;
+
+          // If we didn't get any more messages but hasMore is still true,
+          // there might be an issue with the pagination
+          if (moreMessages.isEmpty && hasMore) {
+            _log('No more messages returned but hasMore is true');
+            _hasMoreMessages = false;
+          }
+        });
+      }
+    } on Exception catch (e) {
+      _log('Error loading more messages: $e');
+
+      if (mounted) {
+        setState(() {
+          _isLoadingMoreMessages = false;
+        });
+
+        // Show a snackbar with the error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load more messages: $e'),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: 'Retry',
+              onPressed: _loadMoreMessages,
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  /// Log messages with a tag
+  void _log(String message, {String tag = 'StreamingChatPage'}) {
+    dev.log(message, name: tag);
+  }
+
   /// Mark messages as read
   void _markMessagesAsRead() {
     if (_currentUserId != null) {
@@ -219,31 +305,10 @@ class _StreamingChatPageState extends State<StreamingChatPage> {
     }
   }
 
-  /// Send a message
+  /// Send a message with optimized delivery and error handling
   Future<void> _sendMessage({String? content}) async {
-    // Check connectivity first
-    if (!_isConnected) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              const Text('No internet connection. Message saved as draft.'),
-          backgroundColor: Colors.orange,
-          action: SnackBarAction(
-            label: 'Retry',
-            onPressed: () {
-              _checkConnectivity();
-              if (_isConnected) {
-                _sendMessage(content: content);
-              }
-            },
-          ),
-        ),
-      );
-      return;
-    }
-
     // Use provided content or text from the controller
-    final messageContent = content ?? _messageController.text;
+    final messageContent = content ?? _messageController.text.trim();
 
     // Don't send empty messages
     if (messageContent.isEmpty) {
@@ -261,65 +326,79 @@ class _StreamingChatPageState extends State<StreamingChatPage> {
       return;
     }
 
-    // Create a pending message for optimistic UI update
-    final pendingMessage = Message(
-      messageId: DateTime.now().millisecondsSinceEpoch.toString(),
-      senderId: _currentUserId!,
-      receiverId: _otherUserId!,
-      content: messageContent,
-      timestamp: DateTime.now(),
-      isRead: false,
-      roomId: widget.roomId,
-      status: MessageStatus.sending,
-    );
-
-    // Add to pending messages for optimistic UI update
-    setState(() {
-      _pendingMessages.add(pendingMessage);
-      _isLoading = true;
-    });
-
     // Clear the text controller if we're sending a text message
     if (content == null) {
       _messageController.clear();
     }
 
+    // Set loading state
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      // Send the message
-      await _messageStream.sendMessage(
+      // The enhanced MessageStream handles offline mode automatically
+      // and will queue messages for sending when connectivity is restored
+      final sentMessage = await _messageStream.sendMessage(
         roomId: widget.roomId,
         senderId: _currentUserId!,
         receiverId: _otherUserId!,
         content: messageContent,
       );
 
-      // Message sent successfully
+      // Message sent or queued successfully
       if (mounted) {
         setState(() {
           _isLoading = false;
+
+          // If the message was sent successfully, scroll to the bottom
+          if (sentMessage.status == MessageStatus.sent) {
+            // Use a post-frame callback to ensure the list has been updated
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (_scrollController.hasClients) {
+                _scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                );
+              }
+            });
+          }
+
+          // If the message failed to send, show a retry option
+          if (sentMessage.status == MessageStatus.failed && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Failed to send message. Tap to retry.'),
+                backgroundColor: Colors.orange,
+                action: SnackBarAction(
+                  label: 'Retry',
+                  onPressed: () {
+                    if (mounted) {
+                      _sendMessage(content: messageContent);
+                    }
+                  },
+                ),
+                duration: const Duration(seconds: 5),
+              ),
+            );
+          }
         });
       }
     } on Exception catch (e) {
-      // Message failed to send
+      // Handle any unexpected errors
       if (!mounted) {
         return;
       }
 
       setState(() {
         _isLoading = false;
-        // Update the pending message status to failed
-        final index = _pendingMessages.indexOf(pendingMessage);
-        if (index != -1) {
-          _pendingMessages[index] = pendingMessage.copyWith(
-            status: MessageStatus.failed,
-          );
-        }
       });
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to send message: $e'),
+            content: Text('Error sending message: $e'),
             backgroundColor: Colors.red,
             action: SnackBarAction(
               label: 'Retry',
@@ -329,6 +408,7 @@ class _StreamingChatPageState extends State<StreamingChatPage> {
                 }
               },
             ),
+            duration: const Duration(seconds: 5),
           ),
         );
       }
@@ -437,50 +517,122 @@ class _StreamingChatPageState extends State<StreamingChatPage> {
       );
     }
 
-    // Show the messages list
-    return ListView.builder(
-      controller: _scrollController,
-      reverse: true, // To show latest messages at the bottom
-      itemCount: _allMessages.length,
-      itemBuilder: (context, index) {
-        final message = _allMessages[index];
-        final isMe = message.senderId == _currentUserId;
+    // Show the messages list with pagination support
+    return Stack(
+      children: [
+        ListView.builder(
+          controller: _scrollController,
+          reverse: true, // To show latest messages at the bottom
+          itemCount: _allMessages.length + (_hasMoreMessages ? 1 : 0),
+          itemBuilder: (context, index) {
+            // Show loading indicator at the end of the list when there are
+            // more messages to load
+            if (_hasMoreMessages && index == _allMessages.length) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: _isLoadingMoreMessages
+                      ? const CircularProgressIndicator()
+                      : TextButton.icon(
+                          onPressed: _loadMoreMessages,
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Load More'),
+                        ),
+                ),
+              );
+            }
 
-        return ChatBubble(
-          message: message,
-          isMe: isMe,
-          onTapImage: _onImageTap,
-          onLongPress: isMe
-              ? () {
-                  // Show delete option for own messages
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Delete Message'),
-                      content: const Text('Are you sure you want to '
-                          'delete this message?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('Cancel'),
+            final message = _allMessages[index];
+            final isMe = message.senderId == _currentUserId;
+
+            return ChatBubble(
+              message: message,
+              isMe: isMe,
+              onTapImage: _onImageTap,
+              onLongPress: isMe
+                  ? () {
+                      // Show delete option for own messages
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Delete Message'),
+                          content: const Text('Are you sure you want to '
+                              'delete this message?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                _deleteMessage(message);
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text(
+                                'Delete',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
                         ),
-                        TextButton(
-                          onPressed: () {
-                            _deleteMessage(message);
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text(
-                            'Delete',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      ],
+                      );
+                    }
+                  : null,
+            );
+          },
+        ),
+
+        // Show a loading overlay when loading more messages
+        if (_isLoadingMoreMessages)
+          Positioned(
+            bottom: 16,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface
+                      .withAlpha(204), // 0.8 * 255 = 204
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color:
+                          Colors.black.withAlpha(26), // 0.1 * 255 = 25.5 ≈ 26
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
                     ),
-                  );
-                }
-              : null,
-        );
-      },
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Loading more messages...',
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 

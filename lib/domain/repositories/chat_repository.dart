@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/utils/typedefs.dart';
 import '../entities/chat_room.dart';
 import '../../features/chat/domain/entities/message.dart'; // Corrected import
@@ -25,7 +26,11 @@ abstract class ChatRepository {
   });
 
   // Get messages for a chat room
-  ResultFuture<List<Message>> getMessages(String roomId);
+  ResultFuture<List<Message>> getMessages(
+    String roomId, {
+    int limit = 20,
+    DocumentSnapshot? startAfterDocument,
+  });
 
   // Mark messages as read
   ResultVoid markMessagesAsRead(String roomId, String userId);

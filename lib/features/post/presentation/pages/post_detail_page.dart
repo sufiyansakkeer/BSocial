@@ -11,7 +11,7 @@ class PostDetailPage extends StatefulWidget {
     required this.postId,
     super.key,
   });
-  
+
   /// Post ID
   final String postId;
 
@@ -71,7 +71,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
         ),
         body: BlocConsumer<PostBloc, PostState>(
           listener: (context, state) {
-            if (state is CommentLoading) {
+            if (state.status == PostStatus.loadingComment) {
               setState(() {
                 _isLoading = true;
               });
@@ -81,35 +81,35 @@ class _PostDetailPageState extends State<PostDetailPage> {
               });
             }
 
-            if (state is CommentAdded) {
+            if (state.status == PostStatus.commentAdded) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Comment added successfully'),
                   backgroundColor: Colors.green,
                 ),
               );
-            } else if (state is CommentDeleted) {
+            } else if (state.status == PostStatus.commentDeleted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Comment deleted successfully'),
                   backgroundColor: Colors.green,
                 ),
               );
-            } else if (state is PostError) {
+            } else if (state.status == PostStatus.error) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(state.message),
+                  content: Text(state.errorMessage ?? 'An error occurred'),
                   backgroundColor: Colors.red,
                 ),
               );
             }
           },
           builder: (context, state) {
-            if (state is CommentsLoading) {
+            if (state.status == PostStatus.loadingComments) {
               return const Center(
                 child: CircularProgressIndicator(),
               );
-            } else if (state is CommentsLoaded) {
+            } else if (state.status == PostStatus.commentsLoaded) {
               return Column(
                 children: [
                   Expanded(
@@ -178,7 +178,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                   ),
                 ],
               );
-            } else if (state is PostError) {
+            } else if (state.status == PostStatus.error) {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -186,7 +186,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     const Icon(Icons.error_outline,
                         size: 48, color: Colors.red),
                     const SizedBox(height: 16),
-                    Text(state.message),
+                    Text(state.errorMessage ?? 'An error occurred'),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {

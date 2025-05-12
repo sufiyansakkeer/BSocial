@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../../core/errors/exceptions.dart';
 import '../../models/chat_room_model.dart';
 import '../../models/message_model.dart';
@@ -42,6 +43,14 @@ class MockChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
   @override
   Future<List<MessageModel>> getMessages(String roomId) async =>
+      []; // Return an empty list in offline mode
+
+  @override
+  Future<List<MessageModel>> getMessagesPaginated(
+    String roomId, {
+    int limit = 20,
+    DocumentSnapshot? startAfterDocument,
+  }) async =>
       []; // Return an empty list in offline mode
 
   @override

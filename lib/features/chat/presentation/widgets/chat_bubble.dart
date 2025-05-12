@@ -37,13 +37,9 @@ class ChatBubble extends StatelessWidget {
     final timeString = DateFormat.jm().format(message.timestamp);
 
     // Determine if the message contains an image URL
-    // This is a simple check - in a real app, you'd have a more robust way to identify media
-    final hasImage = message.content.startsWith('http') &&
-        (message.content.contains('.jpg') ||
-            message.content.contains('.jpeg') ||
-            message.content.contains('.png') ||
-            message.content.contains('.gif') ||
-            message.content.contains('picsum.photos'));
+    // This is a simple check - in a real app, you'd have a more robust way
+    // to identify media
+    final hasImage = _isImageUrl(message.content);
 
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
@@ -79,44 +75,62 @@ class ChatBubble extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (hasImage) ...[
-                // Image content
+                // Image content with optimized loading
                 ClipRRect(
                   borderRadius:
                       BorderRadius.circular(UiConstants.borderRadiusSmall),
                   child: GestureDetector(
                     onTap: () => onTapImage?.call(message.content),
-                    child: Image.network(
-                      message.content,
-                      width: 200,
-                      height: 200,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) {
-                          return child;
-                        }
-                        return SizedBox(
-                          width: 200,
-                          height: 200,
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
-                              strokeWidth: 2,
-                              color: isMe
-                                  ? Colors.white
-                                  : theme.colorScheme.primary,
-                            ),
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) => Container(
+                    child: Hero(
+                      tag: 'image_${message.messageId}',
+                      child: Image.network(
+                        message.content,
                         width: 200,
-                        height: 100,
-                        color: Colors.grey.shade300,
-                        child: const Center(
-                          child: Icon(Icons.error_outline, color: Colors.red),
+                        height: 200,
+                        fit: BoxFit.cover,
+                        cacheWidth: 400, // Optimize memory usage
+                        cacheHeight: 400,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) {
+                            return child;
+                          }
+                          return SizedBox(
+                            width: 200,
+                            height: 200,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                                strokeWidth: 2,
+                                color: isMe
+                                    ? Colors.white
+                                    : theme.colorScheme.primary,
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 200,
+                          height: 100,
+                          color: Colors.grey.shade300,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.error_outline,
+                                  color: Colors.red),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Failed to load image',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: theme.colorScheme.error,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -157,6 +171,15 @@ class ChatBubble extends StatelessWidget {
       ),
     );
   }
+
+  /// Check if a URL is an image URL
+  bool _isImageUrl(String url) =>
+      url.startsWith('http') &&
+      (url.contains('.jpg') ||
+          url.contains('.jpeg') ||
+          url.contains('.png') ||
+          url.contains('.gif') ||
+          url.contains('picsum.photos'));
 
   /// Build the message status icon based on message state
   Widget _buildMessageStatusIcon() {

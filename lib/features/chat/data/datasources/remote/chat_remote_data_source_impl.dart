@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
@@ -6,48 +8,7 @@ import '../../../../../core/errors/exceptions.dart';
 import '../../../domain/entities/message.dart';
 import '../../models/chat_room_model.dart';
 import '../../models/message_model.dart';
-
-/// Interface for chat remote data source
-abstract class ChatRemoteDataSource {
-  /// Get all chat rooms for a user
-  Future<List<ChatRoomModel>> getChatRooms(String userId);
-
-  /// Create a new chat room
-  Future<ChatRoomModel> createChatRoom(List<String> participants);
-
-  /// Get a chat room by ID
-  Future<ChatRoomModel> getChatRoomById(String roomId);
-
-  /// Get a chat room by participants
-  Future<ChatRoomModel?> getChatRoomByParticipants(List<String> participants);
-
-  /// Send a message
-  Future<MessageModel> sendMessage({
-    required String roomId,
-    required String senderId,
-    required String receiverId,
-    required String content,
-  });
-
-  /// Get messages for a chat room
-  Future<List<MessageModel>> getMessages(String roomId);
-
-  /// Get messages for a chat room with pagination
-  Future<List<MessageModel>> getMessagesPaginated(
-    String roomId, {
-    int limit = 20,
-    DocumentSnapshot? startAfterDocument,
-  });
-
-  /// Mark messages as read
-  Future<void> markMessagesAsRead(String roomId, String userId);
-
-  /// Delete a message
-  Future<void> deleteMessage(String messageId, String roomId);
-
-  /// Delete a chat room
-  Future<void> deleteChatRoom(String roomId);
-}
+import 'chat_remote_data_source.dart';
 
 /// Implementation of [ChatRemoteDataSource]
 class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
@@ -69,6 +30,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       return snapshot.docs.map(ChatRoomModel.fromSnapshot).toList();
     } catch (e) {
+      log('Error getting chat rooms: $e', name: 'getChatRooms');
       throw ServerException(message: 'Failed to get chat rooms: $e');
     }
   }
@@ -107,6 +69,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       return chatRoom;
     } catch (e) {
+      log('Error creating chat room: $e', name: 'createChatRoom');
       throw ServerException(message: 'Failed to create chat room: $e');
     }
   }
@@ -125,6 +88,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       return ChatRoomModel.fromSnapshot(snapshot);
     } catch (e) {
+      log('Error getting chat room: $e', name: 'getChatRoomById');
       throw ServerException(message: 'Failed to get chat room: $e');
     }
   }
@@ -163,6 +127,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       return ChatRoomModel.fromSnapshot(querySnapshot.docs.first);
     } catch (e) {
+      log('Error getting chat room by participants: $e',
+          name: 'getChatRoomByParticipants');
       throw ServerException(
           message: 'Failed to get chat room by participants: $e');
     }
@@ -178,9 +144,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     try {
       // Generate a unique message ID
       final messageId = const Uuid().v1();
+      final now = DateTime.now();
 
       // Create message model with sent status
-      final now = DateTime.now();
       final message = MessageModel(
         messageId: messageId,
         senderId: senderId,
@@ -211,6 +177,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       return message;
     } catch (e) {
+      log('Error sending message: $e', name: 'sendMessage');
       throw ServerException(message: 'Failed to send message: $e');
     }
   }
@@ -227,6 +194,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       return snapshot.docs.map(MessageModel.fromSnapshot).toList();
     } catch (e) {
+      log('Error getting messages: $e', name: 'getMessages');
       throw ServerException(message: 'Failed to get messages: $e');
     }
   }
@@ -253,7 +221,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       return snapshot.docs.map(MessageModel.fromSnapshot).toList();
     } catch (e) {
-      throw ServerException(message: 'Failed to get messages: $e');
+      log('Error getting paginated messages: $e', name: 'getMessagesPaginated');
+      throw ServerException(message: 'Failed to get paginated messages: $e');
     }
   }
 
@@ -273,13 +242,16 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       final batch = _firestore.batch();
 
       for (final doc in snapshot.docs) {
-        batch.update(doc.reference,
-            {'isRead': true, 'status': MessageStatus.read.index});
+        batch.update(
+          doc.reference,
+          {'isRead': true, 'status': MessageStatus.read.index},
+        );
       }
 
       // Commit the batch
       await batch.commit();
     } catch (e) {
+      log('Error marking messages as read: $e', name: 'markMessagesAsRead');
       throw ServerException(message: 'Failed to mark messages as read: $e');
     }
   }
@@ -294,6 +266,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           .doc(messageId)
           .delete();
     } catch (e) {
+      log('Error deleting message: $e', name: 'deleteMessage');
       throw ServerException(message: 'Failed to delete message: $e');
     }
   }
@@ -321,6 +294,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       // Commit the batch
       await batch.commit();
     } catch (e) {
+      log('Error deleting chat room: $e', name: 'deleteChatRoom');
       throw ServerException(message: 'Failed to delete chat room: $e');
     }
   }

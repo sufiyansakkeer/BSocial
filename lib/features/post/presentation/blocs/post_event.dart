@@ -12,6 +12,21 @@ abstract class PostEvent extends Equatable {
 /// Event to load all posts
 class LoadPostsEvent extends PostEvent {}
 
+/// Event to refresh posts in the background (without showing loading state)
+class RefreshPostsEvent extends PostEvent {}
+
+/// Event to refresh user posts in the background (without showing loading state)
+class RefreshUserPostsEvent extends PostEvent {
+  /// Constructor
+  const RefreshUserPostsEvent({required this.userId});
+
+  /// User ID
+  final String userId;
+
+  @override
+  List<Object> get props => [userId];
+}
+
 /// Event to load posts by user ID
 class LoadUserPostsEvent extends PostEvent {
   /// Constructor

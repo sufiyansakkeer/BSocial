@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
@@ -17,9 +18,11 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     required PostRepository postRepository,
     this.onMissingIndexError,
   })  : _postRepository = postRepository,
-        super(PostInitial()) {
+        super(const PostState()) {
     on<LoadPostsEvent>(_onLoadPosts);
+    on<RefreshPostsEvent>(_onRefreshPosts);
     on<LoadUserPostsEvent>(_onLoadUserPosts);
+    on<RefreshUserPostsEvent>(_onRefreshUserPosts);
     on<CreatePostEvent>(_onCreatePost);
     on<DeletePostEvent>(_onDeletePost);
     on<LikePostEvent>(_onLikePost);
@@ -42,13 +45,81 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     LoadPostsEvent event,
     Emitter<PostState> emit,
   ) async {
-    emit(PostLoading());
+    // Don't reload if we're already loading or have loaded posts
+    if (state.status == PostStatus.loading ||
+        (state.status == PostStatus.postsLoaded && !state.isUserPosts)) {
+      return;
+    }
+
+    emit(state.copyWith(status: PostStatus.loading));
 
     final result = await _postRepository.getAllPosts();
 
     result.fold(
-      (failure) => emit(PostError(message: failure.message)),
-      (posts) => emit(PostsLoaded(posts: posts)),
+      (failure) => emit(state.copyWith(
+        status: PostStatus.error,
+        errorMessage: failure.message,
+      )),
+      (posts) => emit(state.copyWith(
+        status: PostStatus.postsLoaded,
+        posts: posts,
+        isUserPosts: false,
+      )),
+    );
+  }
+
+  /// Handle refresh posts event (background refresh without loading state)
+  Future<void> _onRefreshPosts(
+    RefreshPostsEvent event,
+    Emitter<PostState> emit,
+  ) async {
+    // Only refresh if we have posts loaded or are in refreshing state
+    if (state.status != PostStatus.postsLoaded &&
+        state.status != PostStatus.refreshing) {
+      return;
+    }
+
+    // Set state to refreshing to indicate background refresh
+    if (state.status != PostStatus.refreshing) {
+      emit(state.copyWith(status: PostStatus.refreshing));
+    }
+
+    final result = await _postRepository.getAllPosts();
+
+    result.fold(
+      (failure) {
+        // On failure, keep showing the old data but log the error
+        debugPrint('Background refresh failed: ${failure.message}');
+        // Return to postsLoaded state
+        emit(state.copyWith(status: PostStatus.postsLoaded));
+      },
+      (posts) {
+        // Check if posts are different from current posts
+        final currentPostIds = state.posts.map((p) => p.postId).toSet();
+        final newPostIds = posts.map((p) => p.postId).toSet();
+
+        final hasNewPosts =
+            !const SetEquality().equals(currentPostIds, newPostIds);
+        final hasUpdatedPosts = posts.any((newPost) {
+          final oldPost = state.posts.firstWhere(
+            (p) => p.postId == newPost.postId,
+            orElse: () => newPost,
+          );
+          return newPost.likes.length != oldPost.likes.length;
+        });
+
+        // Only update UI if there are changes
+        if (hasNewPosts || hasUpdatedPosts) {
+          emit(state.copyWith(
+            status: PostStatus.postsLoaded,
+            posts: posts,
+            isUserPosts: false,
+          ));
+        } else {
+          // No changes, just return to postsLoaded state
+          emit(state.copyWith(status: PostStatus.postsLoaded));
+        }
+      },
     );
   }
 
@@ -57,7 +128,17 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     LoadUserPostsEvent event,
     Emitter<PostState> emit,
   ) async {
-    emit(PostLoading());
+    // Don't reload if we're already loading or have loaded the same user's posts
+    final alreadyLoaded = state.status == PostStatus.userPostsLoaded &&
+        state.isUserPosts &&
+        state.posts.isNotEmpty &&
+        state.posts.first.uid == event.userId;
+
+    if (state.status == PostStatus.loading || alreadyLoaded) {
+      return;
+    }
+
+    emit(state.copyWith(status: PostStatus.loading));
 
     final result = await _postRepository.getPostsByUserId(event.userId);
 
@@ -71,9 +152,72 @@ class PostBloc extends Bloc<PostEvent, PostState> {
           onMissingIndexError!(event.context!, failure.message);
         }
 
-        emit(PostError(message: failure.message));
+        emit(state.copyWith(
+          status: PostStatus.error,
+          errorMessage: failure.message,
+        ));
       },
-      (posts) => emit(UserPostsLoaded(posts: posts)),
+      (posts) => emit(state.copyWith(
+        status: PostStatus.userPostsLoaded,
+        posts: posts,
+        isUserPosts: true,
+      )),
+    );
+  }
+
+  /// Handle refresh user posts event (background refresh without loading state)
+  Future<void> _onRefreshUserPosts(
+    RefreshUserPostsEvent event,
+    Emitter<PostState> emit,
+  ) async {
+    // Only refresh if we have user posts loaded or are in refreshing state
+    if ((state.status != PostStatus.userPostsLoaded &&
+            state.status != PostStatus.refreshing) ||
+        !state.isUserPosts) {
+      return;
+    }
+
+    // Set state to refreshing to indicate background refresh
+    if (state.status != PostStatus.refreshing) {
+      emit(state.copyWith(status: PostStatus.refreshing));
+    }
+
+    final result = await _postRepository.getPostsByUserId(event.userId);
+
+    result.fold(
+      (failure) {
+        // On failure, keep showing the old data but log the error
+        debugPrint('Background refresh failed: ${failure.message}');
+        // Return to userPostsLoaded state
+        emit(state.copyWith(status: PostStatus.userPostsLoaded));
+      },
+      (posts) {
+        // Check if posts are different from current posts
+        final currentPostIds = state.posts.map((p) => p.postId).toSet();
+        final newPostIds = posts.map((p) => p.postId).toSet();
+
+        final hasNewPosts =
+            !const SetEquality().equals(currentPostIds, newPostIds);
+        final hasUpdatedPosts = posts.any((newPost) {
+          final oldPost = state.posts.firstWhere(
+            (p) => p.postId == newPost.postId,
+            orElse: () => newPost,
+          );
+          return newPost.likes.length != oldPost.likes.length;
+        });
+
+        // Only update UI if there are changes
+        if (hasNewPosts || hasUpdatedPosts) {
+          emit(state.copyWith(
+            status: PostStatus.userPostsLoaded,
+            posts: posts,
+            isUserPosts: true,
+          ));
+        } else {
+          // No changes, just return to userPostsLoaded state
+          emit(state.copyWith(status: PostStatus.userPostsLoaded));
+        }
+      },
     );
   }
 
@@ -82,7 +226,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     CreatePostEvent event,
     Emitter<PostState> emit,
   ) async {
-    emit(PostLoading());
+    emit(state.copyWith(status: PostStatus.loading));
 
     final result = await _postRepository.createPost(
       description: event.description,
@@ -93,8 +237,14 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     );
 
     result.fold(
-      (failure) => emit(PostError(message: failure.message)),
-      (post) => emit(PostCreated(post: post)),
+      (failure) => emit(state.copyWith(
+        status: PostStatus.error,
+        errorMessage: failure.message,
+      )),
+      (post) => emit(state.copyWith(
+        status: PostStatus.postCreated,
+        post: post,
+      )),
     );
   }
 
@@ -103,13 +253,16 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     DeletePostEvent event,
     Emitter<PostState> emit,
   ) async {
-    emit(PostLoading());
+    emit(state.copyWith(status: PostStatus.loading));
 
     final result = await _postRepository.deletePost(event.postId);
 
     result.fold(
-      (failure) => emit(PostError(message: failure.message)),
-      (_) => emit(PostDeleted()),
+      (failure) => emit(state.copyWith(
+        status: PostStatus.error,
+        errorMessage: failure.message,
+      )),
+      (_) => emit(state.copyWith(status: PostStatus.postDeleted)),
     );
   }
 
@@ -120,26 +273,35 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   ) async {
     final currentState = state;
 
+    // Only proceed if we have posts loaded
+    if (currentState.status != PostStatus.postsLoaded &&
+        currentState.status != PostStatus.userPostsLoaded) {
+      return;
+    }
+
     final result = await _postRepository.likePost(
       event.postId,
       event.userId,
     );
 
     result.fold(
-      (failure) => emit(PostError(message: failure.message)),
+      (failure) => emit(currentState.copyWith(
+        status: PostStatus.error,
+        errorMessage: failure.message,
+      )),
       (_) {
-        if (currentState is PostsLoaded) {
-          final updatedPosts = currentState.posts.map((post) {
-            if (post.postId == event.postId) {
-              return post.copyWith(
-                likes: [...post.likes, event.userId],
-              );
-            }
-            return post;
-          }).toList();
+        final updatedPosts = currentState.posts.map((post) {
+          if (post.postId == event.postId) {
+            return post.copyWith(
+              likes: [...post.likes, event.userId],
+            );
+          }
+          return post;
+        }).toList();
 
-          emit(PostsLoaded(posts: updatedPosts));
-        }
+        emit(currentState.copyWith(
+          posts: updatedPosts,
+        ));
       },
     );
   }
@@ -151,26 +313,35 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   ) async {
     final currentState = state;
 
+    // Only proceed if we have posts loaded
+    if (currentState.status != PostStatus.postsLoaded &&
+        currentState.status != PostStatus.userPostsLoaded) {
+      return;
+    }
+
     final result = await _postRepository.unlikePost(
       event.postId,
       event.userId,
     );
 
     result.fold(
-      (failure) => emit(PostError(message: failure.message)),
+      (failure) => emit(currentState.copyWith(
+        status: PostStatus.error,
+        errorMessage: failure.message,
+      )),
       (_) {
-        if (currentState is PostsLoaded) {
-          final updatedPosts = currentState.posts.map((post) {
-            if (post.postId == event.postId) {
-              return post.copyWith(
-                likes: post.likes.where((id) => id != event.userId).toList(),
-              );
-            }
-            return post;
-          }).toList();
+        final updatedPosts = currentState.posts.map((post) {
+          if (post.postId == event.postId) {
+            return post.copyWith(
+              likes: post.likes.where((id) => id != event.userId).toList(),
+            );
+          }
+          return post;
+        }).toList();
 
-          emit(PostsLoaded(posts: updatedPosts));
-        }
+        emit(currentState.copyWith(
+          posts: updatedPosts,
+        ));
       },
     );
   }
@@ -180,13 +351,19 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     LoadCommentsEvent event,
     Emitter<PostState> emit,
   ) async {
-    emit(CommentsLoading());
+    emit(state.copyWith(status: PostStatus.loadingComments));
 
     final result = await _postRepository.getComments(event.postId);
 
     result.fold(
-      (failure) => emit(PostError(message: failure.message)),
-      (comments) => emit(CommentsLoaded(comments: comments)),
+      (failure) => emit(state.copyWith(
+        status: PostStatus.error,
+        errorMessage: failure.message,
+      )),
+      (comments) => emit(state.copyWith(
+        status: PostStatus.commentsLoaded,
+        comments: comments,
+      )),
     );
   }
 
@@ -195,7 +372,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     AddCommentEvent event,
     Emitter<PostState> emit,
   ) async {
-    emit(CommentLoading());
+    emit(state.copyWith(status: PostStatus.loadingComment));
 
     final result = await _postRepository.postComment(
       postId: event.postId,
@@ -206,13 +383,23 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     );
 
     result.fold(
-      (failure) => emit(PostError(message: failure.message)),
+      (failure) => emit(state.copyWith(
+        status: PostStatus.error,
+        errorMessage: failure.message,
+      )),
       (comment) {
-        if (state is CommentsLoaded) {
-          final currentComments = (state as CommentsLoaded).comments;
-          emit(CommentsLoaded(comments: [...currentComments, comment]));
+        if (state.status == PostStatus.commentsLoaded) {
+          // If we already have comments loaded, add the new comment to the list
+          emit(state.copyWith(
+            status: PostStatus.commentsLoaded,
+            comments: [...state.comments, comment],
+          ));
         } else {
-          emit(CommentAdded(comment: comment));
+          // Otherwise just set the comment added status
+          emit(state.copyWith(
+            status: PostStatus.commentAdded,
+            comment: comment,
+          ));
         }
       },
     );
@@ -223,7 +410,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     DeleteCommentEvent event,
     Emitter<PostState> emit,
   ) async {
-    emit(CommentLoading());
+    emit(state.copyWith(status: PostStatus.loadingComment));
 
     final result = await _postRepository.deleteComment(
       event.commentId,
@@ -231,8 +418,11 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     );
 
     result.fold(
-      (failure) => emit(PostError(message: failure.message)),
-      (_) => emit(CommentDeleted()),
+      (failure) => emit(state.copyWith(
+        status: PostStatus.error,
+        errorMessage: failure.message,
+      )),
+      (_) => emit(state.copyWith(status: PostStatus.commentDeleted)),
     );
   }
 
@@ -241,6 +431,9 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     SetSelectedPostEvent event,
     Emitter<PostState> emit,
   ) {
-    emit(SelectedPostLoaded(post: event.post));
+    emit(state.copyWith(
+      status: PostStatus.selectedPostLoaded,
+      post: event.post,
+    ));
   }
 }

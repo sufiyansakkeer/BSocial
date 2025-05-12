@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../core/errors/exceptions.dart';
@@ -5,8 +6,8 @@ import '../../core/errors/failures.dart';
 import '../../core/network/network_info.dart';
 import '../../core/utils/typedefs.dart';
 import '../../domain/entities/chat_room.dart';
-import '../../features/chat/domain/entities/message.dart';
 import '../../domain/repositories/chat_repository.dart';
+import '../../features/chat/domain/entities/message.dart';
 import '../datasources/remote/chat_remote_data_source.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
@@ -62,8 +63,21 @@ class ChatRepositoryImpl implements ChatRepository {
       _guardNetworkCall(() => remoteDataSource.getChatRooms(userId));
 
   @override
-  ResultFuture<List<Message>> getMessages(String roomId) =>
-      _guardNetworkCall(() => remoteDataSource.getMessages(roomId));
+  ResultFuture<List<Message>> getMessages(
+    String roomId, {
+    int limit = 20,
+    DocumentSnapshot? startAfterDocument,
+  }) {
+    if (startAfterDocument != null) {
+      return _guardNetworkCall(() => remoteDataSource.getMessagesPaginated(
+            roomId,
+            limit: limit,
+            startAfterDocument: startAfterDocument,
+          ));
+    } else {
+      return _guardNetworkCall(() => remoteDataSource.getMessages(roomId));
+    }
+  }
 
   @override
   ResultVoid markMessagesAsRead(String roomId, String userId) =>

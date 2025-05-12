@@ -30,6 +30,13 @@ abstract class ChatRemoteDataSource {
   // Get messages for a chat room
   Future<List<MessageModel>> getMessages(String roomId);
 
+  // Get messages for a chat room with pagination
+  Future<List<MessageModel>> getMessagesPaginated(
+    String roomId, {
+    int limit = 20,
+    DocumentSnapshot? startAfterDocument,
+  });
+
   // Mark messages as read
   Future<void> markMessagesAsRead(String roomId, String userId);
 
@@ -232,6 +239,34 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e) {
       log('Error getting messages: $e', name: 'getMessages');
       throw ServerException(message: 'Failed to get messages: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<List<MessageModel>> getMessagesPaginated(
+    String roomId, {
+    int limit = 20,
+    DocumentSnapshot? startAfterDocument,
+  }) async {
+    try {
+      var query = _firestore
+          .collection(AppConstants.chatsCollection)
+          .doc(roomId)
+          .collection(AppConstants.messagesCollection)
+          .orderBy('timestamp', descending: true)
+          .limit(limit);
+
+      if (startAfterDocument != null) {
+        query = query.startAfterDocument(startAfterDocument);
+      }
+
+      final querySnapshot = await query.get();
+
+      return querySnapshot.docs.map(MessageModel.fromSnapshot).toList();
+    } catch (e) {
+      log('Error getting paginated messages: $e', name: 'getMessagesPaginated');
+      throw ServerException(
+          message: 'Failed to get paginated messages: ${e.toString()}');
     }
   }
 
