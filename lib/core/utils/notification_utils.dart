@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:go_router/go_router.dart';
 
 import '../services/logger_service.dart';
 
@@ -17,6 +20,14 @@ class NotificationUtils {
 
   // Singleton instance
   static final NotificationUtils _instance = NotificationUtils._internal();
+
+  // Router instance for navigation
+  static GoRouter? _router;
+
+  /// Initialize the router for navigation
+  static void initializeRouter(GoRouter router) {
+    _router = router;
+  }
 
   /// Initialize local notifications
   Future<void> initializeLocalNotifications() async {
@@ -53,8 +64,62 @@ class NotificationUtils {
 
   /// Handle notification tap
   void _onNotificationTapped(NotificationResponse response) {
-    _logger.i('Notification tapped: ${response.payload}');
-    // TODO: Handle notification tap
+    _logger.i('Notification tapped with payload: ${response.payload}');
+
+    if (_router == null) {
+      _logger.e('Router not initialized in NotificationUtils');
+      return;
+    }
+
+    if (response.payload == null || response.payload!.isEmpty) {
+      _logger.e('Notification payload is null or empty');
+      return;
+    }
+
+    try {
+      final payload = jsonDecode(response.payload!) as Map<String, dynamic>;
+      final type = payload['type'] as String?;
+      final id = payload['id'] as String?;
+
+      if (type == null || id == null) {
+        _logger.e('Notification payload is missing type or id');
+        return;
+      }
+
+      _logger.i('Parsed notification payload: type=$type, id=$id');
+
+      // It's good practice to ensure the router is available in the current context
+      // However, _router.go() should work if GoRouter is set up correctly.
+      // For robustness, consider checking if the current context has a GoRouter.
+      // But for this task, direct call to _router.go() is assumed.
+
+      switch (type) {
+        case 'chat':
+          // Assuming 'chat-detail' is a named route like '/chat/:roomId'
+          // If direct path: _router!.go('/chat/$id');
+          _router!.goNamed('chat-detail', pathParameters: {'roomId': id});
+          _logger.i('Navigating to chat detail for room ID: $id');
+          break;
+        case 'post':
+          // Assuming 'post-detail' is a named route like '/post/:postId'
+          // If direct path: _router!.go('/post/$id');
+          _router!.goNamed('post-detail', pathParameters: {'postId': id});
+          _logger.i('Navigating to post detail for post ID: $id');
+          break;
+        case 'profile':
+          // Assuming 'profile' is a named route like '/profile/:userId'
+          // If direct path: _router!.go('/profile/$id');
+          _router!.goNamed('profile', pathParameters: {'userId': id});
+          _logger.i('Navigating to profile for user ID: $id');
+          break;
+        default:
+          _logger.w('Unknown notification type: $type');
+      }
+    } on FormatException catch (e) {
+      _logger.e('Error parsing notification payload: $e. Payload: ${response.payload}');
+    } on Exception catch (e) {
+      _logger.e('An unexpected error occurred during notification tap handling: $e');
+    }
   }
 
   /// Show a local notification from a Firebase message

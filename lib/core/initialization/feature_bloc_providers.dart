@@ -37,6 +37,15 @@ import '../../features/user/domain/usecases/update_user_profile.dart'
     as user_profile;
 import '../../features/user/presentation/blocs/user_bloc.dart';
 
+// Story Feature Imports
+import '../../features/story/presentation/blocs/story_bloc.dart';
+import '../../domain/repositories/story_repository.dart';
+import '../../domain/usecases/story/add_story_usecase.dart';
+import '../../domain/usecases/story/get_followed_users_active_stories_usecase.dart';
+import '../../domain/usecases/story/get_active_stories_for_user_usecase.dart';
+import '../../domain/usecases/user/get_user_data_usecase.dart'; // For StoryBloc dependency
+
+
 /// Empty implementation of [RecentSearchesLocalDataSource] for initialization
 class _EmptyRecentSearchesDataSource implements RecentSearchesLocalDataSource {
   @override
@@ -56,13 +65,16 @@ class FeatureBlocProviders {
     required AuthRepositoryImpl authRepository,
     required CachedPostRepositoryImpl postRepository,
     required ChatRepositoryImpl chatRepository,
+    required StoryRepository storyRepository, // Added
   })  : _authRepository = authRepository,
         _postRepository = postRepository,
-        _chatRepository = chatRepository;
+        _chatRepository = chatRepository,
+        _storyRepository = storyRepository; // Added
 
   final AuthRepositoryImpl _authRepository;
   final CachedPostRepositoryImpl _postRepository;
   final ChatRepositoryImpl _chatRepository;
+  final StoryRepository _storyRepository; // Added
 
   /// Create an empty data source for the search bloc
   RecentSearchesLocalDataSource _createEmptyDataSource() =>
@@ -133,6 +145,26 @@ class FeatureBlocProviders {
                   UpdateUserProfileUseCase(_authRepository),
               followUserUseCase: FollowUserUseCase(userRepository),
               unfollowUserUseCase: UnfollowUserUseCase(userRepository),
+            );
+          },
+        ),
+
+        // Story BLoC
+        BlocProvider<StoryBloc>(
+          create: (context) {
+            // Create an adapter to use AuthRepository as UserRepository for GetUserDataUseCase
+            // This matches the pattern used in UserBloc and ProfileBloc
+            final userRepositoryAdapter = AuthUserRepositoryAdapter(
+              authRepository: _authRepository,
+            );
+            return StoryBloc(
+              addStoryUseCase: AddStoryUseCase(_storyRepository),
+              getFollowedUsersActiveStoriesUseCase:
+                  GetFollowedUsersActiveStoriesUseCase(_storyRepository),
+              getActiveStoriesForUserUseCase:
+                  GetActiveStoriesForUserUseCase(_storyRepository),
+              getUserDataUseCase: GetUserDataUseCase(userRepositoryAdapter), // Use adapter
+              authBloc: BlocProvider.of<AuthBloc>(context), // Get AuthBloc from context
             );
           },
         ),

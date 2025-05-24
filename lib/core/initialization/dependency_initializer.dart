@@ -19,6 +19,13 @@ import '../../features/post/data/repositories/cached_post_repository_impl.dart';
 import '../network/network_info.dart';
 import '../services/logger_service.dart';
 
+// Story Feature Imports
+import '../../domain/repositories/story_repository.dart';
+import '../../data/repositories/story_repository_impl.dart';
+import '../../data/datasources/remote/story_remote_datasource.dart'; // Contains both interface and impl
+import 'package:uuid/uuid.dart';
+
+
 /// Handles dependency initialization and provides repositories
 class DependencyInitializer {
   /// Constructor
@@ -35,6 +42,7 @@ class DependencyInitializer {
   late final AuthRepositoryImpl _authRepository;
   late final CachedPostRepositoryImpl _postRepository;
   late final ChatRepositoryImpl _chatRepository;
+  late final StoryRepository _storyRepository; // Added
 
   /// Initialize all dependencies
   Future<void> initialize() async {
@@ -100,6 +108,17 @@ class DependencyInitializer {
         networkInfo: _networkInfo,
       );
 
+      // Story feature
+      final storyRemoteDataSource = StoryRemoteDataSourceImpl(
+        firestore: firestore,
+        storage: firebaseStorage,
+        uuid: const Uuid(), // Use const Uuid() if possible, or Uuid()
+      );
+      _storyRepository = StoryRepositoryImpl(
+        remoteDataSource: storyRemoteDataSource,
+        networkInfo: _networkInfo,
+      );
+
       _logger.i('Firebase services initialized successfully');
     } on Exception catch (e) {
       _logger.e('Error initializing Firebase services: $e');
@@ -138,4 +157,30 @@ class DependencyInitializer {
   AuthRepositoryImpl get authRepository => _authRepository;
   CachedPostRepositoryImpl get postRepository => _postRepository;
   ChatRepositoryImpl get chatRepository => _chatRepository;
+  StoryRepository get storyRepository => _storyRepository; // Added
+}
+
+
+// Minimal Mock for StoryRepository for offline mode
+class MockStoryRepositoryImpl implements StoryRepository {
+  @override
+  Future<Either<Failure, void>> addStory({
+    required File imageFile,
+    required String userId,
+    required String username,
+    required String userProfileImageUrl,
+  }) async {
+    return Left(NetworkFailure(message: "Offline mode: Cannot add story."));
+  }
+
+  @override
+  Future<Either<Failure, List<Story>>> getActiveStoriesForUser(String userId) async {
+    return const Right([]); // Return empty list in offline mode
+  }
+
+  @override
+  Future<Either<Failure, List<Story>>> getFollowedUsersActiveStories(
+      List<String> followedUserIds) async {
+    return const Right([]); // Return empty list in offline mode
+  }
 }

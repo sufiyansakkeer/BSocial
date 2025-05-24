@@ -10,6 +10,7 @@ import '../config/app_config.dart';
 import '../routes/app_router.dart';
 import '../services/hive_service.dart';
 import '../services/logger_service.dart';
+import '../utils/notification_utils.dart';
 import 'dependency_initializer.dart';
 import 'feature_bloc_providers.dart';
 import 'firebase_initializer.dart';
@@ -87,10 +88,14 @@ class AppInitializer {
       authRepository: dependencyInitializer.authRepository,
       postRepository: dependencyInitializer.postRepository,
       chatRepository: dependencyInitializer.chatRepository,
+      storyRepository: dependencyInitializer.storyRepository, // Added
     );
 
     // Create router
     final router = createAppRouter();
+
+    // Initialize NotificationUtils with the router
+    NotificationUtils.initializeRouter(router);
 
     // Run the app
     runApp(

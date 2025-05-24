@@ -13,6 +13,7 @@ import '../../../../features/post/presentation/widgets/post_card.dart';
 import '../../../../features/post/presentation/widgets/post_skeleton_loader.dart';
 import '../../../../features/profile/presentation/pages/profile_page.dart';
 import '../../../../features/search/presentation/pages/search_page.dart';
+import '../../../story/presentation/widgets/story_reel_widget.dart'; // Added
 
 /// Home page with bottom navigation
 class HomePage extends StatefulWidget {
@@ -105,6 +106,13 @@ class _HomePageState extends State<HomePage> {
         return AppBar(
           title: const Text('BSocial'),
           actions: [
+            IconButton( // Added Create Story button
+              icon: const Icon(Icons.add_circle_outline),
+              tooltip: 'Create Story',
+              onPressed: () {
+                context.goNamed('create-story');
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.message),
               onPressed: () => context.go('/chats'),
@@ -184,8 +192,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// Build the feed screen
-  Widget _buildFeedScreen() => BlocBuilder<PostBloc, PostState>(
-        builder: (context, state) {
+  Widget _buildFeedScreen() {
+    // Wrap the feed content in a Column to include StoryReelWidget
+    return Column(
+      children: [
+        const StoryReelWidget(), // Added StoryReelWidget
+        Expanded( // Make sure the rest of the feed takes available space
+          child: BlocBuilder<PostBloc, PostState>(
+            builder: (context, state) {
           // Handle initial state
           if (state.status == PostStatus.initial) {
             // Trigger loading if we're in initial state
@@ -296,7 +310,11 @@ class _HomePageState extends State<HomePage> {
           // Default loading state for any other status
           return const PostSkeletonLoader();
         },
-      );
+          ),
+        ),
+      ],
+    );
+  }
 
   /// Build the posts list with refresh functionality
   Widget _buildPostsList(List<Post> posts, {bool isRefreshing = false}) =>

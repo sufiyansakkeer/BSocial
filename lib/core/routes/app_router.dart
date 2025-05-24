@@ -19,6 +19,8 @@ import '../../features/post/presentation/pages/add_post_page.dart';
 import '../../features/post/presentation/pages/post_detail_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/search/presentation/pages/search_page.dart';
+import '../../features/story/presentation/pages/create_story_page.dart'; // Added
+import '../../features/story/presentation/pages/story_view_page.dart'; // Added
 import '../../features/ui_showcase/presentation/pages/ui_showcase_page.dart';
 import '../../features/user/presentation/pages/user_list_page.dart';
 import '../services/logger_service.dart';
@@ -191,6 +193,28 @@ GoRouter createAppRouter() => GoRouter(
               path: 'ui-showcase',
               name: 'ui-showcase',
               builder: (context, state) => const UIShowcasePage(),
+            ),
+            // Story routes
+            GoRoute(
+              path: 'story/create',
+              name: 'create-story',
+              builder: (context, state) => const AuthWrapper(child: CreateStoryPage()),
+            ),
+            GoRoute(
+              path: 'story/view/:userId',
+              name: 'story-view',
+              builder: (context, state) {
+                final userId = state.pathParameters['userId'] ?? '';
+                // Basic error handling: if userId is empty, redirect to home or show error.
+                // For this task, we proceed assuming userId is valid as per instruction.
+                // if (userId.isEmpty) {
+                //   WidgetsBinding.instance.addPostFrameCallback((_) {
+                //      context.go('/');
+                //   });
+                //   return const Scaffold(body: Center(child: Text("User ID is missing for story view.")));
+                // }
+                return AuthWrapper(child: StoryViewPage(userId: userId));
+              },
             ),
           ],
         ),

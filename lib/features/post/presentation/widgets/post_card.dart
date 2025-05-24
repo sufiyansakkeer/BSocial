@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/design_system.dart';
@@ -100,6 +101,7 @@ class _PostCardState extends State<PostCard>
                   likeAnimation: _likeAnimation,
                 ),
                 _PostActionsWidget(
+                  post: widget.post, // Pass the post object
                   isLiked: isLiked,
                   onLikePressed: currentUserId != null
                       ? () => _likePost(context, currentUserId)
@@ -298,11 +300,13 @@ class _PostImageWidget extends StatelessWidget {
 
 class _PostActionsWidget extends StatelessWidget {
   const _PostActionsWidget({
+    required this.post, // Add post field
     required this.isLiked,
     required this.onLikePressed,
     required this.onCommentPressed,
   });
 
+  final Post post; // Declare post field
   final bool isLiked;
   final VoidCallback? onLikePressed;
   final VoidCallback onCommentPressed;
@@ -332,12 +336,18 @@ class _PostActionsWidget extends StatelessWidget {
             IconButton(
               onPressed: () {
                 HapticFeedback.lightImpact();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Sharing coming soon!'),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
+                final String postDescription = post.description;
+                final String postUser = post.username;
+                final String postImageURL = post.postUrl;
+
+                String shareText =
+                    'Check out this post by $postUser: "$postDescription"';
+                if (postImageURL.isNotEmpty) {
+                  // Assuming postUrl is a direct link to the image/content.
+                  // For a real app, this might be a deep link to the post within the app.
+                  shareText += '\nSee it here: $postImageURL';
+                }
+                Share.share(shareText);
               },
               style: DesignSystem.iconButton(context),
               icon: const Icon(
