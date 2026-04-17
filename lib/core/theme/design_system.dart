@@ -9,7 +9,7 @@ class DesignSystem {
 
   /// Typography styles
   static final typography = BSTypography();
-  
+
   /// Elevation levels
   static const double elevationLevel0 = 0;
   static const double elevationLevel1 = 1;
@@ -17,34 +17,34 @@ class DesignSystem {
   static const double elevationLevel3 = 6;
   static const double elevationLevel4 = 8;
   static const double elevationLevel5 = 12;
-  
+
   /// Shadow styles
   static List<BoxShadow> get subtleShadow => [
-    BoxShadow(
-      color: Colors.black.withAlpha(13), // 0.05 opacity
-      blurRadius: 4,
-      offset: const Offset(0, 2),
-    ),
-  ];
+        BoxShadow(
+          color: Colors.black.withAlpha(13), // 0.05 opacity
+          blurRadius: 4,
+          offset: const Offset(0, 2),
+        ),
+      ];
 
   static List<BoxShadow> get mediumShadow => [
-    BoxShadow(
-      color: Colors.black.withAlpha(20), // 0.08 opacity
-      blurRadius: 8,
-      offset: const Offset(0, 4),
-    ),
-  ];
+        BoxShadow(
+          color: Colors.black.withAlpha(20), // 0.08 opacity
+          blurRadius: 8,
+          offset: const Offset(0, 4),
+        ),
+      ];
 
   static List<BoxShadow> get emphasizedShadow => [
-    BoxShadow(
-      color: Colors.black.withAlpha(31), // 0.12 opacity
-      blurRadius: 16,
-      offset: const Offset(0, 8),
-    ),
-  ];
-  
+        BoxShadow(
+          color: Colors.black.withAlpha(31), // 0.12 opacity
+          blurRadius: 16,
+          offset: const Offset(0, 8),
+        ),
+      ];
+
   /// Button styles
-  static ButtonStyle primaryButton(BuildContext context) => 
+  static ButtonStyle primaryButton(BuildContext context) =>
       ElevatedButton.styleFrom(
         elevation: elevationLevel1,
         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -61,7 +61,7 @@ class DesignSystem {
         ),
       );
 
-  static ButtonStyle secondaryButton(BuildContext context) => 
+  static ButtonStyle secondaryButton(BuildContext context) =>
       ElevatedButton.styleFrom(
         elevation: elevationLevel0,
         backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -78,7 +78,7 @@ class DesignSystem {
         ),
       );
 
-  static ButtonStyle outlinedButton(BuildContext context) => 
+  static ButtonStyle outlinedButton(BuildContext context) =>
       OutlinedButton.styleFrom(
         foregroundColor: Theme.of(context).colorScheme.primary,
         padding: const EdgeInsets.symmetric(
@@ -97,8 +97,7 @@ class DesignSystem {
         ),
       );
 
-  static ButtonStyle textButton(BuildContext context) => 
-      TextButton.styleFrom(
+  static ButtonStyle textButton(BuildContext context) => TextButton.styleFrom(
         foregroundColor: Theme.of(context).colorScheme.primary,
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -110,8 +109,7 @@ class DesignSystem {
         textStyle: typography.labelLarge,
       );
 
-  static ButtonStyle iconButton(BuildContext context) => 
-      IconButton.styleFrom(
+  static ButtonStyle iconButton(BuildContext context) => IconButton.styleFrom(
         foregroundColor: Theme.of(context).colorScheme.onSurface,
         backgroundColor: Colors.transparent,
         shape: const CircleBorder(),
